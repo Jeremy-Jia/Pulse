@@ -4,6 +4,18 @@
 
 > Local-first performance telemetry and native benchmarking for rooted Android devices.
 
+## 下载
+
+[下载 Pulse 1.0.0 APK](releases/Pulse-1.0.0.apk)
+
+当前 APK 是面向 ARM64 测试设备的开发签名版本，已在小米 15 / Android 17 / KernelSU 上完成实机验证。SHA-256：
+
+```text
+F72AAA09E41937386899B64AC4E585533FC64402262A3DCBE9CF89DEF71EE813
+```
+
+安装更新时需要保持签名一致；正式发布前应改用单独保管的发行签名。
+
 ## 功能概览
 
 - 可配置的实时悬浮窗与常驻通知，支持主题、字号、透明度、尺寸、拖动、折叠及触摸穿透。
