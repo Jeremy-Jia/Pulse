@@ -1,0 +1,43 @@
+[
+  {
+    "case": "invalid_hex",
+    "pass": true,
+    "exit_code": 2,
+    "error": "Invalid raw event: require unique 0x hexadecimal values, 1-16 digits, at most 8"
+  },
+  {
+    "case": "negative",
+    "pass": true,
+    "exit_code": 2,
+    "error": "Invalid raw event: require unique 0x hexadecimal values, 1-16 digits, at most 8"
+  },
+  {
+    "case": "duplicate",
+    "pass": true,
+    "exit_code": 2,
+    "error": "Invalid raw event: require unique 0x hexadecimal values, 1-16 digits, at most 8"
+  },
+  {
+    "case": "overflow",
+    "pass": true,
+    "exit_code": 2,
+    "error": "Invalid raw event: require unique 0x hexadecimal values, 1-16 digits, at most 8"
+  },
+  {
+    "case": "missing_value",
+    "pass": true,
+    "exit_code": 2,
+    "error": "Invalid or missing argument: --raw-event"
+  },
+  {
+    "case": "ninth_event",
+    "pass": true,
+    "exit_code": 2,
+    "error": "Invalid raw event: require unique 0x hexadecimal values, 1-16 digits, at most 8"
+  },
+  {
+    "case": "exactly_eight_events",
+    "pass": true,
+    "pmu_count": 28
+  }
+]

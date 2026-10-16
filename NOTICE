@@ -1,0 +1,8 @@
+Pulse
+Copyright 2026 Jeremy Jia
+
+Original Pulse source code is licensed under the Apache License, Version 2.0.
+
+Third-party benchmark sources under app/src/main/cpp/vendor are not covered by
+the Pulse license. Their original notices and terms are retained in place. See
+docs/BENCHMARKS.md and app/src/main/cpp/vendor-lock.json for exact provenance.

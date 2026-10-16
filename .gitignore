@@ -1,0 +1,22 @@
+# Android / Gradle outputs
+.gradle/
+build/
+**/build/
+.idea/
+*.iml
+.externalNativeBuild/
+.cxx/
+
+# Machine-local configuration
+local.properties
+*.jks
+*.keystore
+
+# Native executables generated from the pinned sources during the build
+app/src/main/jniLibs/**/*.so
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp

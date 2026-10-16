@@ -1,0 +1,54 @@
+{
+  "device": "Xiaomi 15 / dada",
+  "purpose": "Functional verification only; monitoring was active, scores are not a controlled performance publication",
+  "coremark_upstream_checksums_match": false,
+  "coremark_performance_crc_pass": true,
+  "coremark_validation_crc_pass": true,
+  "cases": [
+    {
+      "case": "coremark",
+      "result": "completed",
+      "score_valid": true,
+      "elapsed_seconds": 11.358208,
+      "pmu_available": 17,
+      "source": "coremark.ndjson"
+    },
+    {
+      "case": "dhrystone",
+      "result": "completed",
+      "score_valid": true,
+      "elapsed_seconds": 11.280328,
+      "pmu_available": 17,
+      "source": "dhrystone.ndjson"
+    },
+    {
+      "case": "whetstone-retest",
+      "result": "completed",
+      "score_valid": true,
+      "elapsed_seconds": 10.839203,
+      "pmu_available": 17,
+      "source": "whetstone-retest.ndjson"
+    },
+    {
+      "case": "custom-timeout",
+      "result": "timeout",
+      "score_valid": false,
+      "elapsed_seconds": 1.028482,
+      "pmu_available": 17,
+      "source": "custom-timeout.ndjson"
+    },
+    {
+      "case": "cancellation",
+      "result": "cancelled",
+      "score_valid": false,
+      "elapsed_seconds": 0.671049,
+      "pmu_available": 17,
+      "source": "cancellation.ndjson"
+    }
+  ],
+  "wrapper_sha256": "ce9118cd07028d2b0f7703f29dd065a90e60774babb7a16968c139181c2d1c3f",
+  "cancelled_child_remaining": false,
+  "note": "Whetstone initial run below target was correctly invalid; adaptive calibration added and retest passed.",
+  "coremark_algorithm_md5_match": true,
+  "coremark_header_checksum_note": "Official pinned HEAD includes upstream comment typo fix 4ee6ecaa9a081bc3378afc0f58f2f35b61f10b55 (ultithread to multithread), but upstream coremark.md5 still contains the older header hash. All five algorithm C files match upstream MD5; all downloaded files are pinned by SHA256 in vendor-lock.json."
+}

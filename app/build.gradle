@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'dev.pulse.monitor'
+    compileSdk 36
+    buildToolsVersion '36.0.0'
+
+    defaultConfig {
+        applicationId 'dev.pulse.monitor'
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '1.0.0'
+        testInstrumentationRunner 'dev.pulse.monitor.MonitorInstrumentation'
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            // Local test builds only. Replace this with a private release key before publishing.
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    packaging {
+        jniLibs {
+            // PIE executables are packaged using the native-library installation path.
+            useLegacyPackaging = true
+            keepDebugSymbols += ['**/libpulsebench.so', '**/libcoremark.so', '**/libdhrystone.so', '**/libwhetstone.so']
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+def bundledPython = new File(System.getProperty('user.home'), '.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe')
+def pythonCommand = System.getenv('PULSE_PYTHON') ?: (bundledPython.exists() ? bundledPython.absolutePath : 'python3')
+def nativeOutputDir = file('src/main/jniLibs/arm64-v8a')
+tasks.register('buildPulseBenchmarks', Exec) {
+    description = 'Build pinned ARM64 benchmark sources and the read-only perf wrapper'
+    group = 'build'
+    inputs.files(fileTree('src/main/cpp'))
+    inputs.property('ndkVersion', '29.0.14206865')
+    outputs.files(['libpulsebench.so', 'libcoremark.so', 'libdhrystone.so', 'libwhetstone.so'].collect { new File(nativeOutputDir, it) })
+    commandLine pythonCommand, file('src/main/cpp/build_native.py').absolutePath
+}
+tasks.named('preBuild').configure { dependsOn 'buildPulseBenchmarks' }

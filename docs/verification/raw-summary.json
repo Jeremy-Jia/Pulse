@@ -1,0 +1,7 @@
+{
+  "wrapper_sha256": "9a3d281adb7f5736c8772b96704d7bc84dc4dc614aa9d134b318bbd77560d19e",
+  "raw_event_0x11_available": true,
+  "event_source_count": 8,
+  "raw_argument_checks": "7 passed",
+  "report": "raw-arguments.json"
+}

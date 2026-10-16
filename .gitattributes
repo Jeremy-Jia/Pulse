@@ -1,0 +1,6 @@
+# Keep source hashes stable across Windows, macOS and Linux checkouts.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary
+*.so binary
