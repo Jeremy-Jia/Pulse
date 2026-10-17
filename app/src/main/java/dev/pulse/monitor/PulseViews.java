@@ -149,22 +149,26 @@ final class PulseViews {
             p.setColor(Color.rgb(11,18,29));canvas.drawRoundRect(0,0,w,h,16*d,16*d,p);
             p.setColor(Color.rgb(29,42,58));for(float y=16*d;y<h;y+=18*d)for(float x=16*d;x<w;x+=18*d)canvas.drawCircle(x,y,.7f*d,p);
             int accent=MINT;String theme=prefs.getString("theme","mint");if("ice".equals(theme))accent=Color.rgb(139,203,255);if("amber".equals(theme))accent=Color.rgb(255,204,131);if("mono".equals(theme))accent=Color.rgb(232,238,249);
-            float boxW=Math.min(w-36*d,prefs.getInt("overlay_width",210)*d),text=prefs.getInt("overlay_size",12)*d;
+            float boxW=Math.min(w-36*d,Math.max(100,Math.min(320,prefs.getInt("overlay_width",210)))*d);
+            int font=Math.max(10,Math.min(22,prefs.getInt("overlay_size",12)));
+            float text=font*getResources().getDisplayMetrics().scaledDensity;
             List<MetricsSnapshot.Metric> chosen=new ArrayList<>();List<MetricsSnapshot.Metric> all=snapshot==null?MetricsCollector.catalog():snapshot.metrics;
             for(MetricsSnapshot.Metric m:all) if(prefs.isMetricEnabled(m.id)){chosen.add(m);if(chosen.size()==5)break;}
-            boolean compact=prefs.getBoolean("compact",true);float rowH=text+(compact?9:14)*d,boxH=Math.min(h-30*d,39*d+Math.max(1,chosen.size())*rowH);
+            if(chosen.isEmpty())return;
+            int style=prefs.getBoolean("overlay_bold",false)?Typeface.BOLD:Typeface.NORMAL;
+            boolean compact=prefs.getBoolean("compact",true);float rowH=text*1.2f+(compact?2:8)*d,boxH=Math.min(h-30*d,4*d+chosen.size()*rowH);
             float x=(w-boxW)/2,y=(h-boxH)/2;
-            p.setColor(Color.argb(Math.round(prefs.getInt("overlay_alpha",88)*2.55f),19,29,43));canvas.drawRoundRect(x,y,x+boxW,y+boxH,13*d,13*d,p);
-            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(d);p.setColor(Color.argb(65,120,232,198));canvas.drawRoundRect(x,y,x+boxW,y+boxH,13*d,13*d,p);p.setStyle(Paint.Style.FILL);
-            p.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));p.setTextSize(10*d);p.setColor(accent);canvas.drawText("PULSE",x+13*d,y+21*d,p);p.setColor(Color.rgb(141,156,177));p.setTextSize(8*d);p.setTextAlign(Paint.Align.RIGHT);canvas.drawText("LIVE",x+boxW-13*d,y+21*d,p);p.setTextAlign(Paint.Align.LEFT);
-            if(chosen.isEmpty()){p.setColor(MUTED);p.setTextSize(11*d);canvas.drawText("在「指标」中选择显示内容",x+13*d,y+46*d,p);return;}
-            canvas.save();canvas.clipRect(x+10*d,y+30*d,x+boxW-10*d,y+boxH-5*d);
+            p.setColor(Color.argb(Math.round(prefs.getInt("overlay_alpha",88)*2.55f),13,22,33));canvas.drawRoundRect(x,y,x+boxW,y+boxH,4*d,4*d,p);
+            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(Math.max(1,.5f*d));p.setColor(Color.argb(65,120,232,198));canvas.drawRoundRect(x,y,x+boxW,y+boxH,4*d,4*d,p);p.setStyle(Paint.Style.FILL);
+            canvas.save();canvas.clipRect(x+3*d,y+2*d,x+boxW-3*d,y+boxH-2*d);
             for(int i=0;i<chosen.size();i++) {
-                MetricsSnapshot.Metric m=chosen.get(i);float yy=y+37*d+i*rowH+text;
+                MetricsSnapshot.Metric m=chosen.get(i);float yy=y+2*d+i*rowH+text;
                 String value=m.available?m.value+(m.unit==null||m.unit.isEmpty()?"":" "+m.unit):"—";
-                p.setTypeface(Typeface.create("monospace",Typeface.NORMAL));p.setTextSize(text);float valueWidth=p.measureText(value);
-                p.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));p.setTextSize(Math.min(12*d,text));p.setColor(Color.rgb(164,180,200));String label=m.label;float maxLabel=Math.max(0,boxW-35*d-valueWidth);while(label.length()>0&&p.measureText(label)>maxLabel)label=label.substring(0,label.length()-1);if(!label.equals(m.label)&&label.length()>1)label=label.substring(0,label.length()-1)+"…";canvas.drawText(label,x+13*d,yy,p);
-                p.setTextAlign(Paint.Align.RIGHT);p.setTypeface(Typeface.create("monospace",Typeface.NORMAL));p.setColor(accent);p.setTextSize(text);canvas.drawText(value,x+boxW-13*d,yy,p);p.setTextAlign(Paint.Align.LEFT);
+                p.setTypeface(Typeface.create("monospace",style));p.setTextSize(text);
+                value=android.text.TextUtils.ellipsize(value,new android.text.TextPaint(p),(boxW-6*d)*.62f,android.text.TextUtils.TruncateAt.END).toString();float valueWidth=p.measureText(value);
+                p.setTypeface(Typeface.create("sans-serif",style));p.setTextSize(text*(font-1f)/font);p.setColor(Color.rgb(164,180,200));
+                String label=android.text.TextUtils.ellipsize(m.label,new android.text.TextPaint(p),Math.max(0,boxW-9*d-valueWidth),android.text.TextUtils.TruncateAt.END).toString();canvas.drawText(label,x+3*d,yy,p);
+                p.setTextAlign(Paint.Align.RIGHT);p.setTypeface(Typeface.create("monospace",style));p.setColor(m.available?accent:0xff66778b);p.setTextSize(text);canvas.drawText(value,x+boxW-3*d,yy,p);p.setTextAlign(Paint.Align.LEFT);
             }
             canvas.restore();
         }

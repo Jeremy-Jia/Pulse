@@ -84,3 +84,9 @@ adb shell am instrument -w -r dev.pulse.monitor.test/dev.pulse.monitor.MonitorIn
 ```
 
 测试不修改配置或权限。Instrumentation 会启动新的目标应用进程，测试前应停止正在进行的跑分；已有监测服务可能被测试启动过程打断。KernelSU 授权由设备所有者在手机上完成。输出包含 `report_json`、真实可用指标数和 Root 状态；缺失硬件指标不会伪装成零。
+
+## 非 Root 兼容版验证
+
+本次 macOS 构建使用 JDK 17、上述 Gradle/AGP/API 36/Build Tools 版本及 NDK r30（30.0.16248370）。通过 `PULSE_NDK_HOME` 选择 NDK；`app/build/native/build-manifest.json` 记录实际 NDK source.properties，不能将 r30 构建误标为 r29。
+
+非 Root 功能、ADB 激活与限制见 [NON_ROOT.md](NON_ROOT.md)。测试 Runner 可传 `-e backend app|adb -e benchmark probe|coremark|dhrystone|whetstone|custom`；ADB 模式测试启动新的目标进程后会等待 25 秒，期间需重新执行激活脚本。HyperOS 可能冻结无可见 Activity 的 Instrumentation，需要同时使用 `adb shell am start --activity-single-top -n dev.pulse.monitor/.MainActivity` 保持目标可见。`-e cancel true` 检查中途取消；`-e overlay true` 检查 120 dp 窗口（附加 `-e overlay_width 100` 使用 100 dp / 10 sp）只含所选项、粗体、空选隐藏、锁定与物理屏幕贴边；`-e widget true` 注册临时 AppWidgetHost 验证实际 RemoteViews 渲染、滚动、样式切换、指标选择更新和点按采样。测试结束删除临时小部件并恢复原偏好，不在用户桌面放置小部件。Android 8–11 的集合工厂在本机测数据与行渲染，完整旧系统宿主仍需旧设备验证。

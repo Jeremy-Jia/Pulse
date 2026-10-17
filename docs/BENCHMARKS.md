@@ -51,14 +51,16 @@ CoreMark 使用 2000-byte 输入、单上下文，两组标准种子。只有两
 
 Dhrystone 输出 DMIPS（每秒 Dhrystone 次数除以 1757），核对关键最终变量。Whetstone 输出 MWIPS；其上游程序没有同等级的 CRC 自检，所以界面不能宣称经过官方 CRC 认证。
 
-`score_per_mhz` 优先使用 `cycles / task-clock` 得到的有效 MHz，硬件计数器不可用时使用每 100ms 读取的 `scaling_cur_freq` 均值。两者均为动态频率下的归一化估计；不是固定频率实验，也不满足官方 CoreMark/MHz 对内存/缓存频率比披露的完整条件。不会锁频、调压、改 CPU 调度器或写 sysctl。
+`score_per_mhz` 优先使用 `cycles / task-clock` 得到的有效 MHz，task-clock 不可用时尝试 wait4 进程 CPU 时间；硬件计数器不可用时使用每 100ms 读取的 `scaling_cur_freq` 均值。两者均为动态频率下的归一化估计；不是固定频率实验，也不满足官方 CoreMark/MHz 对内存/缓存频率比披露的完整条件。不会锁频、调压、改 CPU 调度器或写 sysctl。系统若改变绑核范围或运行核心，结果会标记亲和性不稳定，不提供指定核心的每 MHz 成绩。
 
 ## PMU
 
 通过 Linux `perf_event_open` 读取进程级用户态事件，并包含继承的子任务。计数覆盖正式性能进程（包含极少量启动和输出工作），不包含校准和 CoreMark 验证进程。提供通用 cycles、instructions、branch、cache、L1D/LLC、stalls、task-clock、切换、迁移和缺页事件。
 
-每项分别报告 `available`、`raw`、`scaled`、`time_enabled_ns`、`time_running_ns`、`running_ratio`、`errno` 和 `error`。不支持或权限拒绝保留原错误，计数为 null。复用计数按 enabled/running 比例缩放；不同事件可能在不同时间片运行，IPC 等比值是估计，必须结合运行比例解释。通用 cache 和 stall 事件依赖内核/SoC 映射，并不声称覆盖全部 Qualcomm 专用 PMU。
+每项分别报告 `available`、`raw`、`scaled`、`time_enabled_ns`、`time_running_ns`、`running_ratio`、`errno` 和 `error`。不支持或权限拒绝保留原错误，计数为 null。复用计数按 enabled/running 比例缩放；cycles 和 instructions 作为同一事件组调度，IPC 使用这两个事件的缩放值；其他事件可能在不同时间片运行，相关比值必须结合运行比例解释。通用 cache 和 stall 事件依赖内核/SoC 映射，并不声称覆盖全部 Qualcomm 专用 PMU。
 
 探测只测试当前权限下事件是否能打开和调度；真实跑分仍可能因内核策略、后台环境或所选 CPU 不同而拒绝部分事件。
 
 `--probe` 还返回 `/sys/bus/event_source/devices` 的实际目录清单：名称、type、cpus/cpumask、events 的原始编码和 format。最多列出 64 个设备、每设备 128 个事件及 32 个 format；这些信息用于查看内核公开的能力，不代表任意专用 PMU 已能通过当前通用事件接口采集。读取失败、无编码和不支持分别保留为错误或空值。
+
+非 Root 的访问模式、ADB 激活及限制见 [NON_ROOT.md](NON_ROOT.md)。

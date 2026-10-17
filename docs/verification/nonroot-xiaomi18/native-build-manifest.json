@@ -1,0 +1,10 @@
+{
+  "ndk": "Pkg.Desc = Android NDK\nPkg.Revision = 30.0.16248370\nPkg.BaseRevision = 30.0.16248370\nPkg.ReleaseName = r30\n",
+  "target": "aarch64-linux-android26",
+  "sha256": {
+    "libpulsebench.so": "a744e2b2119648ddb522beb569c1e193e2514a84587ae673bb03e2b387bcdea4",
+    "libwhetstone.so": "ec3dc42425bb86ec7521ffe44ecb39c440a6dbce82e730ef4727f736ead207f6",
+    "libcoremark.so": "68af72c5fb7501f3074e0e33981488b5e5784d21a056f82d02d6e41d95300089",
+    "libdhrystone.so": "332f5fa48dd1e0dc33acb3254ba60386843bc6cc152fe183efbdf580f6f58550"
+  }
+}

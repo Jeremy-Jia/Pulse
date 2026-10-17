@@ -40,15 +40,15 @@ public final class MetricsCollector implements AutoCloseable {
 
     public static List<Metric> catalog() {
         List<Metric> out = new ArrayList<>();
-        def(out,"cpu_usage","CPU 使用率","CPU","%","/proc/stat 两次采样的忙碌时间差");
-        def(out,"cpu_temp_avg","CPU 平均温度","CPU","°C","已识别 CPU 温度传感器的算术平均");
+        def(out,"cpu_usage","CPU 负载","CPU","%","/proc/stat 两次采样的忙碌时间差");
+        def(out,"cpu_temp_avg","CPU 温度","CPU","°C","已识别 CPU 温度传感器的算术平均");
         def(out,"cpu_temp_max","CPU 最高温度","CPU","°C","已识别 CPU 温度传感器的最大值");
         for (int i=0;i<8;i++) {
-            def(out,"cpu_freq_"+i,"CPU "+i+" 频率","CPU","MHz","cpufreq/scaling_cur_freq；共享策略的核可能同频");
-            def(out,"cpu_usage_"+i,"CPU "+i+" 使用率","CPU","%","/proc/stat 核心时间差");
-            def(out,"cpu_temp_"+i,"CPU "+i+" 核温","CPU","°C","未验证传感器与逻辑核映射，请使用单独的温度传感器");
-            def(out,"cpu_max_freq_"+i,"CPU "+i+" 最高频率","CPU","MHz","cpufreq/cpuinfo_max_freq；驱动报告的硬件上限");
-            def(out,"cpu_cluster_"+i,"CPU "+i+" 核心类型","CPU","","cpufreq 共享策略和最高频率；仅已验证机型标注架构角色");
+            def(out,"cpu_freq_"+i,"核"+i+"频率","CPU","MHz","cpufreq/scaling_cur_freq；共享策略的核可能同频");
+            def(out,"cpu_usage_"+i,"核"+i+"负载","CPU","%","/proc/stat 核心时间差");
+            def(out,"cpu_temp_"+i,"核"+i+"温度","CPU","°C","未验证传感器与逻辑核映射，请使用单独的温度传感器");
+            def(out,"cpu_max_freq_"+i,"核"+i+"上限","CPU","MHz","cpufreq/cpuinfo_max_freq；驱动报告的硬件上限");
+            def(out,"cpu_cluster_"+i,"核"+i+"簇","CPU","","cpufreq 共享策略和最高频率；仅已验证机型标注架构角色");
         }
         def(out,"gpu_usage","GPU 使用率","GPU","%","Qualcomm KGSL gpubusy 的忙碌/总时间");
         def(out,"gpu_freq","GPU 频率","GPU","MHz","Qualcomm KGSL gpuclk");
@@ -71,7 +71,7 @@ public final class MetricsCollector implements AutoCloseable {
         def(out,"fps","前台帧率","屏幕","fps","前台图层的实际呈现时间；不以屏幕 Hz 代替");
         def(out,"layer_fps","图层更新率","屏幕","fps","前台图层 frameReady 时间；不代表实际呈现或游戏 FPS");
         def(out,"refresh_rate","屏幕刷新率","屏幕","Hz","Display.getRefreshRate；不是应用帧率");
-        def(out,"root_status","Root 状态","设备","","KernelSU / su 授权状态");
+        def(out,"root_status","访问模式","设备","","普通权限 / ADB shell / Root");
         def(out,"sample_duration","采样耗时","设备","ms","本次读取耗时");
         def(out,"sample_core_ms","核心读取耗时","设备","ms","CPU、内存、电池和 GPU 原始数据的读取耗时");
         def(out,"sample_thermal_ms","温度读取耗时","设备","ms","具名热传感器的读取和处理耗时");
@@ -127,9 +127,9 @@ public final class MetricsCollector implements AutoCloseable {
         temperatures(values,raw);
         put(values,"sample_thermal_ms",SystemClock.elapsedRealtime()-thermalStart,0);
         long frameStart=SystemClock.elapsedRealtime();
-        if (hasRoot && frameRateEnabled) frames.collect(root,values);
+        if (root.isPrivileged() && frameRateEnabled) frames.collect(root,values);
         put(values,"sample_frame_ms",SystemClock.elapsedRealtime()-frameStart,0);
-        text(values,"root_status",root.status(),true,root.isRoot()?"持久 su 会话，仅执行读取":"基础指标仍可使用");
+        text(values,"root_status",root.status(),true,AdbBridge.available()?"ADB shell 辅助进程 · 仅本应用可调用":root.isRoot()?"持久 su 会话，仅执行读取":"普通权限 · 未开放接口显示不可用");
         put(values,"sample_duration",SystemClock.elapsedRealtime()-start,0);
         return new MetricsSnapshot(System.currentTimeMillis(),new ArrayList<>(values.values()),
                 root.isRoot(),cpuCount,root.status());
@@ -211,20 +211,20 @@ public final class MetricsCollector implements AutoCloseable {
                 if(prev!=null && total>prev[0]) {
                     double usage=100.0*(1.0-(idle-prev[1])/(double)(total-prev[0]));
                     String id=p[0].equals("cpu")?"cpu_usage":"cpu_usage_"+p[0].substring(3);
-                    if(!values.containsKey(id))values.put(id,new Metric(id,p[0]+" 使用率","CPU","—","%","/proc/stat",false));
+                    if(!values.containsKey(id))values.put(id,new Metric(id,"核"+p[0].substring(3)+"负载","CPU","—","%","/proc/stat",false));
                     put(values,id,Math.max(0,Math.min(100,usage)),1);
                 }
             } catch(NumberFormatException ignored) { }
         }
         for(int i=0;i<cpuCount;i++) {
             String id="cpu_freq_"+i;
-            if(!values.containsKey(id))values.put(id,new Metric(id,"CPU "+i+" 频率","CPU","—","MHz","cpufreq/scaling_cur_freq",false));
+            if(!values.containsKey(id))values.put(id,new Metric(id,"核"+i+"频率","CPU","—","MHz","cpufreq/scaling_cur_freq",false));
             put(values,id,number(raw.get("freq_"+i))/1000.0,0);
             double max=number(raw.get("max_freq_"+i));
             put(values,"cpu_max_freq_"+i,max/1000.0,0);
             String related=raw.get("related_"+i);
             if(related!=null && !related.isEmpty() && Double.isFinite(max)) {
-                String role="频率簇 "+related.trim().split("\\s+")[0];
+                String role="簇"+related.trim().split("\\s+")[0];
                 // Xiaomi 15's six Oryon performance + two Oryon prime cores are
                 // only named when both the device and its observed policy match.
                 if(Build.DEVICE.equals("dada") && cpuCount==8) {
@@ -232,8 +232,6 @@ public final class MetricsCollector implements AutoCloseable {
                     if(related.trim().equals("6 7") && max>4_200_000 && max<4_400_000)role="超大核";
                 }
                 text(values,"cpu_cluster_"+i,role,true,"共享策略核心 "+related+" · 最高 "+format(max/1e6,2)+" GHz");
-                label(values,id,"CPU "+i+" · "+role);
-                label(values,"cpu_usage_"+i,"CPU "+i+" · "+role+"负载");
             }
         }
     }
@@ -307,7 +305,7 @@ public final class MetricsCollector implements AutoCloseable {
             double degrees=number(raw.get("thermal:"+sensor.getKey()))/1000.0;
             boolean valid=Double.isFinite(degrees)&&degrees>=-40&&degrees<=180;
             String low=name.toLowerCase(Locale.ROOT);
-            boolean cpuSensor=low.matches("cpu-[0-9]+-[0-9]+-[0-9]+") || low.matches("cpu[0-9]+") || low.startsWith("cpu-therm");
+            boolean cpuSensor=low.matches("cpu-[0-9]+-[0-9]+(?:-[0-9]+)?") || low.matches("cpu[0-9]+") || low.startsWith("cpu-therm");
             boolean gpuSensor=low.startsWith("gpuss")||low.startsWith("gpu");
             String group=cpuSensor?"CPU 传感器":gpuSensor?"GPU 传感器":"温度传感器";
             String id="thermal_"+name.replaceAll("[^A-Za-z0-9]","_");

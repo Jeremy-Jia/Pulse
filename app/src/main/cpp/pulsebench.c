@@ -14,6 +14,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
+#include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -53,7 +54,8 @@ static char raw_names[8][32];
 typedef struct { int fd, error; uint64_t raw, enabled, running; } Event;
 typedef struct {
  char output[OUT_CAP]; size_t used; int truncated, exit_code, signal, timed_out, cancelled, affinity_error;
- double elapsed, freq_sum, freq_min, freq_max; int freq_samples;
+ int affinity_samples,affinity_changed;uint64_t observed_cpu_mask;
+ double cpu_seconds, elapsed, freq_sum, freq_min, freq_max; int freq_samples;
  Event events[MAX_EVENTS];
 } Run;
 static volatile sig_atomic_t cancelled = 0;
@@ -68,13 +70,26 @@ static void string_json(const char *s) {
  } putchar('"');
 }
 static void number_json(double n) { if(isfinite(n))printf("%.9g",n);else fputs("null",stdout); }
-static int event_open(Event *e,int i,pid_t pid) {
+static int event_open(Event *e,int i,pid_t pid,int group) {
  struct perf_event_attr a; memset(&a,0,sizeof(a));a.size=sizeof(a);a.type=specs[i].type;a.config=specs[i].config;
  a.disabled=1;a.inherit=1;a.exclude_kernel=1;a.exclude_hv=1;
  a.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED|PERF_FORMAT_TOTAL_TIME_RUNNING;
- e->fd=(int)syscall(__NR_perf_event_open,&a,pid,-1,-1,PERF_FLAG_FD_CLOEXEC);
+ e->fd=(int)syscall(__NR_perf_event_open,&a,pid,-1,group,PERF_FLAG_FD_CLOEXEC);
  e->error=e->fd<0?errno:0;
  return e->fd;
+}
+static void events_start(Event *events,pid_t pid) {
+ for(int i=0;i<EVENT_COUNT;i++) {
+  events[i].fd=-1;
+  event_open(&events[i],i,pid,i==1?events[0].fd:-1);
+ }
+ for(int i=0;i<EVENT_COUNT;i++)if(i!=1&&events[i].fd>=0)
+  ioctl(events[i].fd,PERF_EVENT_IOC_ENABLE,i==0?PERF_IOC_FLAG_GROUP:0);
+ // If cycles is unsupported, instructions was opened independently.
+ if(events[0].fd<0&&events[1].fd>=0)ioctl(events[1].fd,PERF_EVENT_IOC_ENABLE,0);
+}
+static void events_stop(Event *events) {
+ if(events[0].fd>=0)ioctl(events[0].fd,PERF_EVENT_IOC_DISABLE,PERF_IOC_FLAG_GROUP);
 }
 static void event_finish(Event *e) {
  if(e->fd<0)return;
@@ -103,8 +118,20 @@ static double read_freq(int cpu) {
  FILE *f=fopen(path,"r");if(!f)return NAN;double khz=NAN;if(fscanf(f,"%lf",&khz)!=1)khz=NAN;fclose(f);
  return khz>0&&khz<1e8?khz/1000.0:NAN;
 }
-static void frequency_sample(Run *r,int cpu) {double f=read_freq(cpu);if(!isfinite(f))return;
- r->freq_sum+=f;if(!r->freq_samples||f<r->freq_min)r->freq_min=f;if(!r->freq_samples||f>r->freq_max)r->freq_max=f;r->freq_samples++;
+static void frequency_sample(Run *r,int cpu,pid_t pid) {
+ cpu_set_t set;CPU_ZERO(&set);
+ if(sched_getaffinity(pid,sizeof(set),&set)==0) {
+  r->affinity_samples++;
+  if(CPU_COUNT(&set)!=1||!CPU_ISSET(cpu,&set))r->affinity_changed=1;
+ }
+ int actual=-1;char path[128],stat[2048];snprintf(path,sizeof(path),"/proc/%d/stat",pid);
+ FILE *f=fopen(path,"r");
+ if(f){if(fgets(stat,sizeof(stat),f)) {char *end=strrchr(stat,')');
+  if(end){char *save=NULL,*part=strtok_r(end+2," ",&save);for(int field=3;part;field++,part=strtok_r(NULL," ",&save))if(field==39){actual=atoi(part);break;}}
+ }fclose(f);}
+ if(actual>=0&&actual<64){r->observed_cpu_mask|=1ULL<<actual;if(actual!=cpu)r->affinity_changed=1;}
+ double frequency=read_freq(actual>=0?actual:cpu);if(!isfinite(frequency))return;
+ r->freq_sum+=frequency;if(!r->freq_samples||frequency<r->freq_min)r->freq_min=frequency;if(!r->freq_samples||frequency>r->freq_max)r->freq_max=frequency;r->freq_samples++;
 }
 static void drain(int fd,Run *r) {
  char b[4096];ssize_t n;while((n=read(fd,b,sizeof(b)))>0){size_t room=OUT_CAP-1-r->used;size_t take=(size_t)n<room?(size_t)n:room;
@@ -128,12 +155,12 @@ static int run_child(const char *path,char *const args[],const char *input,int c
  int status=0;while(waitpid(pid,&status,WUNTRACED)<0&&errno==EINTR){}
  double start=seconds_now(),sample_at=start,cancel_at=0;
  if(WIFSTOPPED(status)) {
-  if(measure)for(int i=0;i<EVENT_COUNT;i++)if(event_open(&r->events[i],i,pid)>=0)ioctl(r->events[i].fd,PERF_EVENT_IOC_ENABLE,0);
+  if(measure)events_start(r->events,pid);
   kill(pid,SIGCONT);
   for(;;) {
-   drain(out[0],r);pid_t done=waitpid(pid,&status,WNOHANG);if(done==pid)break;if(done<0&&errno!=EINTR)break;
+   drain(out[0],r);struct rusage usage;memset(&usage,0,sizeof(usage));pid_t done=wait4(pid,&status,WNOHANG,&usage);if(done==pid){r->cpu_seconds=usage.ru_utime.tv_sec+usage.ru_utime.tv_usec/1e6+usage.ru_stime.tv_sec+usage.ru_stime.tv_usec/1e6;break;}if(done<0&&errno!=EINTR)break;
    double now=seconds_now();
-   if(measure&&now>=sample_at){frequency_sample(r,cpu);sample_at=now+.1;}
+   if(measure&&now>=sample_at){frequency_sample(r,cpu,pid);sample_at=now+.1;}
    if(cancelled||now-start>limit) {
     r->cancelled=cancelled!=0;r->timed_out=!cancelled;
     if(!cancel_at){kill(-pid,SIGTERM);cancel_at=now;}
@@ -143,7 +170,7 @@ static int run_child(const char *path,char *const args[],const char *input,int c
   }
  }
  r->elapsed=seconds_now()-start;
- if(measure)for(int i=0;i<EVENT_COUNT;i++)event_finish(&r->events[i]);
+ if(measure){events_stop(r->events);for(int i=0;i<EVENT_COUNT;i++)event_finish(&r->events[i]);}
  kill(-pid,SIGKILL);drain(out[0],r);close(out[0]);active_pid=0;
  if(WIFEXITED(status))r->exit_code=WEXITSTATUS(status);if(WIFSIGNALED(status))r->signal=WTERMSIG(status);
  return r->affinity_error?-1:0;
@@ -221,9 +248,9 @@ static void inventory_json(void) {
 }
 static int do_probe(void) {
  Event events[MAX_EVENTS];memset(events,0,sizeof(events));
- for(int i=0;i<EVENT_COUNT;i++){events[i].fd=-1;if(event_open(&events[i],i,0)>=0)ioctl(events[i].fd,PERF_EVENT_IOC_ENABLE,0);}
+ events_start(events,0);
  volatile uint64_t x=1;double end=seconds_now()+.06;while(seconds_now()<end)for(int j=0;j<10000;j++)x=x*1664525+1013904223;
- for(int i=0;i<EVENT_COUNT;i++)event_finish(&events[i]);
+ events_stop(events);for(int i=0;i<EVENT_COUNT;i++)event_finish(&events[i]);
  cpu_set_t set;CPU_ZERO(&set);int affinity_ok=sched_getaffinity(0,sizeof(set),&set)==0;
  fputs("{\"event\":\"result\",\"result\":\"probe\",\"schema\":1,\"allowed_cpus\":[",stdout);
  int first=1;if(affinity_ok)for(int i=0;i<CPU_SETSIZE;i++)if(CPU_ISSET(i,&set)){if(!first)putchar(',');printf("%d",i);first=0;}
@@ -245,7 +272,10 @@ int main(int argc,char **argv) {
   else if(!strcmp(argv[i],"--arg")&&i+1<argc&&arg_count<MAX_ARGS-2)custom[arg_count++]=argv[++i];
   else {fprintf(stderr,"Invalid or missing argument: %s\n",argv[i]);return 2;}
  }
- if(probe)return do_probe();
+ if(probe) {
+  if(cpu>=0&&cpu<CPU_SETSIZE){cpu_set_t set;CPU_ZERO(&set);CPU_SET(cpu,&set);if(sched_setaffinity(0,sizeof(set),&set)){perror("probe affinity");return 2;}}
+  return do_probe();
+ }
  if(cpu<0||cpu>=CPU_SETSIZE||!isfinite(target)||target<1||target>120||!kind||!path||path[0]!='/'||!validate_elf(path)) {
   fputs("Invalid CPU/duration or executable; expected an absolute ARM64 ELF path\n",stderr);return 2;
  }
@@ -311,15 +341,16 @@ int main(int argc,char **argv) {
  }
  double sampled=r->freq_samples?r->freq_sum/r->freq_samples:NAN;
  double cycles=scaled(&r->events[0]),instructions=scaled(&r->events[1]),task_ns=scaled(&r->events[14]);
- double effective=task_ns>0&&cycles>0?cycles/task_ns*1000.0:NAN;
+ double effective=cycles>0?(task_ns>0?cycles/task_ns*1000.0:r->cpu_seconds>0?cycles/r->cpu_seconds/1e6:NAN):NAN;
  double frequency=isfinite(effective)?effective:sampled;
  fputs("{\"event\":\"result\",\"schema\":1,\"result\":",stdout);string_json(state);
  fputs(",\"kind\":",stdout);string_json(kind);printf(",\"cpu\":%d,\"requested_seconds\":%.3f,\"elapsed_seconds\":%.6f,\"calibration_seconds\":%.6f,\"exit_code\":%d,\"signal\":%d,\"affinity_errno\":%d,\"timed_out\":%s,\"output_truncated\":%s",cpu,target,r->elapsed,calibration_seconds,r->exit_code,r->signal,r->affinity_error,r->timed_out?"true":"false",r->truncated?"true":"false");
  fputs(",\"score\":{\"value\":",stdout);number_json(score);fputs(",\"unit\":",stdout);string_json(unit);printf(",\"valid\":%s,\"detail\":",valid?"true":"false");string_json(detail);fputs("},\"benchmark_time_seconds\":",stdout);number_json(bench_time);
  printf(",\"frequency\":{\"samples\":%d,\"sampled_mean_mhz\":",r->freq_samples);number_json(sampled);fputs(",\"sampled_min_mhz\":",stdout);number_json(r->freq_samples?r->freq_min:NAN);fputs(",\"sampled_max_mhz\":",stdout);number_json(r->freq_samples?r->freq_max:NAN);fputs(",\"effective_mhz\":",stdout);number_json(effective);
- fputs(",\"normalization_source\":",stdout);string_json(isfinite(effective)?"user_cycles/task_clock":isfinite(sampled)?"100ms cpufreq sampling":"unavailable");fputs("},\"score_per_mhz\":",stdout);number_json(valid&&frequency>0?score/frequency:NAN);
- fputs(",\"ipc\":",stdout);number_json(cycles>0?instructions/cycles:NAN);fputs(",\"pmu\":",stdout);events_json(r->events);
- fputs(",\"pmu_scope\":\"Measurement process plus inherited children; userspace events; independently multiplexed generic perf events, raw counts with scaling and running ratio\",\"benchmark_stdout\":",stdout);string_json(r->output);
+ fputs(",\"normalization_source\":",stdout);string_json(isfinite(effective)?(task_ns>0?"user_cycles/task_clock":"user_cycles/wait4_cpu_time"):isfinite(sampled)?"100ms cpufreq sampling":"unavailable");fputs("},\"score_per_mhz\":",stdout);number_json(valid&&!r->affinity_changed&&frequency>0?score/frequency:NAN);
+ printf(",\"affinity_stable\":%s,\"affinity_samples\":%d,\"observed_cpu_mask\":%" PRIu64,r->affinity_samples&&!r->affinity_changed?"true":"false",r->affinity_samples,r->observed_cpu_mask);
+ fputs(",\"process_cpu_seconds\":",stdout);number_json(r->cpu_seconds);fputs(",\"ipc\":",stdout);number_json(cycles>0?instructions/cycles:NAN);fputs(",\"pmu\":",stdout);events_json(r->events);
+ fputs(",\"pmu_scope\":\"Measurement process plus inherited children; userspace events; cycles and instructions scheduled as one group; other perf events may multiplex, raw counts with scaling and running ratio\",\"benchmark_stdout\":",stdout);string_json(r->output);
  fputs(",\"validation_stdout\":",stdout);string_json(validation->output);fputs("}\n",stdout);fflush(stdout);
  free(r);free(validation);return 0;
 }

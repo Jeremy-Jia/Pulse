@@ -1,0 +1,2582 @@
+{
+  "result": "pass",
+  "parserChecks": "pass",
+  "first": {
+    "timestampMillis": 1792215486978,
+    "rootAvailable": false,
+    "rootStatus": "ADB 已连接 · 非 Root",
+    "cpuCount": 8,
+    "availableCount": 136,
+    "totalCount": 165,
+    "metrics": [
+      {
+        "id": "cpu_usage",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_avg",
+        "available": true,
+        "value": "57.6",
+        "unit": "°C",
+        "numeric": 57.56666666666667
+      },
+      {
+        "id": "cpu_temp_max",
+        "available": true,
+        "value": "59.5",
+        "unit": "°C",
+        "numeric": 59.5
+      },
+      {
+        "id": "cpu_freq_0",
+        "available": true,
+        "value": "3379",
+        "unit": "MHz",
+        "numeric": 3379.2
+      },
+      {
+        "id": "cpu_usage_0",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_0",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_0",
+        "available": true,
+        "value": "3744",
+        "unit": "MHz",
+        "numeric": 3744
+      },
+      {
+        "id": "cpu_cluster_0",
+        "available": true,
+        "value": "频率簇 0",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_1",
+        "available": true,
+        "value": "3379",
+        "unit": "MHz",
+        "numeric": 3379.2
+      },
+      {
+        "id": "cpu_usage_1",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_1",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_1",
+        "available": true,
+        "value": "3744",
+        "unit": "MHz",
+        "numeric": 3744
+      },
+      {
+        "id": "cpu_cluster_1",
+        "available": true,
+        "value": "频率簇 0",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_2",
+        "available": true,
+        "value": "3379",
+        "unit": "MHz",
+        "numeric": 3379.2
+      },
+      {
+        "id": "cpu_usage_2",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_2",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_2",
+        "available": true,
+        "value": "3744",
+        "unit": "MHz",
+        "numeric": 3744
+      },
+      {
+        "id": "cpu_cluster_2",
+        "available": true,
+        "value": "频率簇 0",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_3",
+        "available": true,
+        "value": "1440",
+        "unit": "MHz",
+        "numeric": 1440
+      },
+      {
+        "id": "cpu_usage_3",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_3",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_3",
+        "available": true,
+        "value": "4032",
+        "unit": "MHz",
+        "numeric": 4032
+      },
+      {
+        "id": "cpu_cluster_3",
+        "available": true,
+        "value": "频率簇 3",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_4",
+        "available": true,
+        "value": "1440",
+        "unit": "MHz",
+        "numeric": 1440
+      },
+      {
+        "id": "cpu_usage_4",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_4",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_4",
+        "available": true,
+        "value": "4032",
+        "unit": "MHz",
+        "numeric": 4032
+      },
+      {
+        "id": "cpu_cluster_4",
+        "available": true,
+        "value": "频率簇 3",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_5",
+        "available": true,
+        "value": "1440",
+        "unit": "MHz",
+        "numeric": 1440
+      },
+      {
+        "id": "cpu_usage_5",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_5",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_5",
+        "available": true,
+        "value": "4032",
+        "unit": "MHz",
+        "numeric": 4032
+      },
+      {
+        "id": "cpu_cluster_5",
+        "available": true,
+        "value": "频率簇 3",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_6",
+        "available": true,
+        "value": "1363",
+        "unit": "MHz",
+        "numeric": 1363.2
+      },
+      {
+        "id": "cpu_usage_6",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_6",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_6",
+        "available": true,
+        "value": "5011",
+        "unit": "MHz",
+        "numeric": 5011.2
+      },
+      {
+        "id": "cpu_cluster_6",
+        "available": true,
+        "value": "频率簇 6",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_7",
+        "available": true,
+        "value": "1363",
+        "unit": "MHz",
+        "numeric": 1363.2
+      },
+      {
+        "id": "cpu_usage_7",
+        "available": false,
+        "value": "—",
+        "unit": "%",
+        "numeric": null
+      },
+      {
+        "id": "cpu_temp_7",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_7",
+        "available": true,
+        "value": "5011",
+        "unit": "MHz",
+        "numeric": 5011.2
+      },
+      {
+        "id": "cpu_cluster_7",
+        "available": true,
+        "value": "频率簇 6",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "gpu_usage",
+        "available": true,
+        "value": "11.8",
+        "unit": "%",
+        "numeric": 11.849500634828596
+      },
+      {
+        "id": "gpu_freq",
+        "available": false,
+        "value": "—",
+        "unit": "MHz",
+        "numeric": null
+      },
+      {
+        "id": "gpu_temp",
+        "available": true,
+        "value": "51.1",
+        "unit": "°C",
+        "numeric": 51.09090909090909
+      },
+      {
+        "id": "gpu_temp_max",
+        "available": true,
+        "value": "53.1",
+        "unit": "°C",
+        "numeric": 53.1
+      },
+      {
+        "id": "mem_available",
+        "available": true,
+        "value": "4.65",
+        "unit": "GB",
+        "numeric": 4.647575552
+      },
+      {
+        "id": "mem_used",
+        "available": true,
+        "value": "11.24",
+        "unit": "GB",
+        "numeric": 11.242815488
+      },
+      {
+        "id": "mem_total",
+        "available": true,
+        "value": "15.89",
+        "unit": "GB",
+        "numeric": 15.89039104
+      },
+      {
+        "id": "mem_used_percent",
+        "available": true,
+        "value": "70.8",
+        "unit": "%",
+        "numeric": 70.75228960507695
+      },
+      {
+        "id": "swap_used",
+        "available": true,
+        "value": "2.35",
+        "unit": "GB",
+        "numeric": 2.34510336
+      },
+      {
+        "id": "battery_current",
+        "available": true,
+        "value": "-32",
+        "unit": "mA",
+        "numeric": -32
+      },
+      {
+        "id": "battery_voltage",
+        "available": true,
+        "value": "3.708",
+        "unit": "V",
+        "numeric": 3.708
+      },
+      {
+        "id": "battery_power",
+        "available": true,
+        "value": "0.12",
+        "unit": "W",
+        "numeric": 0.11865600000000001
+      },
+      {
+        "id": "battery_temp",
+        "available": true,
+        "value": "34.9",
+        "unit": "°C",
+        "numeric": 34.9
+      },
+      {
+        "id": "battery_level",
+        "available": true,
+        "value": "34",
+        "unit": "%",
+        "numeric": 34
+      },
+      {
+        "id": "battery_status",
+        "available": true,
+        "value": "充电中",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "battery_charge_counter",
+        "available": false,
+        "value": "—",
+        "unit": "mAh",
+        "numeric": null
+      },
+      {
+        "id": "battery_cycles",
+        "available": false,
+        "value": "—",
+        "unit": "次",
+        "numeric": null
+      },
+      {
+        "id": "soc_power",
+        "available": false,
+        "value": "—",
+        "unit": "W",
+        "numeric": null
+      },
+      {
+        "id": "fps",
+        "available": false,
+        "value": "—",
+        "unit": "fps",
+        "numeric": null
+      },
+      {
+        "id": "layer_fps",
+        "available": false,
+        "value": "—",
+        "unit": "fps",
+        "numeric": null
+      },
+      {
+        "id": "refresh_rate",
+        "available": true,
+        "value": "120",
+        "unit": "Hz",
+        "numeric": 120.00003051757812
+      },
+      {
+        "id": "root_status",
+        "available": true,
+        "value": "ADB 已连接 · 非 Root",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "sample_duration",
+        "available": true,
+        "value": "544",
+        "unit": "ms",
+        "numeric": 544
+      },
+      {
+        "id": "sample_core_ms",
+        "available": true,
+        "value": "207",
+        "unit": "ms",
+        "numeric": 207
+      },
+      {
+        "id": "sample_thermal_ms",
+        "available": true,
+        "value": "121",
+        "unit": "ms",
+        "numeric": 121
+      },
+      {
+        "id": "sample_frame_ms",
+        "available": true,
+        "value": "209",
+        "unit": "ms",
+        "numeric": 209
+      },
+      {
+        "id": "sample_platform_ms",
+        "available": true,
+        "value": "6",
+        "unit": "ms",
+        "numeric": 6
+      },
+      {
+        "id": "thermal_cpu_3_0",
+        "available": true,
+        "value": "57.5",
+        "unit": "°C",
+        "numeric": 57.5
+      },
+      {
+        "id": "thermal_cpu_3_1",
+        "available": true,
+        "value": "56.9",
+        "unit": "°C",
+        "numeric": 56.9
+      },
+      {
+        "id": "thermal_cpu_6_0",
+        "available": true,
+        "value": "58.2",
+        "unit": "°C",
+        "numeric": 58.2
+      },
+      {
+        "id": "thermal_cpu_6_1",
+        "available": true,
+        "value": "57.5",
+        "unit": "°C",
+        "numeric": 57.5
+      },
+      {
+        "id": "thermal_cpullc_0",
+        "available": true,
+        "value": "61.1",
+        "unit": "°C",
+        "numeric": 61.1
+      },
+      {
+        "id": "thermal_cpullc_1",
+        "available": true,
+        "value": "61.8",
+        "unit": "°C",
+        "numeric": 61.8
+      },
+      {
+        "id": "thermal_qmx_0",
+        "available": true,
+        "value": "57.0",
+        "unit": "°C",
+        "numeric": 57
+      },
+      {
+        "id": "thermal_qmx_1",
+        "available": true,
+        "value": "57.3",
+        "unit": "°C",
+        "numeric": 57.3
+      },
+      {
+        "id": "thermal_qmx_2",
+        "available": true,
+        "value": "57.3",
+        "unit": "°C",
+        "numeric": 57.3
+      },
+      {
+        "id": "thermal_qmx_3",
+        "available": true,
+        "value": "57.9",
+        "unit": "°C",
+        "numeric": 57.9
+      },
+      {
+        "id": "thermal_qmx_4",
+        "available": true,
+        "value": "56.6",
+        "unit": "°C",
+        "numeric": 56.6
+      },
+      {
+        "id": "thermal_cpu_0_0",
+        "available": true,
+        "value": "57.3",
+        "unit": "°C",
+        "numeric": 57.3
+      },
+      {
+        "id": "thermal_cpu_5_0",
+        "available": true,
+        "value": "58.9",
+        "unit": "°C",
+        "numeric": 58.9
+      },
+      {
+        "id": "thermal_cpu_0_1",
+        "available": true,
+        "value": "56.9",
+        "unit": "°C",
+        "numeric": 56.9
+      },
+      {
+        "id": "thermal_cpu_0_2",
+        "available": true,
+        "value": "57.3",
+        "unit": "°C",
+        "numeric": 57.3
+      },
+      {
+        "id": "thermal_cpu_1_0",
+        "available": true,
+        "value": "58.5",
+        "unit": "°C",
+        "numeric": 58.5
+      },
+      {
+        "id": "thermal_cpu_1_1",
+        "available": true,
+        "value": "58.2",
+        "unit": "°C",
+        "numeric": 58.2
+      },
+      {
+        "id": "thermal_cpu_1_2",
+        "available": true,
+        "value": "59.5",
+        "unit": "°C",
+        "numeric": 59.5
+      },
+      {
+        "id": "thermal_nspq6",
+        "available": true,
+        "value": "53.8",
+        "unit": "°C",
+        "numeric": 53.8
+      },
+      {
+        "id": "thermal_nspvxu_0",
+        "available": true,
+        "value": "54.8",
+        "unit": "°C",
+        "numeric": 54.8
+      },
+      {
+        "id": "thermal_nspvxu_1",
+        "available": true,
+        "value": "52.8",
+        "unit": "°C",
+        "numeric": 52.8
+      },
+      {
+        "id": "thermal_nspllv_0_0",
+        "available": true,
+        "value": "54.8",
+        "unit": "°C",
+        "numeric": 54.8
+      },
+      {
+        "id": "thermal_nspllv_0_1",
+        "available": true,
+        "value": "53.8",
+        "unit": "°C",
+        "numeric": 53.8
+      },
+      {
+        "id": "thermal_cpu_5_1",
+        "available": true,
+        "value": "56.9",
+        "unit": "°C",
+        "numeric": 56.9
+      },
+      {
+        "id": "thermal_nspllv_1_0",
+        "available": true,
+        "value": "52.8",
+        "unit": "°C",
+        "numeric": 52.8
+      },
+      {
+        "id": "thermal_nspllv_1_1",
+        "available": true,
+        "value": "52.8",
+        "unit": "°C",
+        "numeric": 52.8
+      },
+      {
+        "id": "thermal_nspmxutop",
+        "available": true,
+        "value": "53.4",
+        "unit": "°C",
+        "numeric": 53.4
+      },
+      {
+        "id": "thermal_nspmxu0_0_0",
+        "available": true,
+        "value": "53.4",
+        "unit": "°C",
+        "numeric": 53.4
+      },
+      {
+        "id": "thermal_nspmxu0_0_1",
+        "available": true,
+        "value": "52.2",
+        "unit": "°C",
+        "numeric": 52.2
+      },
+      {
+        "id": "thermal_nspmxu0_1_0",
+        "available": true,
+        "value": "54.7",
+        "unit": "°C",
+        "numeric": 54.7
+      },
+      {
+        "id": "thermal_nspmxu0_1_1",
+        "available": true,
+        "value": "52.5",
+        "unit": "°C",
+        "numeric": 52.5
+      },
+      {
+        "id": "thermal_nspmxu1_0_0",
+        "available": true,
+        "value": "51.8",
+        "unit": "°C",
+        "numeric": 51.8
+      },
+      {
+        "id": "thermal_nspmxu1_0_1",
+        "available": true,
+        "value": "53.1",
+        "unit": "°C",
+        "numeric": 53.1
+      },
+      {
+        "id": "thermal_nspmxu1_1_0",
+        "available": true,
+        "value": "52.2",
+        "unit": "°C",
+        "numeric": 52.2
+      },
+      {
+        "id": "thermal_cpu_7_0",
+        "available": true,
+        "value": "56.6",
+        "unit": "°C",
+        "numeric": 56.6
+      },
+      {
+        "id": "thermal_nspmxu1_1_1",
+        "available": true,
+        "value": "52.8",
+        "unit": "°C",
+        "numeric": 52.8
+      },
+      {
+        "id": "thermal_gpu_0_0",
+        "available": true,
+        "value": "50.5",
+        "unit": "°C",
+        "numeric": 50.5
+      },
+      {
+        "id": "thermal_gpu_0_1",
+        "available": true,
+        "value": "49.8",
+        "unit": "°C",
+        "numeric": 49.8
+      },
+      {
+        "id": "thermal_gpu_0_2",
+        "available": true,
+        "value": "48.9",
+        "unit": "°C",
+        "numeric": 48.9
+      },
+      {
+        "id": "thermal_gpu_1_0",
+        "available": true,
+        "value": "50.8",
+        "unit": "°C",
+        "numeric": 50.8
+      },
+      {
+        "id": "thermal_gpu_1_1",
+        "available": true,
+        "value": "48.9",
+        "unit": "°C",
+        "numeric": 48.9
+      },
+      {
+        "id": "thermal_gpu_1_2",
+        "available": true,
+        "value": "50.5",
+        "unit": "°C",
+        "numeric": 50.5
+      },
+      {
+        "id": "thermal_gpu_2_0",
+        "available": true,
+        "value": "52.1",
+        "unit": "°C",
+        "numeric": 52.1
+      },
+      {
+        "id": "thermal_gpu_2_1",
+        "available": true,
+        "value": "53.1",
+        "unit": "°C",
+        "numeric": 53.1
+      },
+      {
+        "id": "thermal_gpu_2_2",
+        "available": true,
+        "value": "53.1",
+        "unit": "°C",
+        "numeric": 53.1
+      },
+      {
+        "id": "thermal_cpu_7_1",
+        "available": true,
+        "value": "56.2",
+        "unit": "°C",
+        "numeric": 56.2
+      },
+      {
+        "id": "thermal_gpuss_0",
+        "available": true,
+        "value": "52.8",
+        "unit": "°C",
+        "numeric": 52.8
+      },
+      {
+        "id": "thermal_gpuss_1",
+        "available": true,
+        "value": "51.5",
+        "unit": "°C",
+        "numeric": 51.5
+      },
+      {
+        "id": "thermal_mdmss_0",
+        "available": true,
+        "value": "49.3",
+        "unit": "°C",
+        "numeric": 49.3
+      },
+      {
+        "id": "thermal_mdmss_1",
+        "available": true,
+        "value": "49.3",
+        "unit": "°C",
+        "numeric": 49.3
+      },
+      {
+        "id": "thermal_mdmss_2",
+        "available": true,
+        "value": "48.4",
+        "unit": "°C",
+        "numeric": 48.4
+      },
+      {
+        "id": "thermal_mdmss_3",
+        "available": true,
+        "value": "49.7",
+        "unit": "°C",
+        "numeric": 49.7
+      },
+      {
+        "id": "thermal_camera_0",
+        "available": true,
+        "value": "54.2",
+        "unit": "°C",
+        "numeric": 54.2
+      },
+      {
+        "id": "thermal_camera_1",
+        "available": true,
+        "value": "55.2",
+        "unit": "°C",
+        "numeric": 55.2
+      },
+      {
+        "id": "thermal_video",
+        "available": true,
+        "value": "56.2",
+        "unit": "°C",
+        "numeric": 56.2
+      },
+      {
+        "id": "thermal_ddr",
+        "available": true,
+        "value": "54.2",
+        "unit": "°C",
+        "numeric": 54.2
+      },
+      {
+        "id": "thermal_cpu_2_0",
+        "available": true,
+        "value": "57.5",
+        "unit": "°C",
+        "numeric": 57.5
+      },
+      {
+        "id": "thermal_battery",
+        "available": true,
+        "value": "36.8",
+        "unit": "°C",
+        "numeric": 36.8
+      },
+      {
+        "id": "thermal_batt_temp",
+        "available": true,
+        "value": "36.4",
+        "unit": "°C",
+        "numeric": 36.4
+      },
+      {
+        "id": "thermal_wireless",
+        "available": true,
+        "value": "36.4",
+        "unit": "°C",
+        "numeric": 36.4
+      },
+      {
+        "id": "thermal_xo_therm",
+        "available": true,
+        "value": "43.1",
+        "unit": "°C",
+        "numeric": 43.117
+      },
+      {
+        "id": "thermal_xoagg_therm",
+        "available": true,
+        "value": "43.7",
+        "unit": "°C",
+        "numeric": 43.747
+      },
+      {
+        "id": "thermal_quiet_therm",
+        "available": true,
+        "value": "43.0",
+        "unit": "°C",
+        "numeric": 43.014
+      },
+      {
+        "id": "thermal_flash_therm",
+        "available": true,
+        "value": "36.9",
+        "unit": "°C",
+        "numeric": 36.863
+      },
+      {
+        "id": "thermal_wifi_therm",
+        "available": true,
+        "value": "44.3",
+        "unit": "°C",
+        "numeric": 44.345
+      },
+      {
+        "id": "thermal_pa_therm1",
+        "available": true,
+        "value": "44.9",
+        "unit": "°C",
+        "numeric": 44.892
+      },
+      {
+        "id": "thermal_pa_therm2",
+        "available": true,
+        "value": "45.1",
+        "unit": "°C",
+        "numeric": 45.128
+      },
+      {
+        "id": "thermal_cpu_2_1",
+        "available": true,
+        "value": "57.9",
+        "unit": "°C",
+        "numeric": 57.9
+      },
+      {
+        "id": "thermal_conn_therm2",
+        "available": true,
+        "value": "34.5",
+        "unit": "°C",
+        "numeric": 34.453
+      },
+      {
+        "id": "thermal_cpu_therm",
+        "available": true,
+        "value": "46.4",
+        "unit": "°C",
+        "numeric": 46.413
+      },
+      {
+        "id": "thermal_charger_therm",
+        "available": true,
+        "value": "46.4",
+        "unit": "°C",
+        "numeric": 46.417
+      },
+      {
+        "id": "thermal_wireless_therm",
+        "available": true,
+        "value": "45.9",
+        "unit": "°C",
+        "numeric": 45.868
+      },
+      {
+        "id": "thermal_conn_therm",
+        "available": true,
+        "value": "34.3",
+        "unit": "°C",
+        "numeric": 34.324
+      },
+      {
+        "id": "thermal_display_therm",
+        "available": true,
+        "value": "35.2",
+        "unit": "°C",
+        "numeric": 35.187
+      },
+      {
+        "id": "thermal_batt_therm",
+        "available": true,
+        "value": "48.1",
+        "unit": "°C",
+        "numeric": 48.087
+      },
+      {
+        "id": "thermal_pmh0101_tz",
+        "available": true,
+        "value": "44.3",
+        "unit": "°C",
+        "numeric": 44.282
+      },
+      {
+        "id": "thermal_pmh0104_c_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_cpu_4_0",
+        "available": true,
+        "value": "57.5",
+        "unit": "°C",
+        "numeric": 57.5
+      },
+      {
+        "id": "thermal_pmh0110_d_tz",
+        "available": true,
+        "value": "46.6",
+        "unit": "°C",
+        "numeric": 46.602
+      },
+      {
+        "id": "thermal_pmh0110_f_tz",
+        "available": true,
+        "value": "47.3",
+        "unit": "°C",
+        "numeric": 47.308
+      },
+      {
+        "id": "thermal_pmh0110_g_tz",
+        "available": true,
+        "value": "50.4",
+        "unit": "°C",
+        "numeric": 50.4
+      },
+      {
+        "id": "thermal_pmh0110_i_tz",
+        "available": true,
+        "value": "49.6",
+        "unit": "°C",
+        "numeric": 49.594
+      },
+      {
+        "id": "thermal_pmr735d_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_pm8010m_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_pmg1110_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_pmih010x_tz",
+        "available": true,
+        "value": "50.2",
+        "unit": "°C",
+        "numeric": 50.199
+      },
+      {
+        "id": "thermal_pmih010x_lite_tz",
+        "available": true,
+        "value": "46.7",
+        "unit": "°C",
+        "numeric": 46.663
+      },
+      {
+        "id": "thermal_shell_thermal",
+        "available": true,
+        "value": "35.0",
+        "unit": "°C",
+        "numeric": 35
+      },
+      {
+        "id": "thermal_cpu_4_1",
+        "available": true,
+        "value": "56.9",
+        "unit": "°C",
+        "numeric": 56.9
+      },
+      {
+        "id": "thermal_sdr0_pa",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_sdr0",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw0",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw1",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw2",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw3",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      }
+    ]
+  },
+  "second": {
+    "timestampMillis": 1792215488427,
+    "rootAvailable": false,
+    "rootStatus": "ADB 已连接 · 非 Root",
+    "cpuCount": 8,
+    "availableCount": 145,
+    "totalCount": 165,
+    "metrics": [
+      {
+        "id": "cpu_usage",
+        "available": true,
+        "value": "14.0",
+        "unit": "%",
+        "numeric": 13.962873284907184
+      },
+      {
+        "id": "cpu_temp_avg",
+        "available": true,
+        "value": "50.8",
+        "unit": "°C",
+        "numeric": 50.81111111111111
+      },
+      {
+        "id": "cpu_temp_max",
+        "available": true,
+        "value": "52.3",
+        "unit": "°C",
+        "numeric": 52.3
+      },
+      {
+        "id": "cpu_freq_0",
+        "available": true,
+        "value": "1094",
+        "unit": "MHz",
+        "numeric": 1094.4
+      },
+      {
+        "id": "cpu_usage_0",
+        "available": true,
+        "value": "29.9",
+        "unit": "%",
+        "numeric": 29.87012987012987
+      },
+      {
+        "id": "cpu_temp_0",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_0",
+        "available": true,
+        "value": "3744",
+        "unit": "MHz",
+        "numeric": 3744
+      },
+      {
+        "id": "cpu_cluster_0",
+        "available": true,
+        "value": "频率簇 0",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_1",
+        "available": true,
+        "value": "1094",
+        "unit": "MHz",
+        "numeric": 1094.4
+      },
+      {
+        "id": "cpu_usage_1",
+        "available": true,
+        "value": "19.1",
+        "unit": "%",
+        "numeric": 19.07894736842105
+      },
+      {
+        "id": "cpu_temp_1",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_1",
+        "available": true,
+        "value": "3744",
+        "unit": "MHz",
+        "numeric": 3744
+      },
+      {
+        "id": "cpu_cluster_1",
+        "available": true,
+        "value": "频率簇 0",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_2",
+        "available": true,
+        "value": "1094",
+        "unit": "MHz",
+        "numeric": 1094.4
+      },
+      {
+        "id": "cpu_usage_2",
+        "available": true,
+        "value": "18.7",
+        "unit": "%",
+        "numeric": 18.709677419354843
+      },
+      {
+        "id": "cpu_temp_2",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_2",
+        "available": true,
+        "value": "3744",
+        "unit": "MHz",
+        "numeric": 3744
+      },
+      {
+        "id": "cpu_cluster_2",
+        "available": true,
+        "value": "频率簇 0",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_3",
+        "available": true,
+        "value": "960",
+        "unit": "MHz",
+        "numeric": 960
+      },
+      {
+        "id": "cpu_usage_3",
+        "available": true,
+        "value": "14.2",
+        "unit": "%",
+        "numeric": 14.193548387096778
+      },
+      {
+        "id": "cpu_temp_3",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_3",
+        "available": true,
+        "value": "4032",
+        "unit": "MHz",
+        "numeric": 4032
+      },
+      {
+        "id": "cpu_cluster_3",
+        "available": true,
+        "value": "频率簇 3",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_4",
+        "available": true,
+        "value": "960",
+        "unit": "MHz",
+        "numeric": 960
+      },
+      {
+        "id": "cpu_usage_4",
+        "available": true,
+        "value": "10.4",
+        "unit": "%",
+        "numeric": 10.389610389610393
+      },
+      {
+        "id": "cpu_temp_4",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_4",
+        "available": true,
+        "value": "4032",
+        "unit": "MHz",
+        "numeric": 4032
+      },
+      {
+        "id": "cpu_cluster_4",
+        "available": true,
+        "value": "频率簇 3",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_5",
+        "available": true,
+        "value": "960",
+        "unit": "MHz",
+        "numeric": 960
+      },
+      {
+        "id": "cpu_usage_5",
+        "available": true,
+        "value": "12.8",
+        "unit": "%",
+        "numeric": 12.82051282051282
+      },
+      {
+        "id": "cpu_temp_5",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_5",
+        "available": true,
+        "value": "4032",
+        "unit": "MHz",
+        "numeric": 4032
+      },
+      {
+        "id": "cpu_cluster_5",
+        "available": true,
+        "value": "频率簇 3",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_6",
+        "available": true,
+        "value": "902",
+        "unit": "MHz",
+        "numeric": 902.4
+      },
+      {
+        "id": "cpu_usage_6",
+        "available": true,
+        "value": "0.0",
+        "unit": "%",
+        "numeric": 0
+      },
+      {
+        "id": "cpu_temp_6",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_6",
+        "available": true,
+        "value": "5011",
+        "unit": "MHz",
+        "numeric": 5011.2
+      },
+      {
+        "id": "cpu_cluster_6",
+        "available": true,
+        "value": "频率簇 6",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "cpu_freq_7",
+        "available": true,
+        "value": "902",
+        "unit": "MHz",
+        "numeric": 902.4
+      },
+      {
+        "id": "cpu_usage_7",
+        "available": true,
+        "value": "7.1",
+        "unit": "%",
+        "numeric": 7.051282051282048
+      },
+      {
+        "id": "cpu_temp_7",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "cpu_max_freq_7",
+        "available": true,
+        "value": "5011",
+        "unit": "MHz",
+        "numeric": 5011.2
+      },
+      {
+        "id": "cpu_cluster_7",
+        "available": true,
+        "value": "频率簇 6",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "gpu_usage",
+        "available": true,
+        "value": "11.8",
+        "unit": "%",
+        "numeric": 11.849500634828596
+      },
+      {
+        "id": "gpu_freq",
+        "available": false,
+        "value": "—",
+        "unit": "MHz",
+        "numeric": null
+      },
+      {
+        "id": "gpu_temp",
+        "available": true,
+        "value": "48.7",
+        "unit": "°C",
+        "numeric": 48.709090909090904
+      },
+      {
+        "id": "gpu_temp_max",
+        "available": true,
+        "value": "49.8",
+        "unit": "°C",
+        "numeric": 49.8
+      },
+      {
+        "id": "mem_available",
+        "available": true,
+        "value": "4.58",
+        "unit": "GB",
+        "numeric": 4.583018496
+      },
+      {
+        "id": "mem_used",
+        "available": true,
+        "value": "11.31",
+        "unit": "GB",
+        "numeric": 11.307372544
+      },
+      {
+        "id": "mem_total",
+        "available": true,
+        "value": "15.89",
+        "unit": "GB",
+        "numeric": 15.89039104
+      },
+      {
+        "id": "mem_used_percent",
+        "available": true,
+        "value": "71.2",
+        "unit": "%",
+        "numeric": 71.15855434606095
+      },
+      {
+        "id": "swap_used",
+        "available": true,
+        "value": "2.35",
+        "unit": "GB",
+        "numeric": 2.34510336
+      },
+      {
+        "id": "battery_current",
+        "available": true,
+        "value": "-507",
+        "unit": "mA",
+        "numeric": -507
+      },
+      {
+        "id": "battery_voltage",
+        "available": true,
+        "value": "3.708",
+        "unit": "V",
+        "numeric": 3.708
+      },
+      {
+        "id": "battery_power",
+        "available": true,
+        "value": "1.88",
+        "unit": "W",
+        "numeric": 1.8799560000000002
+      },
+      {
+        "id": "battery_temp",
+        "available": true,
+        "value": "34.9",
+        "unit": "°C",
+        "numeric": 34.9
+      },
+      {
+        "id": "battery_level",
+        "available": true,
+        "value": "34",
+        "unit": "%",
+        "numeric": 34
+      },
+      {
+        "id": "battery_status",
+        "available": true,
+        "value": "充电中",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "battery_charge_counter",
+        "available": false,
+        "value": "—",
+        "unit": "mAh",
+        "numeric": null
+      },
+      {
+        "id": "battery_cycles",
+        "available": false,
+        "value": "—",
+        "unit": "次",
+        "numeric": null
+      },
+      {
+        "id": "soc_power",
+        "available": false,
+        "value": "—",
+        "unit": "W",
+        "numeric": null
+      },
+      {
+        "id": "fps",
+        "available": false,
+        "value": "—",
+        "unit": "fps",
+        "numeric": null
+      },
+      {
+        "id": "layer_fps",
+        "available": false,
+        "value": "—",
+        "unit": "fps",
+        "numeric": null
+      },
+      {
+        "id": "refresh_rate",
+        "available": true,
+        "value": "120",
+        "unit": "Hz",
+        "numeric": 120.00003051757812
+      },
+      {
+        "id": "root_status",
+        "available": true,
+        "value": "ADB 已连接 · 非 Root",
+        "unit": "",
+        "numeric": null
+      },
+      {
+        "id": "sample_duration",
+        "available": true,
+        "value": "345",
+        "unit": "ms",
+        "numeric": 345
+      },
+      {
+        "id": "sample_core_ms",
+        "available": true,
+        "value": "105",
+        "unit": "ms",
+        "numeric": 105
+      },
+      {
+        "id": "sample_thermal_ms",
+        "available": true,
+        "value": "124",
+        "unit": "ms",
+        "numeric": 124
+      },
+      {
+        "id": "sample_frame_ms",
+        "available": true,
+        "value": "103",
+        "unit": "ms",
+        "numeric": 103
+      },
+      {
+        "id": "sample_platform_ms",
+        "available": true,
+        "value": "12",
+        "unit": "ms",
+        "numeric": 12
+      },
+      {
+        "id": "thermal_cpu_3_0",
+        "available": true,
+        "value": "52.3",
+        "unit": "°C",
+        "numeric": 52.3
+      },
+      {
+        "id": "thermal_cpu_3_1",
+        "available": true,
+        "value": "51.7",
+        "unit": "°C",
+        "numeric": 51.7
+      },
+      {
+        "id": "thermal_cpu_6_0",
+        "available": true,
+        "value": "50.0",
+        "unit": "°C",
+        "numeric": 50
+      },
+      {
+        "id": "thermal_cpu_6_1",
+        "available": true,
+        "value": "49.7",
+        "unit": "°C",
+        "numeric": 49.7
+      },
+      {
+        "id": "thermal_cpullc_0",
+        "available": true,
+        "value": "51.5",
+        "unit": "°C",
+        "numeric": 51.5
+      },
+      {
+        "id": "thermal_cpullc_1",
+        "available": true,
+        "value": "52.5",
+        "unit": "°C",
+        "numeric": 52.5
+      },
+      {
+        "id": "thermal_qmx_0",
+        "available": true,
+        "value": "50.6",
+        "unit": "°C",
+        "numeric": 50.6
+      },
+      {
+        "id": "thermal_qmx_1",
+        "available": true,
+        "value": "50.9",
+        "unit": "°C",
+        "numeric": 50.9
+      },
+      {
+        "id": "thermal_qmx_2",
+        "available": true,
+        "value": "50.9",
+        "unit": "°C",
+        "numeric": 50.9
+      },
+      {
+        "id": "thermal_qmx_3",
+        "available": true,
+        "value": "50.6",
+        "unit": "°C",
+        "numeric": 50.6
+      },
+      {
+        "id": "thermal_qmx_4",
+        "available": true,
+        "value": "50.2",
+        "unit": "°C",
+        "numeric": 50.2
+      },
+      {
+        "id": "thermal_cpu_0_0",
+        "available": true,
+        "value": "50.8",
+        "unit": "°C",
+        "numeric": 50.8
+      },
+      {
+        "id": "thermal_cpu_5_0",
+        "available": true,
+        "value": "52.0",
+        "unit": "°C",
+        "numeric": 52
+      },
+      {
+        "id": "thermal_cpu_0_1",
+        "available": true,
+        "value": "51.4",
+        "unit": "°C",
+        "numeric": 51.4
+      },
+      {
+        "id": "thermal_cpu_0_2",
+        "available": true,
+        "value": "50.5",
+        "unit": "°C",
+        "numeric": 50.5
+      },
+      {
+        "id": "thermal_cpu_1_0",
+        "available": true,
+        "value": "51.1",
+        "unit": "°C",
+        "numeric": 51.1
+      },
+      {
+        "id": "thermal_cpu_1_1",
+        "available": true,
+        "value": "51.4",
+        "unit": "°C",
+        "numeric": 51.4
+      },
+      {
+        "id": "thermal_cpu_1_2",
+        "available": true,
+        "value": "51.7",
+        "unit": "°C",
+        "numeric": 51.7
+      },
+      {
+        "id": "thermal_nspq6",
+        "available": true,
+        "value": "49.3",
+        "unit": "°C",
+        "numeric": 49.3
+      },
+      {
+        "id": "thermal_nspvxu_0",
+        "available": true,
+        "value": "49.9",
+        "unit": "°C",
+        "numeric": 49.9
+      },
+      {
+        "id": "thermal_nspvxu_1",
+        "available": true,
+        "value": "49.0",
+        "unit": "°C",
+        "numeric": 49
+      },
+      {
+        "id": "thermal_nspllv_0_0",
+        "available": true,
+        "value": "50.9",
+        "unit": "°C",
+        "numeric": 50.9
+      },
+      {
+        "id": "thermal_nspllv_0_1",
+        "available": true,
+        "value": "50.6",
+        "unit": "°C",
+        "numeric": 50.6
+      },
+      {
+        "id": "thermal_cpu_5_1",
+        "available": true,
+        "value": "50.7",
+        "unit": "°C",
+        "numeric": 50.7
+      },
+      {
+        "id": "thermal_nspllv_1_0",
+        "available": true,
+        "value": "49.6",
+        "unit": "°C",
+        "numeric": 49.6
+      },
+      {
+        "id": "thermal_nspllv_1_1",
+        "available": true,
+        "value": "49.6",
+        "unit": "°C",
+        "numeric": 49.6
+      },
+      {
+        "id": "thermal_nspmxutop",
+        "available": true,
+        "value": "49.3",
+        "unit": "°C",
+        "numeric": 49.3
+      },
+      {
+        "id": "thermal_nspmxu0_0_0",
+        "available": true,
+        "value": "49.6",
+        "unit": "°C",
+        "numeric": 49.6
+      },
+      {
+        "id": "thermal_nspmxu0_0_1",
+        "available": true,
+        "value": "48.6",
+        "unit": "°C",
+        "numeric": 48.6
+      },
+      {
+        "id": "thermal_nspmxu0_1_0",
+        "available": true,
+        "value": "50.2",
+        "unit": "°C",
+        "numeric": 50.2
+      },
+      {
+        "id": "thermal_nspmxu0_1_1",
+        "available": true,
+        "value": "48.6",
+        "unit": "°C",
+        "numeric": 48.6
+      },
+      {
+        "id": "thermal_nspmxu1_0_0",
+        "available": true,
+        "value": "49.0",
+        "unit": "°C",
+        "numeric": 49
+      },
+      {
+        "id": "thermal_nspmxu1_0_1",
+        "available": true,
+        "value": "49.6",
+        "unit": "°C",
+        "numeric": 49.6
+      },
+      {
+        "id": "thermal_nspmxu1_1_0",
+        "available": true,
+        "value": "48.6",
+        "unit": "°C",
+        "numeric": 48.6
+      },
+      {
+        "id": "thermal_cpu_7_0",
+        "available": true,
+        "value": "50.3",
+        "unit": "°C",
+        "numeric": 50.3
+      },
+      {
+        "id": "thermal_nspmxu1_1_1",
+        "available": true,
+        "value": "49.6",
+        "unit": "°C",
+        "numeric": 49.6
+      },
+      {
+        "id": "thermal_gpu_0_0",
+        "available": true,
+        "value": "48.5",
+        "unit": "°C",
+        "numeric": 48.5
+      },
+      {
+        "id": "thermal_gpu_0_1",
+        "available": true,
+        "value": "48.2",
+        "unit": "°C",
+        "numeric": 48.2
+      },
+      {
+        "id": "thermal_gpu_0_2",
+        "available": true,
+        "value": "47.9",
+        "unit": "°C",
+        "numeric": 47.9
+      },
+      {
+        "id": "thermal_gpu_1_0",
+        "available": true,
+        "value": "48.9",
+        "unit": "°C",
+        "numeric": 48.9
+      },
+      {
+        "id": "thermal_gpu_1_1",
+        "available": true,
+        "value": "47.9",
+        "unit": "°C",
+        "numeric": 47.9
+      },
+      {
+        "id": "thermal_gpu_1_2",
+        "available": true,
+        "value": "48.9",
+        "unit": "°C",
+        "numeric": 48.9
+      },
+      {
+        "id": "thermal_gpu_2_0",
+        "available": true,
+        "value": "49.2",
+        "unit": "°C",
+        "numeric": 49.2
+      },
+      {
+        "id": "thermal_gpu_2_1",
+        "available": true,
+        "value": "49.5",
+        "unit": "°C",
+        "numeric": 49.5
+      },
+      {
+        "id": "thermal_gpu_2_2",
+        "available": true,
+        "value": "49.8",
+        "unit": "°C",
+        "numeric": 49.8
+      },
+      {
+        "id": "thermal_cpu_7_1",
+        "available": true,
+        "value": "50.3",
+        "unit": "°C",
+        "numeric": 50.3
+      },
+      {
+        "id": "thermal_gpuss_0",
+        "available": true,
+        "value": "48.5",
+        "unit": "°C",
+        "numeric": 48.5
+      },
+      {
+        "id": "thermal_gpuss_1",
+        "available": true,
+        "value": "48.5",
+        "unit": "°C",
+        "numeric": 48.5
+      },
+      {
+        "id": "thermal_mdmss_0",
+        "available": true,
+        "value": "47.1",
+        "unit": "°C",
+        "numeric": 47.1
+      },
+      {
+        "id": "thermal_mdmss_1",
+        "available": true,
+        "value": "47.7",
+        "unit": "°C",
+        "numeric": 47.7
+      },
+      {
+        "id": "thermal_mdmss_2",
+        "available": true,
+        "value": "47.1",
+        "unit": "°C",
+        "numeric": 47.1
+      },
+      {
+        "id": "thermal_mdmss_3",
+        "available": true,
+        "value": "47.4",
+        "unit": "°C",
+        "numeric": 47.4
+      },
+      {
+        "id": "thermal_camera_0",
+        "available": true,
+        "value": "50.6",
+        "unit": "°C",
+        "numeric": 50.6
+      },
+      {
+        "id": "thermal_camera_1",
+        "available": true,
+        "value": "50.6",
+        "unit": "°C",
+        "numeric": 50.6
+      },
+      {
+        "id": "thermal_video",
+        "available": true,
+        "value": "51.0",
+        "unit": "°C",
+        "numeric": 51
+      },
+      {
+        "id": "thermal_ddr",
+        "available": true,
+        "value": "49.3",
+        "unit": "°C",
+        "numeric": 49.3
+      },
+      {
+        "id": "thermal_cpu_2_0",
+        "available": true,
+        "value": "50.0",
+        "unit": "°C",
+        "numeric": 50
+      },
+      {
+        "id": "thermal_battery",
+        "available": true,
+        "value": "36.9",
+        "unit": "°C",
+        "numeric": 36.9
+      },
+      {
+        "id": "thermal_batt_temp",
+        "available": true,
+        "value": "36.6",
+        "unit": "°C",
+        "numeric": 36.6
+      },
+      {
+        "id": "thermal_wireless",
+        "available": true,
+        "value": "36.6",
+        "unit": "°C",
+        "numeric": 36.6
+      },
+      {
+        "id": "thermal_xo_therm",
+        "available": true,
+        "value": "43.2",
+        "unit": "°C",
+        "numeric": 43.166
+      },
+      {
+        "id": "thermal_xoagg_therm",
+        "available": true,
+        "value": "43.8",
+        "unit": "°C",
+        "numeric": 43.754
+      },
+      {
+        "id": "thermal_quiet_therm",
+        "available": true,
+        "value": "43.1",
+        "unit": "°C",
+        "numeric": 43.066
+      },
+      {
+        "id": "thermal_flash_therm",
+        "available": true,
+        "value": "36.9",
+        "unit": "°C",
+        "numeric": 36.892
+      },
+      {
+        "id": "thermal_wifi_therm",
+        "available": true,
+        "value": "44.4",
+        "unit": "°C",
+        "numeric": 44.357
+      },
+      {
+        "id": "thermal_pa_therm1",
+        "available": true,
+        "value": "44.9",
+        "unit": "°C",
+        "numeric": 44.906
+      },
+      {
+        "id": "thermal_pa_therm2",
+        "available": true,
+        "value": "45.2",
+        "unit": "°C",
+        "numeric": 45.207
+      },
+      {
+        "id": "thermal_cpu_2_1",
+        "available": true,
+        "value": "50.0",
+        "unit": "°C",
+        "numeric": 50
+      },
+      {
+        "id": "thermal_conn_therm2",
+        "available": true,
+        "value": "34.5",
+        "unit": "°C",
+        "numeric": 34.466
+      },
+      {
+        "id": "thermal_cpu_therm",
+        "available": true,
+        "value": "45.9",
+        "unit": "°C",
+        "numeric": 45.861
+      },
+      {
+        "id": "thermal_charger_therm",
+        "available": true,
+        "value": "46.2",
+        "unit": "°C",
+        "numeric": 46.199
+      },
+      {
+        "id": "thermal_wireless_therm",
+        "available": true,
+        "value": "45.8",
+        "unit": "°C",
+        "numeric": 45.801
+      },
+      {
+        "id": "thermal_conn_therm",
+        "available": true,
+        "value": "34.3",
+        "unit": "°C",
+        "numeric": 34.343
+      },
+      {
+        "id": "thermal_display_therm",
+        "available": true,
+        "value": "35.2",
+        "unit": "°C",
+        "numeric": 35.193
+      },
+      {
+        "id": "thermal_batt_therm",
+        "available": true,
+        "value": "47.6",
+        "unit": "°C",
+        "numeric": 47.645
+      },
+      {
+        "id": "thermal_pmh0101_tz",
+        "available": true,
+        "value": "44.5",
+        "unit": "°C",
+        "numeric": 44.484
+      },
+      {
+        "id": "thermal_pmh0104_c_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_cpu_4_0",
+        "available": true,
+        "value": "50.7",
+        "unit": "°C",
+        "numeric": 50.7
+      },
+      {
+        "id": "thermal_pmh0110_d_tz",
+        "available": true,
+        "value": "46.3",
+        "unit": "°C",
+        "numeric": 46.333
+      },
+      {
+        "id": "thermal_pmh0110_f_tz",
+        "available": true,
+        "value": "47.0",
+        "unit": "°C",
+        "numeric": 46.972
+      },
+      {
+        "id": "thermal_pmh0110_g_tz",
+        "available": true,
+        "value": "48.9",
+        "unit": "°C",
+        "numeric": 48.922
+      },
+      {
+        "id": "thermal_pmh0110_i_tz",
+        "available": true,
+        "value": "48.7",
+        "unit": "°C",
+        "numeric": 48.653
+      },
+      {
+        "id": "thermal_pmr735d_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_pm8010m_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_pmg1110_tz",
+        "available": true,
+        "value": "37.0",
+        "unit": "°C",
+        "numeric": 37
+      },
+      {
+        "id": "thermal_pmih010x_tz",
+        "available": true,
+        "value": "49.8",
+        "unit": "°C",
+        "numeric": 49.829
+      },
+      {
+        "id": "thermal_pmih010x_lite_tz",
+        "available": true,
+        "value": "46.3",
+        "unit": "°C",
+        "numeric": 46.346
+      },
+      {
+        "id": "thermal_shell_thermal",
+        "available": true,
+        "value": "35.0",
+        "unit": "°C",
+        "numeric": 35
+      },
+      {
+        "id": "thermal_cpu_4_1",
+        "available": true,
+        "value": "50.0",
+        "unit": "°C",
+        "numeric": 50
+      },
+      {
+        "id": "thermal_sdr0_pa",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_sdr0",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw0",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw1",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw2",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      },
+      {
+        "id": "thermal_mmw3",
+        "available": false,
+        "value": "—",
+        "unit": "°C",
+        "numeric": null
+      }
+    ]
+  },
+  "benchmark": {
+    "event": "result",
+    "schema": 1,
+    "result": "completed",
+    "kind": "coremark",
+    "cpu": 7,
+    "requested_seconds": 10,
+    "elapsed_seconds": 12.503949,
+    "calibration_seconds": 0.405754,
+    "exit_code": 0,
+    "signal": 0,
+    "affinity_errno": 0,
+    "timed_out": false,
+    "output_truncated": false,
+    "score": {
+      "value": 30877.1312,
+      "unit": "CoreMark",
+      "valid": true,
+      "detail": "Official unmodified CoreMark algorithms; 2000-byte heap, one context, both seed sets CRC-checked for >=10s. Dynamic frequency normalization is an estimate, not an official CoreMark/MHz submission."
+    },
+    "benchmark_time_seconds": 12.493,
+    "frequency": {
+      "samples": 104,
+      "sampled_mean_mhz": 2800.61538,
+      "sampled_min_mhz": 1593.6,
+      "sampled_max_mhz": 4166.4,
+      "effective_mhz": 2771.08436,
+      "normalization_source": "user_cycles/task_clock"
+    },
+    "score_per_mhz": 11.1426168,
+    "affinity_stable": true,
+    "affinity_samples": 104,
+    "observed_cpu_mask": 128,
+    "process_cpu_seconds": 12.379461,
+    "ipc": 3.39843706,
+    "pmu": {
+      "cycles": {
+        "available": true,
+        "raw": 34381461477,
+        "scaled": 34381461500,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "instructions": {
+        "available": true,
+        "raw": 116843232924,
+        "scaled": 116843233000,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "branches": {
+        "available": true,
+        "raw": 29093298181,
+        "scaled": 29093298200,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "branch_misses": {
+        "available": true,
+        "raw": 37776594,
+        "scaled": 37776594,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "cache_references": {
+        "available": true,
+        "raw": 25825552094,
+        "scaled": 25825552100,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "cache_misses": {
+        "available": true,
+        "raw": 36296,
+        "scaled": 36296,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "stalled_frontend": {
+        "available": true,
+        "raw": 1906065479,
+        "scaled": 1906065480,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "stalled_backend": {
+        "available": true,
+        "raw": 13654169242,
+        "scaled": 13654169200,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "reference_cycles": {
+        "available": false,
+        "raw": null,
+        "scaled": null,
+        "time_enabled_ns": 0,
+        "time_running_ns": 0,
+        "running_ratio": null,
+        "errno": 2,
+        "error": "No such file or directory"
+      },
+      "bus_cycles": {
+        "available": true,
+        "raw": 17603308276224,
+        "scaled": 17603308300000,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "l1d_read_accesses": {
+        "available": true,
+        "raw": 25825552094,
+        "scaled": 25825552100,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "l1d_read_misses": {
+        "available": true,
+        "raw": 36296,
+        "scaled": 36296,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "llc_read_accesses": {
+        "available": false,
+        "raw": null,
+        "scaled": null,
+        "time_enabled_ns": 0,
+        "time_running_ns": 0,
+        "running_ratio": null,
+        "errno": 2,
+        "error": "No such file or directory"
+      },
+      "llc_read_misses": {
+        "available": false,
+        "raw": null,
+        "scaled": null,
+        "time_enabled_ns": 0,
+        "time_running_ns": 0,
+        "running_ratio": null,
+        "errno": 2,
+        "error": "No such file or directory"
+      },
+      "task_clock": {
+        "available": true,
+        "raw": 12407222949,
+        "scaled": 12407222900,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "context_switches": {
+        "available": true,
+        "raw": 0,
+        "scaled": 0,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "cpu_migrations": {
+        "available": true,
+        "raw": 0,
+        "scaled": 0,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "page_faults": {
+        "available": true,
+        "raw": 665,
+        "scaled": 665,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "minor_faults": {
+        "available": true,
+        "raw": 665,
+        "scaled": 665,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      },
+      "major_faults": {
+        "available": true,
+        "raw": 0,
+        "scaled": 0,
+        "time_enabled_ns": 12407222949,
+        "time_running_ns": 12407222949,
+        "running_ratio": 1,
+        "errno": 0,
+        "error": null
+      }
+    },
+    "pmu_scope": "Measurement process plus inherited children; userspace events; cycles and instructions scheduled as one group; other perf events may multiplex, raw counts with scaling and running ratio",
+    "benchmark_stdout": "2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 12493\nTotal time (secs): 12.493000\nIterations/Sec   : 30877.131193\nIterations       : 385748\nCompiler version : Android (16134705, +pgo, -bolt, +lto, -mlgo, based on r574158c) Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 9f872551d3c681d06fd303b36f16ed5c274735eb)\nCompiler flags   : Clang 21.0.0 -O2 -fno-lto -fPIE -pie, Android arm64 API26\nMemory location  : Heap in Android process; dynamic CPU/memory clocks, ratios not controlled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x8ec0\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 30877.131193 / Android (16134705, +pgo, -bolt, +lto, -mlgo, based on r574158c) Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 9f872551d3c681d06fd303b36f16ed5c274735eb) Clang 21.0.0 -O2 -fno-lto -fPIE -pie, Android arm64 API26 / Heap in Android process; dynamic CPU/memory clocks, ratios not controlled\n",
+    "validation_stdout": "2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 12113\nTotal time (secs): 12.113000\nIterations/Sec   : 31845.785520\nIterations       : 385748\nCompiler version : Android (16134705, +pgo, -bolt, +lto, -mlgo, based on r574158c) Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 9f872551d3c681d06fd303b36f16ed5c274735eb)\nCompiler flags   : Clang 21.0.0 -O2 -fno-lto -fPIE -pie, Android arm64 API26\nMemory location  : Heap in Android process; dynamic CPU/memory clocks, ratios not controlled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x5b5d\nCorrect operation validated. See README.md for run and reporting rules.\n",
+    "execution_backend": "adb",
+    "captured_at": 1792215513519,
+    "requested_cpu": 7,
+    "requested_kind": "coremark",
+    "device": "M610BB",
+    "build": "CP2A.260605.016",
+    "cancelled": false
+  }
+}

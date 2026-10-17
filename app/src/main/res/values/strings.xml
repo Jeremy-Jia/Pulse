@@ -1,0 +1,5 @@
+<resources>
+    <string name="widget_name">Pulse 实时指标</string>
+    <string name="widget_description">显示选中的性能指标，可滚动，点按刷新；启动监测后持续更新。</string>
+    <string name="widget_empty">在 Pulse 中选择指标</string>
+</resources>

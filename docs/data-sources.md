@@ -48,3 +48,7 @@
 - Linux power supply 单位：[接口文档](https://www.kernel.org/doc/Documentation/power/power_supply_class.txt)
 - Linux CPUFreq 频率含义：[内核文档](https://docs.kernel.org/admin-guide/pm/cpufreq.html)
 - Android SurfaceFlinger FrameTracker：[AOSP 源码](https://android.googlesource.com/platform/frameworks/native/+/refs/heads/main/services/surfaceflinger/FrameTracker.cpp)
+
+## 非 Root 兼容补充（2026-10-17）
+
+普通权限也会批量尝试公开节点，并用 Android API 提供电池/内存回退。Shell 模式使用用户通过 ADB 明确启动的、限 Pulse UID 调用的 Binder 辅助进程。Xiaomi 18 Pro 的 `cpu-N-N` 热传感器名称与原有 `cpu-N-N-N` 同样识别为 CPU 传感器，均不声称与逻辑核一一对应。本次 136/165（普通权限）及 144/165（ADB）可用项目数只代表实测时刻。详细步骤见 [NON_ROOT.md](NON_ROOT.md)。

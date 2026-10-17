@@ -1,0 +1,38 @@
+Pulse 1.2.0 — 悬浮窗与桌面小部件验证
+
+改动
+- CPU 标签缩为「核0频率」「核0负载」，簇为单独指标，指标 ID 不变。
+- 悬浮窗仅显示选中指标；删除 Pulse、图表、分类、可用项数、刷新时间；空选时隐藏。
+- 内边距左右 3 dp、上下 2 dp，宽度 100–320 dp，直接拖动指标移动，固定位置后滚动。
+- 新增粗体显示开关，作用于悬浮窗/小部件的名称和值，预览同步。
+- 新增可缩放、可滚动的桌面小部件，同步指标与样式；点按指标刷新。
+- 实时监测时复用现有采样，最多每 2 秒刷新桌面；未监测时支持点按与系统周期刷新。
+- Root / ADB / 普通权限路径保留，仍是同一 ARM64 APK；本轮小部件和显示设置未新增权限。
+
+实机验证
+- 已连接 Xiaomi 18 / 系统 marketname Xiaomi 18 Pro，Android 17、非 Root。
+- 普通权限：通过；两次真实采样，136/165 指标可用；PMU cycles/instructions 正确标记无权限。
+- ADB：通过；两次真实采样，146/165 指标可用；PMU cycles/instructions 可读，rootAvailable=false。
+- 悬浮窗：100 dp + 10 sp 粗体、120 dp + 12 sp 粗体均通过，短频率名称无省略。
+- 仅选中项、空选隐藏、固定位置、物理左上 (0,0) 和右下 (1120,2436) 均通过。
+- 小部件：真实 AppWidgetHost + RemoteViews 渲染、粗体开关、选项同步、滚动、点按触发新采样均通过。
+- Android 8–11 回退集合工厂的数据、边界与行渲染通过；未使用旧系统实际宿主验证。
+- 宿主在测试 Activity 内临时绑定，手动测量/布局以支持锁屏期间验证；未在用户桌面自动放置小部件。
+- 临时宿主和小部件已清理，桌面实际添加由用户在系统确认。
+- 构建 assembleDebug / assembleDebugAndroidTest / lintDebug 全部通过；0 errors，22 warnings。
+- 小米 15 未连接，本次没有宣称 Root 小米 15 已做实机回归。
+
+安装与验证说明
+- 已成功覆盖安装 1.2.0（versionCode 3），保持当前开发签名与此前本机 1.1.0 一致。
+- UI 断言在测试线程传播，测试结束清理临时宿主与小部件并恢复原偏好。
+- 已在解锁后的前台界面确认监测服务运行、新版悬浮窗正常显示。
+- 旧版小米 15 如使用不同签名，保留数据更新仍需原 keystore 重签；不自动卸载旧应用。
+
+使用
+- Pulse → 悬浮窗 → 粗体显示。
+- Pulse → 悬浮窗 → 添加桌面小部件，或长按桌面选择「Pulse 实时指标」。
+- Pulse → 指标：修改两个显示面的共同指标列表。
+
+实现参考
+https://developer.android.com/develop/ui/views/appwidgets
+https://developer.android.com/develop/ui/views/appwidgets/collections

@@ -46,7 +46,7 @@ def compile_exe(name: str, sources: list[Path], extra: list[str] = []) -> None:
 
 def main() -> None:
     if not CLANG.is_file():
-        raise SystemExit(f"NDK r29 is required. Set PULSE_NDK_HOME to the NDK directory. Missing: {CLANG}")
+        raise SystemExit(f"An Android NDK is required. Set PULSE_NDK_HOME to the NDK directory. Missing: {CLANG}")
     lock = json.loads((HERE / "vendor-lock.json").read_text(encoding="utf-8"))
     for path, expected in lock["sha256"].items():
         actual = hashlib.sha256((HERE / path).read_bytes()).hexdigest()
@@ -82,7 +82,7 @@ def main() -> None:
     compile_exe("libwhetstone.so", [whet], ["-std=gnu11", "-fno-builtin", "-fno-inline-functions"])
     compile_exe("libpulsebench.so", [HERE / "pulsebench.c"], ["-std=gnu11", "-Wall", "-Wextra"])
     outputs = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob("*.so")}
-    (PROJECT / "app/build/native/build-manifest.json").write_text(json.dumps({"ndk": "29.0.14206865", "target": "aarch64-linux-android26", "sha256": outputs}, indent=2), encoding="utf-8")
+    (PROJECT / "app/build/native/build-manifest.json").write_text(json.dumps({"ndk": (NDK / "source.properties").read_text(encoding="utf-8"), "target": "aarch64-linux-android26", "sha256": outputs}, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":

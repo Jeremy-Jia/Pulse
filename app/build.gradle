@@ -11,8 +11,8 @@ android {
         applicationId 'dev.pulse.monitor'
         minSdk 26
         targetSdk 36
-        versionCode 1
-        versionName '1.0.0'
+        versionCode 3
+        versionName '1.2.0'
         testInstrumentationRunner 'dev.pulse.monitor.MonitorInstrumentation'
     }
 
@@ -51,7 +51,7 @@ tasks.register('buildPulseBenchmarks', Exec) {
     description = 'Build pinned ARM64 benchmark sources and the read-only perf wrapper'
     group = 'build'
     inputs.files(fileTree('src/main/cpp'))
-    inputs.property('ndkVersion', '29.0.14206865')
+    inputs.property('ndkHome', System.getenv('PULSE_NDK_HOME') ?: 'default-r29')
     outputs.files(['libpulsebench.so', 'libcoremark.so', 'libdhrystone.so', 'libwhetstone.so'].collect { new File(nativeOutputDir, it) })
     commandLine pythonCommand, file('src/main/cpp/build_native.py').absolutePath
 }

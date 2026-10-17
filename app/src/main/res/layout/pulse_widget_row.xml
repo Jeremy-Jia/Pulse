@@ -1,0 +1,10 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_metric_row" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="1dp" android:paddingBottom="1dp">
+    <TextView android:id="@+id/widget_label" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:singleLine="true" android:ellipsize="end" android:includeFontPadding="false"
+        android:textSize="11sp" android:fontFamily="sans-serif" android:textColor="#A7B7C9" />
+    <TextView android:id="@+id/widget_value" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginStart="3dp" android:singleLine="true" android:ellipsize="end" android:maxWidth="130dp"
+        android:includeFontPadding="false" android:textSize="12sp" android:fontFamily="monospace" android:textColor="#78E8C6" />
+</LinearLayout>

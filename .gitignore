@@ -20,3 +20,7 @@ app/src/main/jniLibs/**/*.so
 Thumbs.db
 *.swp
 *.tmp
+
+# Python build helpers
+__pycache__/
+*.pyc

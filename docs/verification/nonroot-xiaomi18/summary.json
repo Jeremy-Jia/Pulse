@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-17",
+  "timezone": "Asia/Shanghai",
+  "device": "Xiaomi 18 Pro / M610BB / hongkong / SM8950",
+  "os": "Android 17 / OS4.0.24.0.XFRCNXM",
+  "apk_sha256": "f2aa7a59732ea4c9d8511f72c3775823550f086d7a9c62f42d200a5e000dad62",
+  "base_commit": "66d784b",
+  "root_regression": "Root backend retained; Xiaomi 15 Root and non-root, and Xiaomi 18 Root were not connected for this revision.",
+  "cases": [
+    {
+      "case": "standalone-coremark-final",
+      "result": "pass",
+      "backend": "app",
+      "metrics_available": 136,
+      "metrics_total": 165,
+      "benchmark_result": "completed",
+      "score": 32674.2429,
+      "score_valid": true,
+      "ipc": null,
+      "affinity_stable": false
+    },
+    {
+      "case": "standalone-dhrystone",
+      "result": "pass",
+      "backend": "app",
+      "metrics_available": 136,
+      "metrics_total": 165,
+      "benchmark_result": "completed",
+      "score": 28090.4952,
+      "score_valid": true,
+      "ipc": null,
+      "affinity_stable": false
+    },
+    {
+      "case": "standalone-whetstone",
+      "result": "pass",
+      "backend": "app",
+      "metrics_available": 136,
+      "metrics_total": 165,
+      "benchmark_result": "completed",
+      "score": 13984.4,
+      "score_valid": true,
+      "ipc": null,
+      "affinity_stable": false
+    },
+    {
+      "case": "adb-probe-overlay-final",
+      "result": "pass",
+      "backend": "adb",
+      "metrics_available": 145,
+      "metrics_total": 165,
+      "benchmark_result": "probe",
+      "score": null,
+      "score_valid": null,
+      "ipc": null,
+      "affinity_stable": null
+    },
+    {
+      "case": "adb-coremark-final",
+      "result": "pass",
+      "backend": "adb",
+      "metrics_available": 145,
+      "metrics_total": 165,
+      "benchmark_result": "completed",
+      "score": 30877.1312,
+      "score_valid": true,
+      "ipc": 3.39843706,
+      "affinity_stable": true
+    },
+    {
+      "case": "adb-cancel-final",
+      "result": "pass",
+      "backend": "adb",
+      "metrics_available": 144,
+      "metrics_total": 165,
+      "benchmark_result": "cancelled",
+      "score": 45977.0115,
+      "score_valid": false,
+      "ipc": null,
+      "affinity_stable": false
+    },
+    {
+      "case": "adb-custom",
+      "result": "pass",
+      "backend": "adb",
+      "metrics_available": 145,
+      "metrics_total": 165,
+      "benchmark_result": "completed",
+      "score": null,
+      "score_valid": false,
+      "ipc": 3.39639464,
+      "affinity_stable": true
+    }
+  ]
+}

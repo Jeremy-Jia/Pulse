@@ -1,0 +1,49 @@
+Pulse 1.1.0 兼容改动与验证
+2026-10-17，Asia/Shanghai
+
+同一个 ARM64 APK 保留 Root / ADB shell / 普通应用三种访问路径，兼容目标为小米 15 和小米 18 系列。当前实机系统报告 Xiaomi 18 Pro / M610BB / SM8950，非 Root，Android 17 / HyperOS OS4.0.24.0.XFRCNXM。
+
+已完成：
+1. 普通权限下批量读取可公开访问的 CPUFreq、GPU、温度节点，并保留 Android 电池/内存回退接口。限制或不可靠读数继续显示不可用。
+2. 内置 CoreMark / Dhrystone / Whetstone 不再强制 su。Root 路径保持可用；初次拒绝后可延迟重新探测 Root。自定义 ELF 可在 ADB / Root 路径执行。
+3. 增加明确由电脑 ADB 激活的 Binder 辅助进程：UID 2000，只接受 Pulse UID 的请求，无 TCP 监听及联网权限。激活期间临时启用 security.perf_harden=0，--stop 恢复原值。应用进程终止时辅助进程退出，重启/强停/更新后需重新激活。
+4. cycles/instructions 成组调度，保留 raw、scaled、运行比例及权限错误；PMU 不可访问时 IPC 为 null。检查实际运行 CPU/亲和性，检测到迁移时不显示指定核心每 MHz 成绩。
+5. 同时识别小米 15 的 cpu-N-N-N 与当前机型的 cpu-N-N 温度节点，不猜测传感器与逻辑核对应关系。
+6. 悬浮窗取消点击折叠和跳转箭头，保留紧凑拖动标题；图表及侧边留白可拖动。移除顶部固定留白，使用完整屏幕边界与窗口实际高度限制位置。
+7. 跑分持有有时限的 CPU 唤醒锁，实验室运行时保持屏幕点亮。厂商熄屏冻结策略仍可能禁用唤醒锁，因此保留超时保护；长时间后台使用需遵守 HyperOS 的后台管理设置。
+
+实机验证：
+- standalone-coremark-final: PASS；模式=app，指标=136/165，结果=completed，有效性=True，IPC=None
+- standalone-dhrystone: PASS；模式=app，指标=136/165，结果=completed，有效性=True，IPC=None
+- standalone-whetstone: PASS；模式=app，指标=136/165，结果=completed，有效性=True，IPC=None
+- adb-probe-overlay-final: PASS；模式=adb，指标=145/165，结果=probe，有效性=None，IPC=None
+- adb-coremark-final: PASS；模式=adb，指标=145/165，结果=completed，有效性=True，IPC=3.39843706
+- adb-cancel-final: PASS；模式=adb，指标=144/165，结果=cancelled，有效性=False，IPC=None
+- adb-custom: PASS；模式=adb，指标=145/165，结果=completed，有效性=False，IPC=3.39639464
+
+悬浮窗实际屏幕坐标：{"top_left_x": 0, "top_left_y": 0, "bottom_right_x": 1120, "bottom_right_y": 2436, "result": "pass"}
+
+Gradle assembleDebug、assembleDebugAndroidTest 与 lintDebug 通过：0 个错误，21 个警告（包含辅助进程访问 Android 内部 Binder API 的兼容性提示，以及原有 UI 警告）。供应商基准源码 SHA-256 校验通过。
+
+验证边界：
+- 本次未重新接入小米 15 Root 实机，不能把“保留并修改通用路径”写成“四种组合都已实测”。小米 15 非 Root 与小米 18 Root 同样尚未实机回归。
+- 结果是功能验证，不是受控性能排名。App 使用 -O2，与此前聊天中单独编译的 -O3 CoreMark 不是同一个编译版本；PMU 包含进程初始化/退出，计数边界也不同。
+- 初次普通模式复测在熄屏冻结中被超时保护取消；最终前台复测 CRC 有效。没有把取消或验证失败的结果当作有效成绩。
+- ADB 激活使用 Android 内部 Binder API，仅当前固件完成实测；未来版本可能需要适配。
+
+安装与使用：
+当前手机已安装 Pulse-1.1.0-compat-arm64.apk。普通模式无需电脑；非 Root PMU 需先打开 Pulse，再在电脑执行：
+  python3 activate-pulse-adb.py
+多设备加 --serial SERIAL。停止辅助进程并恢复原 profiling 属性：
+  python3 activate-pulse-adb.py --stop
+
+签名：本次 APK 使用 Mac 本地开发证书，证书 SHA-256 为 540e097b6be81963997ca6b0bf0906116e3782591cd4f4962a8fd504b5b62893，与历史 APK 的 64233655b00e2c4da8beebc004c5304a4702a245042a9e634805917152da4a46 不同。如果小米 15 已安装仓库旧版，保留数据的覆盖更新需要用原 keystore 重签；本次没有自动卸载任何旧版。源码保留原 applicationId。
+
+交付：
+- Pulse-1.1.0-compat-arm64.apk：安装包。
+- Pulse-1.1.0-source.zip：完整源码、ADB 激活脚本、原始成功验证 JSON；不含构建工具、缓存或私钥。
+- Pulse-1.1.0.patch：相对于上游 66d784b 的完整补丁。
+- activate-pulse-adb.py：可单独使用的电脑端激活脚本。
+详细说明见源码 docs/NON_ROOT.md。
+
+APK SHA-256：f2aa7a59732ea4c9d8511f72c3775823550f086d7a9c62f42d200a5e000dad62

@@ -45,6 +45,7 @@ public final class MonitorService extends Service {
         long started=SystemClock.elapsedRealtime();
         try {
             MetricsSnapshot next=collector.collect();
+            if(!destroyed)PulseWidgetProvider.publish(this,next,false);
             if(!destroyed) { latestSnapshot=next; main.post(()-> {
                 if(destroyed) return;
                 if(overlay!=null) overlay.update(next);
