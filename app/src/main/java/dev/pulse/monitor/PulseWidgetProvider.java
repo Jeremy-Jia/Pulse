@@ -114,7 +114,15 @@ public final class PulseWidgetProvider extends AppWidgetProvider {
         return selected;
     }
     static RemoteViews views(Context context,int id) {
+        return views(context,id,sample(context));
+    }
+    static RemoteViews views(Context context,int id,MetricsSnapshot snapshot) {
         RemoteViews views=new RemoteViews(context.getPackageName(),R.layout.pulse_widget);
+        WidgetStyle style=new WidgetStyle(new MonitorPrefs(context));
+        views.setInt(R.id.widget_background,"setColorFilter",style.backgroundColor);
+        views.setInt(R.id.widget_background,"setImageAlpha",style.alpha);
+        views.setViewVisibility(R.id.widget_border,style.borderless?android.view.View.GONE:android.view.View.VISIBLE);
+        views.setTextColor(R.id.widget_empty,style.labelColor);
         views.setEmptyView(R.id.widget_list,R.id.widget_empty);
         Intent refresh=new Intent(context,PulseWidgetProvider.class).setAction(REFRESH)
             .setData(Uri.parse("pulse://widget/"+id)).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,id);
@@ -122,7 +130,6 @@ public final class PulseWidgetProvider extends AppWidgetProvider {
         PendingIntent click=PendingIntent.getBroadcast(context,id,refresh,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_MUTABLE);
         views.setPendingIntentTemplate(R.id.widget_list,click);
         views.setOnClickPendingIntent(R.id.widget_empty,PendingIntent.getActivity(context,0,new Intent(context,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
-        MetricsSnapshot snapshot=sample(context);
         views.setContentDescription(R.id.widget_root,snapshot.timestampMillis==0?"Pulse，等待采样":
             "Pulse，采样时间 "+android.text.format.DateFormat.format("HH:mm:ss",snapshot.timestampMillis)+"，点按指标刷新");
         if(Build.VERSION.SDK_INT>=31) {
@@ -139,14 +146,14 @@ public final class PulseWidgetProvider extends AppWidgetProvider {
     static RemoteViews row(Context context,MetricsSnapshot.Metric metric) {
         MonitorPrefs prefs=new MonitorPrefs(context);boolean bold=prefs.getBoolean("overlay_bold",false);
         int font=Math.max(10,Math.min(22,prefs.getInt("overlay_size",12)));
-        String theme=prefs.getString("theme","mint");
-        int accent="ice".equals(theme)?0xff89c9ff:"amber".equals(theme)?0xffffce85:"mono".equals(theme)?0xffebeff7:0xff78e8c6;
+        WidgetStyle style=new WidgetStyle(prefs);
         RemoteViews row=new RemoteViews(context.getPackageName(),R.layout.pulse_widget_row);
         row.setTextViewText(R.id.widget_label,styled(metric.label,bold));
         row.setTextViewText(R.id.widget_value,styled(metric.available?metric.value+(metric.unit.isEmpty()?"":" "+metric.unit):"—",bold));
         row.setTextViewTextSize(R.id.widget_label,TypedValue.COMPLEX_UNIT_SP,font-1);
         row.setTextViewTextSize(R.id.widget_value,TypedValue.COMPLEX_UNIT_SP,font);
-        row.setTextColor(R.id.widget_value,metric.available?accent:0xff66778b);
+        row.setTextColor(R.id.widget_label,style.labelColor);
+        row.setTextColor(R.id.widget_value,style.valueColor(metric.available));
         int padding=Math.round((prefs.getBoolean("compact",true)?1:4)*context.getResources().getDisplayMetrics().density);
         row.setViewPadding(R.id.widget_metric_row,0,padding,0,padding);
         row.setContentDescription(R.id.widget_metric_row,metric.label+" "+(metric.available?metric.value+metric.unit:"暂不可用"));

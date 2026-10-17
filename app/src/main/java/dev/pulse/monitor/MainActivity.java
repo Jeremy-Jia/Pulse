@@ -55,7 +55,7 @@ public final class MainActivity extends Activity {
     private PulseViews.Icon actionIcon;
     private PulseViews.Trend trend;
     private PulseViews.Cores cores;
-    private PulseViews.Preview preview;
+    private PulseViews.Preview preview,widgetPreview;
     private final Map<String,List<TextView>> valueViews=new LinkedHashMap<>();
     private int page=0;
     private String metricQuery="", schema="";
@@ -89,7 +89,7 @@ public final class MainActivity extends Activity {
     private void buildScreen(boolean preserveScroll){
         overlaySwitch=null;
         int previousY=preserveScroll&&scroll!=null?scroll.getScrollY():0;
-        valueViews.clear();heroValue=null;heroUnit=null;heroCaption=null;rootStatus=null;permissionStatus=null;permissionButton=null;overlayRunButton=null;selectedCount=null;preview=null;cores=null;statusText=null;actionText=null;actionIcon=null;coreLegend=null;
+        valueViews.clear();heroValue=null;heroUnit=null;heroCaption=null;rootStatus=null;permissionStatus=null;permissionButton=null;overlayRunButton=null;selectedCount=null;preview=null;widgetPreview=null;cores=null;statusText=null;actionText=null;actionIcon=null;coreLegend=null;
         root=column();root.setBackgroundColor(BG);
         root.setOnApplyWindowInsetsListener((view,insets)->{
             if(Build.VERSION.SDK_INT>=30){android.graphics.Insets edge=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());view.setPadding(edge.left,edge.top,edge.right,edge.bottom);}
@@ -174,13 +174,24 @@ public final class MainActivity extends Activity {
         LinearLayout display=card();display.addView(sectionHeader("显示与交互","DISPLAY"));top(display,toggle("启用悬浮窗","开启后立即启动监测并显示悬浮窗","overlay_enabled",true),13);top(display,divider(BORDER),12);
         top(display,slider("字号","overlay_size",10,22,12," sp"),18);
         top(display,toggle("粗体显示","同时应用于悬浮窗与桌面小部件","overlay_bold",false),17);
+        top(display,toggle("无边框","隐藏悬浮窗描边，背景仍按不透明度显示","overlay_borderless",false),17);
         top(display,slider("背景不透明度","overlay_alpha",20,100,88,"%"),17);top(display,slider("窗口宽度","overlay_width",100,320,210," dp"),17);
         top(display,text("布局密度",12,WHITE,false),17);top(display,booleanSegments("compact",new String[]{"紧凑","舒展"},true),10);
         top(display,divider(BORDER),17);top(display,toggle("固定悬浮位置","关闭时拖动指标移动；开启后可滚动长列表","position_locked",false),14);top(display,toggle("触摸穿透","点击交给下方应用；在此关闭可恢复拖动","touch_through",false),17);top(content,display,13);
 
         LinearLayout widget=card();widget.addView(sectionHeader("桌面小部件","WIDGET"));
-        TextView widgetHelp=text("同步选中的指标、字号、粗体、主题与密度。可调整大小、滑动查看更多，点按指标刷新；开启监测后约每 2 秒更新，关闭后由系统定期刷新。无需悬浮窗权限。",11,MUTED,false);
+        TextView widgetHelp=text("同步指标、字号、粗体与密度，配色和边框独立设置。以下外观应用于所有 Pulse 小部件。可调整大小、滑动查看更多，点按指标刷新；开启监测后约每 2 秒更新。无需悬浮窗权限。",11,MUTED,false);
         widgetHelp.setLineSpacing(dp(3),1);top(widget,widgetHelp,10);
+        widgetPreview=new PulseViews.Preview(this,prefs,true);top(widget,widgetPreview,15,165);
+        top(widget,text("小部件样式预览 · 最多 5 项",9,DIM,false),7);
+        WidgetStyle widgetStyle=new WidgetStyle(prefs);
+        top(widget,colorControl("名称颜色","widget_label_color",widgetStyle.labelColor),16);
+        top(widget,colorControl("数值颜色","widget_value_color",widgetStyle.valueColor),13);
+        top(widget,colorControl("背景颜色","widget_background_color",widgetStyle.backgroundColor),13);
+        top(widget,slider("小部件背景不透明度","widget_alpha",0,100,88,"%"),17);
+        top(widget,toggle("小部件无边框","隐藏桌面小部件描边；0% 背景配合此项可仅显示文字","widget_borderless",false),17);
+        TextView resetWidget=button("恢复小部件配色与边框",0xFF192538,MUTED);
+        resetWidget.setOnClickListener(v->{prefs.remove(WidgetStyle.KEYS);notifySettings();buildScreen(true);});top(widget,resetWidget,14);
         TextView addWidget=button("添加桌面小部件",MINT,BG);addWidget.setOnClickListener(v->pinWidget());top(widget,addWidget,13);top(content,widget,13);
 
         LinearLayout theme=card();theme.addView(sectionHeader("色彩主题","COLOR"));LinearLayout chips=row();String[] keys={"mint","ice","amber","mono"},names={"薄荷","冰川","琥珀","月白"};int[] colors={MINT,0xFF8BCBFF,AMBER,0xFFE8EEF9};
@@ -245,7 +256,22 @@ public final class MainActivity extends Activity {
     }
     private LinearLayout slider(String title,String key,int min,int max,int defaultValue,String suffix){
         LinearLayout view=column();LinearLayout labels=row();labels.addView(text(title,12,WHITE,false),new LinearLayout.LayoutParams(0,-2,1));TextView amount=mono(prefs.getInt(key,defaultValue)+suffix,11,MINT);labels.addView(amount);view.addView(labels);
-        SeekBar slider=new SeekBar(this);slider.setMin(min);slider.setMax(max);slider.setProgress(prefs.getInt(key,defaultValue));slider.setProgressTintList(ColorStateList.valueOf(MINT));slider.setThumbTintList(ColorStateList.valueOf(MINT));slider.setProgressBackgroundTintList(ColorStateList.valueOf(BORDER));slider.setPadding(dp(2),0,dp(2),0);slider.setContentDescription(title);top(view,slider,6,33);slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int n,boolean user){amount.setText(n+suffix);if(user){prefs.putInt(key,n);if(preview!=null)preview.invalidate();}}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){notifySettings();}});return view;
+        SeekBar slider=new SeekBar(this);slider.setMin(min);slider.setMax(max);slider.setProgress(prefs.getInt(key,defaultValue));slider.setProgressTintList(ColorStateList.valueOf(MINT));slider.setThumbTintList(ColorStateList.valueOf(MINT));slider.setProgressBackgroundTintList(ColorStateList.valueOf(BORDER));slider.setPadding(dp(2),0,dp(2),0);slider.setContentDescription(title);top(view,slider,6,33);slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int n,boolean user){amount.setText(n+suffix);if(user){prefs.putInt(key,n);invalidatePreviews();}}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){notifySettings();}});return view;
+    }
+    private LinearLayout colorControl(String title,String key,int initial){
+        LinearLayout control=row();control.setPadding(0,dp(5),0,dp(5));
+        LinearLayout labels=column();labels.addView(text(title,12,WHITE,false));
+        TextView value=mono(WidgetStyle.hex(initial),10,MUTED);top(labels,value,4);
+        control.addView(labels,new LinearLayout.LayoutParams(0,-2,1));
+        View swatch=new View(this);swatch.setBackground(shape(initial,8,BORDER,1));
+        LinearLayout.LayoutParams swatchParams=new LinearLayout.LayoutParams(dp(34),dp(34));swatchParams.rightMargin=dp(10);control.addView(swatch,swatchParams);
+        control.addView(text("更改 ›",11,MINT,false));control.setContentDescription(title+"，点按选择颜色");control.setFocusable(true);
+        control.setOnClickListener(v->{
+            Integer saved=WidgetStyle.parseHex(prefs.getString(key,""));
+            ColorPicker.show(this,title,saved==null?initial:saved,color->{
+                prefs.putString(key,WidgetStyle.hex(color));value.setText(WidgetStyle.hex(color));swatch.setBackground(shape(color,8,BORDER,1));notifySettings();
+            });
+        });return control;
     }
     private LinearLayout booleanSegments(String key,String[] labels,boolean defaultValue){
         LinearLayout row=row();boolean current=prefs.getBoolean(key,defaultValue);
@@ -286,7 +312,7 @@ public final class MainActivity extends Activity {
         if(actionIcon!=null)actionIcon.setKind(running?"pause":"play");
         MetricsSnapshot.Metric cpu=find("cpu_usage");if(heroValue!=null){heroValue.setText(cpu!=null&&cpu.available?cpu.value:"—");heroUnit.setText(cpu!=null&&cpu.unit!=null&&!cpu.unit.isEmpty()?cpu.unit:"%");float usage=cpu==null?Float.NaN:PulseViews.number(cpu.value);heroCaption.setText(!running?"轻触开始，观察设备的每一次变化":cpu==null||!cpu.available?"正在读取系统指标 · 部分数据需要 ADB 模式或 Root":Float.isNaN(usage)?"正在呈现设备的实时运行状态":usage<25?"轻盈运行 · 当前处理器负载较低":usage<65?"平稳运行 · 处理器正在工作":"正在全力工作 · 关注负载与温度变化");}
         for(Map.Entry<String,List<TextView>> entry:valueViews.entrySet()){MetricsSnapshot.Metric m=find(entry.getKey());for(TextView view:entry.getValue())view.setText(format(m));}
-        if(cores!=null)cores.setSnapshot(latest);if(coreLegend!=null)coreLegend.setText(clusterSummary());if(preview!=null)preview.setSnapshot(latest);if(latest!=null&&cpu!=null&&cpu.available)trend.append(latest.timestampMillis,cpu.value);
+        if(cores!=null)cores.setSnapshot(latest);if(coreLegend!=null)coreLegend.setText(clusterSummary());if(preview!=null)preview.setSnapshot(latest);if(widgetPreview!=null)widgetPreview.setSnapshot(latest);if(latest!=null&&cpu!=null&&cpu.available)trend.append(latest.timestampMillis,cpu.value);
         if(rootStatus!=null){MetricsSnapshot.Metric rootMetric=find("root_status");int count=0;for(MetricsSnapshot.Metric m:allMetrics())if(m.available)count++;rootStatus.setText(latest==null?"数据来源 · 等待开始监测":"数据来源 · "+count+" 项可用"+(rootMetric!=null?"  ·  "+rootMetric.value:""));}
         if(page==2&&metricGroups!=null&&!signature(allMetrics()).equals(schema))populateMetricGroups();updateSelectedCount();
     }
@@ -301,7 +327,8 @@ public final class MainActivity extends Activity {
     private MetricsSnapshot.Metric find(String id){if(latest!=null)return latest.find(id);return null;}
     private String format(MetricsSnapshot.Metric metric){return metric==null||!metric.available?"—":metric.value+(metric.unit==null||metric.unit.isEmpty()?"":" "+metric.unit);}
     private void bind(String id,TextView view){List<TextView> targets=valueViews.get(id);if(targets==null){targets=new ArrayList<>();valueViews.put(id,targets);}targets.add(view);}
-    private void notifySettings(){if(preview!=null)preview.invalidate();PulseWidgetProvider.refreshViews(this);if(MonitorService.isRunning)try{startService(new Intent(this,MonitorService.class).setAction(MonitorService.ACTION_REFRESH));}catch(Exception e){Toast.makeText(this,"设置已保存，重新开始监测后应用",Toast.LENGTH_SHORT).show();}}
+    private void invalidatePreviews(){if(preview!=null)preview.invalidate();if(widgetPreview!=null)widgetPreview.invalidate();}
+    private void notifySettings(){invalidatePreviews();PulseWidgetProvider.refreshViews(this);if(MonitorService.isRunning)try{startService(new Intent(this,MonitorService.class).setAction(MonitorService.ACTION_REFRESH));}catch(Exception e){Toast.makeText(this,"设置已保存，重新开始监测后应用",Toast.LENGTH_SHORT).show();}}
     private void pinWidget(){
         android.appwidget.AppWidgetManager manager=android.appwidget.AppWidgetManager.getInstance(this);
         if(manager.isRequestPinAppWidgetSupported()) {

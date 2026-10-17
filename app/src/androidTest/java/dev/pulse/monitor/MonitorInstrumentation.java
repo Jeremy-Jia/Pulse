@@ -22,6 +22,12 @@ public final class MonitorInstrumentation extends Instrumentation {
     }
 
     @Override public void onStart() {
+        if("true".equals(options.getString("appearance"))) {
+            Bundle result=new Bundle();int code=Activity.RESULT_CANCELED;
+            try {result.putString("report_json",AppearanceChecks.run(this).toString());code=Activity.RESULT_OK;}
+            catch(Throwable error){result.putString("failure",error.toString());result.putString("stream","FAIL: "+error);}
+            finish(code,result);return;
+        }
         Bundle result = new Bundle();
         MetricsCollector collector = null;
         int finishCode = Activity.RESULT_CANCELED;

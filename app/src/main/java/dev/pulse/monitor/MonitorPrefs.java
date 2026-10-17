@@ -15,6 +15,12 @@ public final class MonitorPrefs {
     public boolean getBoolean(String key, boolean value) { return prefs.getBoolean(key, value); }
     public int getInt(String key, int value) { return prefs.getInt(key, value); }
     public String getString(String key, String value) { return prefs.getString(key, value); }
+    public boolean contains(String key) { return prefs.contains(key); }
+    public void remove(String... keys) {
+        SharedPreferences.Editor editor=prefs.edit();
+        for(String key:keys)editor.remove(key);
+        editor.apply();
+    }
     public void putBoolean(String key, boolean value) { prefs.edit().putBoolean(key, value).apply(); }
     public void putInt(String key, int value) { prefs.edit().putInt(key, value).apply(); }
     public void putString(String key, String value) { prefs.edit().putString(key, value).apply(); }

@@ -32,7 +32,9 @@ final class OverlayPanel {
         panel=new LinearLayout(context); panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(3),dp(2),dp(3),dp(2));
         panel.setVisibility(View.INVISIBLE);
         GradientDrawable bg=new GradientDrawable(); bg.setColor(Color.argb(Math.max(40,Math.min(255,prefs.getInt("overlay_alpha",88)*255/100)),13,22,33));
-        bg.setCornerRadius(dp(4)); bg.setStroke(Math.max(1,dp(.5f)),0x406caaab); panel.setBackground(bg);
+        bg.setCornerRadius(dp(4));
+        if(!prefs.getBoolean("overlay_borderless",false))bg.setStroke(Math.max(1,dp(.5f)),0x406caaab);
+        panel.setBackground(bg);
         scroll=new ScrollView(context); scroll.setFillViewport(false); scroll.setVerticalScrollBarEnabled(false); scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         rows=new LinearLayout(context); rows.setOrientation(LinearLayout.VERTICAL); scroll.addView(rows);
         panel.addView(scroll,new LinearLayout.LayoutParams(-1,-2));

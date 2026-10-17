@@ -1,0 +1,13 @@
+{
+  "result": "pass",
+  "version": "1.3.0",
+  "widget_colors": true,
+  "widget_border_toggle": true,
+  "opacity_0_55_100": true,
+  "overlay_border_toggle": true,
+  "reset_and_theme": true,
+  "legacy_factory": true,
+  "settings_controls_present": true,
+  "picker_validation_apply_cancel": true,
+  "user_preferences_unchanged": true
+}

@@ -1,8 +1,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_frame" android:padding="4dp">
+    android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent">
+    <ImageView android:id="@+id/widget_background" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_fill" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="4dp">
     <ListView android:id="@+id/widget_list" android:layout_width="match_parent" android:layout_height="match_parent"
         android:divider="@null" android:scrollbars="none" android:overScrollMode="never" />
     <TextView android:id="@+id/widget_empty" android:layout_width="match_parent" android:layout_height="match_parent"
         android:text="@string/widget_empty" android:textSize="12sp" android:textColor="#A7B7C9" android:gravity="center" />
+    </FrameLayout>
+    <ImageView android:id="@+id/widget_border" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_border" android:scaleType="fitXY" android:importantForAccessibility="no" />
 </FrameLayout>

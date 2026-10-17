@@ -90,3 +90,5 @@ adb shell am instrument -w -r dev.pulse.monitor.test/dev.pulse.monitor.MonitorIn
 本次 macOS 构建使用 JDK 17、上述 Gradle/AGP/API 36/Build Tools 版本及 NDK r30（30.0.16248370）。通过 `PULSE_NDK_HOME` 选择 NDK；`app/build/native/build-manifest.json` 记录实际 NDK source.properties，不能将 r30 构建误标为 r29。
 
 非 Root 功能、ADB 激活与限制见 [NON_ROOT.md](NON_ROOT.md)。测试 Runner 可传 `-e backend app|adb -e benchmark probe|coremark|dhrystone|whetstone|custom`；ADB 模式测试启动新的目标进程后会等待 25 秒，期间需重新执行激活脚本。HyperOS 可能冻结无可见 Activity 的 Instrumentation，需要同时使用 `adb shell am start --activity-single-top -n dev.pulse.monitor/.MainActivity` 保持目标可见。`-e cancel true` 检查中途取消；`-e overlay true` 检查 120 dp 窗口（附加 `-e overlay_width 100` 使用 100 dp / 10 sp）只含所选项、粗体、空选隐藏、锁定与物理屏幕贴边；`-e widget true` 注册临时 AppWidgetHost 验证实际 RemoteViews 渲染、滚动、样式切换、指标选择更新和点按采样。测试结束删除临时小部件并恢复原偏好，不在用户桌面放置小部件。Android 8–11 的集合工厂在本机测数据与行渲染，完整旧系统宿主仍需旧设备验证。
+
+外观验证：`-e appearance true` 使用独立 SharedPreferences，不改用户指标和配色。RemoteViews 经 Parcel 往返后在 AppWidgetHostView 中检查名称/数值色、背景颜色、0/55/100% 不透明度和边框开关，并覆盖旧集合工厂、恢复默认与主题跟随、悬浮窗描边像素，以及颜色对话框的非法输入、应用和取消。该模式不分配桌面小部件 ID，不在用户桌面添加小部件。
