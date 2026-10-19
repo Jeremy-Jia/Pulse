@@ -115,6 +115,7 @@ public final class MainActivity extends Activity {
         LinearLayout title=column();LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);tp.leftMargin=dp(12);header.addView(title,tp);
         TextView brand=text("脉冲",21,WHITE,true);title.addView(brand);
         TextView sub=text("P U L S E  /  DEVICE STUDIO",8.5f,MUTED,false);sub.setLetterSpacing(.07f);top(title,sub,3);
+        TextView thermal=text("温控",12,AMBER,true);thermal.setPadding(dp(12),dp(10),dp(8),dp(10));thermal.setOnClickListener(v->startActivity(new Intent(this,dev.pulse.thermal.MainActivity.class)));thermal.setContentDescription("打开 CPU 温控策略");header.addView(thermal);
         TextView about=text("说明",12,MUTED,false);about.setPadding(dp(12),dp(10),0,dp(10));about.setOnClickListener(v->showAbout());about.setContentDescription("查看数据说明与权限帮助");header.addView(about);
         return header;
     }
@@ -136,6 +137,9 @@ public final class MainActivity extends Activity {
 
         LinearLayout lab=card();lab.setBackground(shape(0xFF211F35,21,0xFF39334F,1));LinearLayout labHead=row();LinearLayout labWords=column();labWords.addView(text("性能实验室",16,WHITE,true));top(labWords,text("COREMARK  ·  DHRYSTONE  ·  WHETSTONE",8.5f,LILAC,false),8);labHead.addView(labWords,new LinearLayout.LayoutParams(0,-2,1));labHead.addView(new PulseViews.Icon(this,"arrow",LILAC),new LinearLayout.LayoutParams(dp(24),dp(24)));lab.addView(labHead);top(lab,text("可重复的基准测试，观察性能与功耗。",10.5f,MUTED,false),12);lab.setOnClickListener(v->{try{startActivity(new Intent().setClassName(getPackageName(),getPackageName()+".BenchActivity"));}catch(Exception e){Toast.makeText(this,"实验室暂时未能打开",Toast.LENGTH_SHORT).show();}});lab.setContentDescription("打开性能实验室，CoreMark、Dhrystone、Whetstone 与 PMU 基准测试");top(content,lab,13);
 
+        LinearLayout thermalCard=card();thermalCard.setBackground(shape(0xFF2B2522,21,0xFF493A30,1));
+        thermalCard.addView(sectionHeader("CPU 温控策略","ROOT / XIAOMI 15"));top(thermalCard,text("全频释放、温度停止线、定时恢复与持续运行。",11,AMBER,false),12);
+        thermalCard.setOnClickListener(v->startActivity(new Intent(this,dev.pulse.thermal.MainActivity.class)));thermalCard.setContentDescription("打开小米 15 CPU 温控策略");top(content,thermalCard,13);
         LinearLayout coreCard=card();coreCard.addView(sectionHeader("核心频率","GHz · 顶部当前 / 底部最大"));cores=new PulseViews.Cores(this);top(coreCard,cores,13,144);coreLegend=text("核心簇待识别",9.5f,MUTED,false);top(coreCard,coreLegend,11);top(content,coreCard,13);
 
         LinearLayout trendCard=card();trendCard.addView(sectionHeader("负载轨迹","最近 60 秒"));if(trend.getParent()!=null)((ViewGroup)trend.getParent()).removeView(trend);top(trendCard,trend,13,136);top(content,trendCard,13);
@@ -348,7 +352,7 @@ public final class MainActivity extends Activity {
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==70&&pendingStart)startMonitor();}
     private void openOverlayPermission(){try{startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,Uri.parse("package:"+getPackageName())));}catch(Exception e){startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())));}}
     private void updatePermission(){if(permissionStatus!=null){boolean allowed=Settings.canDrawOverlays(this);permissionStatus.setText(allowed?"悬浮显示已允许":"开启屏幕上的实时仪表");permissionStatus.setTextColor(allowed?MINT:WHITE);if(permissionButton!=null)permissionButton.setText(allowed?"管理悬浮权限":"授予悬浮权限");}}
-    private void showAbout(){new AlertDialog.Builder(this).setTitle("脉冲 · Pulse").setMessage("属于你设备的实时仪表。\n\nCPU、GPU、内存、电池与温度均来自系统实际读数，无法读取时显示「—」。应用不会调频、修改温控或写入设备分区。\n\n需要更多硬件指标：非 Root 手机可通过随附的 ADB 激活脚本启用辅助进程；Root 手机可在 KernelSU 中授权。\n\nCPU 传感器不一定对应逻辑核心；电池功率是电池端净功率，不等于处理器功率。FPS 与屏幕刷新率分开显示。\n\n保持常驻：允许悬浮显示、自启动，并在系统电池设置中为本应用选择无限制。监测期间必须保留基础前台通知。").setPositiveButton("了解",null).show();}
+    private void showAbout(){new AlertDialog.Builder(this).setTitle("脉冲 · Pulse").setMessage("属于你设备的实时仪表。\n\nCPU、GPU、内存、电池与温度均来自系统实际读数，无法读取时显示「—」。日常监测只读；1.4 新增的温控策略需 Root 并由你手动启用，仅支持已校验的小米 15 固件。不会写入设备分区。\n\n需要更多硬件指标：非 Root 手机可通过随附的 ADB 激活脚本启用辅助进程；Root 手机可在 KernelSU 中授权。\n\nCPU 传感器不一定对应逻辑核心；电池功率是电池端净功率，不等于处理器功率。FPS 与屏幕刷新率分开显示。\n\n保持常驻：允许悬浮显示、自启动，并在系统电池设置中为本应用选择无限制。监测期间必须保留基础前台通知。").setPositiveButton("了解",null).show();}
 
     private LinearLayout column(){LinearLayout v=new LinearLayout(this);v.setOrientation(LinearLayout.VERTICAL);return v;}
     private LinearLayout row(){LinearLayout v=new LinearLayout(this);v.setOrientation(LinearLayout.HORIZONTAL);v.setGravity(Gravity.CENTER_VERTICAL);return v;}

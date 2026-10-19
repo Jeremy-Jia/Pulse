@@ -1,6 +1,6 @@
 # Pulse
 
-面向 Android 的本地性能仪表与原生基准测试工具。提供设备概览、可配置悬浮窗、常驻通知、硬件传感器读数与性能实验室。界面和业务代码独立开发；内置基准测试保留上游源码及来源说明。
+面向 Android 的本地性能仪表与原生基准测试工具。提供设备概览、可配置悬浮窗、常驻通知、硬件传感器读数与性能实验室。1.4 新增已验证小米 15 的 Root CPU 温控策略；原有功能完整保留。界面和业务代码独立开发；内置基准测试保留上游源码及来源说明。
 
 > Local-first performance telemetry and native benchmarking for Android, with standalone, ADB shell and Root access modes.
 
@@ -8,21 +8,30 @@
 
 已加入普通权限运行、ADB shell 辅助进程、传感器命名兼容和全屏贴边悬浮窗。1.2.0 增加桌面小部件、粗体显示和仅含所选指标的极简悬浮窗；1.3.0 增加悬浮窗无边框，以及小部件独立配色、透明背景与边框设置。说明与激活命令见 [NON_ROOT.md](docs/NON_ROOT.md)。最新版源码与 APK 均已更新到本仓库。
 
+## 1.4 新增：CPU 温控策略
+
+从原 Pulse 首页的「温控」入口打开。支持全频释放、0–100% 自选阶梯增幅、两组核心逐温度档自定义频率，电池/估算机身/CPU 热点停止线，定时恢复、持续运行、可选开机继续，以及通知栏恢复和 CSV 记录。温控修改仅支持已匹配的 **小米 15 / dada 温控固件并需要 Root**；原来的普通权限/ADB 监测、悬浮窗、小部件、CoreMark、Dhrystone、Whetstone、PMU 与自定义 ELF 测试保持可用。详见 [温控功能说明](docs/THERMAL.md)。
+
+<table><tr>
+<td><img src="docs/verification/thermal-1.4.0/dashboard.png" width="260" alt="Pulse 新增温控控制台"></td>
+<td><img src="docs/verification/thermal-1.4.0/strategies.png" width="260" alt="全频、自选阶梯增幅、逐档自定义"></td>
+</tr></table>
+
 ## 下载
 
-**最新版：[下载 Pulse 1.3.0 ARM64 APK](https://github.com/Jeremy-Jia/Pulse/raw/refs/heads/main/releases/Pulse-1.3.0-arm64.apk)**
+**最新版：[下载 Pulse 1.4.0 ARM64 APK](https://github.com/Jeremy-Jia/Pulse/raw/refs/heads/main/releases/Pulse-1.4.0-arm64.apk)**
 
-版本号 `1.3.0`，versionCode `4`，适用于 ARM64，最低 Android 8.0（API 26）。同一安装包提供普通权限、ADB shell 和 Root 访问方式。本版已在小米 18 系列 / Android 17 / 非 Root 设备完成外观验证；保留小米 15 Root 路径，本版未重新连接该机回归。
+版本号 `1.4.0`，versionCode `5`，适用于 ARM64，最低 Android 8.0（API 26）。同一安装包提供普通权限、ADB shell 和 Root 访问方式。1.4 已连接小米 15 / Android 17 / KernelSU 验证新增温控路径及原有功能；1.3 的非 Root 小米 18 系列外观记录作为历史验证保留，不代表 1.4 已在该设备重新测试。验证范围见 [1.4 验证记录](docs/verification/thermal-1.4.0/REPORT.md)。
 
 APK SHA-256（全部安装包的校验值见 [SHA256SUMS](releases/SHA256SUMS)）：
 
 ```text
-d98808c9d1277303ec81771ca9c9b786b67b0207329a90f8ee36d8ed87b12c4d
+8cb084346a5558e098cb5f36a78aa76a1148b3dea6bda71263eb01d912e179a1
 ```
 
-当前 APK 使用开发调试签名，可覆盖本机此前提供的 1.1.0 / 1.2.0 安装包。它与仓库历史 1.0.0 APK 的签名不同；从历史版保留数据升级，需要使用原 keystore 重签。签名与构建方式见 [构建文档](docs/BUILD.md) 和 [安装签名说明](docs/NON_ROOT.md#安装签名)。
+当前 1.4 APK 使用 Windows 开发调试签名，与 1.3 Mac 构建的签名不同。直接保留数据升级需使用原 keystore 重签；不要自动卸载旧版本绕过签名检查。本次连接设备是在用户明确选择后，完整备份原 APK/数据再重装恢复，原有监测设置已校验保留。签名与构建方式见 [构建文档](docs/BUILD.md) 和 [安装签名说明](docs/NON_ROOT.md#安装签名)。
 
-1.3.0 的构建、颜色配置、透明度、无边框和设置保留验证见 [外观验证报告](docs/verification/ui-1.3.0/REPORT.txt)。[Pulse 1.0.0 APK](releases/Pulse-1.0.0.apk) 保留为历史版本。
+1.3.0 的构建、颜色配置、透明度、无边框和设置保留验证见 [外观验证报告](docs/verification/ui-1.3.0/REPORT.txt)。[Pulse 1.3.0 APK](releases/Pulse-1.3.0-arm64.apk) 与 [Pulse 1.0.0 APK](releases/Pulse-1.0.0.apk) 保留为历史版本。
 
 ## 功能概览
 
@@ -50,7 +59,7 @@ d98808c9d1277303ec81771ca9c9b786b67b0207329a90f8ee36d8ed87b12c4d
 
 原版 Root 实测设备为 **小米 15（dada），HyperOS OS4.0.0.19.XOCCNXM，Android 17，KernelSU Root**。项目使用 Android API 36 编译并设为目标版本，最低支持 API 26；这不表示已验证所有 Android 8.0 及以上设备。硬件读数依赖访问模式与固件开放接口；ADB 模式可在非 Root 手机上使用允许的 shell 接口，Root 模式需在 KernelSU 中为 Pulse 单独授权。桌面与系统应用名称为 Pulse，内部界面保留中文标题「脉冲」。
 
-应用不申请联网权限。监测只读取设备状态，不修改温控、CPU 频率、调度器、SELinux 或系统分区。
+应用不申请联网权限。日常监测只读取设备状态；新增的温控子页仅在用户主动应用策略后，通过 Root 修改已适配的两条 CPU 曲线，保留其他系统保护，不刷写设备分区。
 
 小米 15 实机验证中，一轮完整采样耗时约 81–137 ms，144 个指标中有 129 个可用；可用数量会随内核、硬件节点和当前状态变化。原生测试的 CRC、结果变量、超时、取消、PMU 与 Raw 参数边界记录保存在 [验证报告](docs/verification/) 中，这些记录用于功能验证，不作为受控环境下的性能排名。
 

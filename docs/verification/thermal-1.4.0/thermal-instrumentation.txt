@@ -1,0 +1,6 @@
+PASS UI start, exact fullmax bytes, foreground notification, notification restore
+PASS one-minute timer and factory restoration
+PASS independent guard after monitor SIGKILL
+PASS same-boot no-op and simulated reboot recovery/resume
+INSTRUMENTATION_RESULT: report_json={"ui_start_notification_restore":"pass","real_one_minute_timer":"pass","independent_guard_after_sigkill":"pass","boot_dispatch_simulation":"pass; actual phone reboot not performed","custom_single_cluster_curve":"pass","csv_export":"pass","result":"pass"}
+INSTRUMENTATION_CODE: -1
