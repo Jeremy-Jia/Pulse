@@ -1,7 +1,7 @@
 # 18 Pro 温控生效检查与 15 开机恢复修复
 
 日期：2026-10-20
-设备：Xiaomi 18 Pro / hongkong / 495fb913；15 未连接
+设备：Xiaomi 18 Pro / hongkong / 495fb913；Xiaomi 15 / dada / 3318667e
 版本：1.5.1 / versionCode 7
 
 ## 18 Pro 当前生效状态
@@ -49,8 +49,41 @@ reason=NONE
 - `MainActivity` 在「重启后继续」切换时立即同步；切回定时模式时同时关闭启动钩子。
 - 18 的 `runtimeMount=true`，方法直接返回，不改变“仅本次开机”的既有行为。
 
-验证边界：本机没有连接小米 15，**无法代替 15 做真实重启验证**。此前 1.4 的启动项也只是
-模拟 boot-id 验证。修复已编译并安装到 18（18 上该分支不执行）；15 需要实际重启后检查：
+## 15 实际重启验证
+
+2026-10-20 系统更新到 `OS4.0.0.22.XOCCNXM` 后 KernelSU 被覆盖，15 已解锁 BL。使用
+OS3.0.307 线刷包里的 `init_boot.img`，由管理器内的 `ksud boot-patch` 选择
+`android15-6.6` 内置 LKM 修补后，只刷当前槽位 `init_boot_b`。重启后 KernelSU 3.3.1
+恢复，`su -c id` 为 uid 0，`/proc/modules` 显示 `kernelsu 180224 ... Live`。
+
+温控兼容性：
+
+- `/vendor/bin/mi_thermald` SHA-256 = `d6ddd1c6…6075`，匹配 `ConfigCodec.BINARY_SHA`；
+- `/odm/etc/thermal-normal.conf` SHA-256 = `c121ffb8…0641`，匹配 `CIPHER_SHA`；
+- OS4.0.0.22 虽不是文档最初列出的 19.D01，但这两项厂商材料与 MI15 白名单完全一致。
+
+应用保存的持续运行配置（全频、3.5328/4.32 GHz、50/50/105°C、`resume=1`）已重新应用：
+
+```text
+session=1792506519022  phase=active
+max0=3532800  max6=4320000
+resume=1
+```
+
+清空 `boot.log` 后真实重启，得到：
+
+```text
+boot_id=ebabda2e-8cf7-4bef-abf0-bc3c74ae4342
+boot.log=OK ACTIVE 1792506519022
+snapshot.state=active  elapsed=8  resume=1
+watch/sentry 两个 root 守护均在运行
+```
+
+结论：15 的开机恢复链路已经真实跑通，启动钩子执行、恢复原厂、校验并重新应用了同一会话。
+此前 `boot.log` 里的 `ERROR NORMAL_PROFILE_REQUIRED` 是更早一次场景不匹配留下的旧记录；
+这次重新应用并清空日志后为 `OK ACTIVE`。
+
+仍可通过以下命令复查：
 
 ```sh
 adb shell su -c 'cat /data/adb/pulse-thermal/boot.log'
