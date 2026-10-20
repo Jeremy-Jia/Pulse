@@ -34,6 +34,12 @@ public final class MonitorInstrumentation extends Instrumentation {
             catch(Throwable error){result.putString("failure",error.toString());result.putString("stream","FAIL: "+error);}
             finish(code,result);return;
         }
+        if("true".equals(options.getString("overlaycolors"))) {
+            Bundle result=new Bundle();int code=Activity.RESULT_CANCELED;
+            try {result.putString("report_json",OverlayColorChecks.run(this).toString());code=Activity.RESULT_OK;}
+            catch(Throwable error){result.putString("failure",error.toString());result.putString("stream","FAIL: "+error);}
+            finish(code,result);return;
+        }
         Bundle result = new Bundle();
         MetricsCollector collector = null;
         int finishCode = Activity.RESULT_CANCELED;

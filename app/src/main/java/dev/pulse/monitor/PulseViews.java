@@ -150,7 +150,7 @@ final class PulseViews {
             super.onDraw(canvas);float d=getResources().getDisplayMetrics().density,w=getWidth(),h=getHeight();
             p.setColor(Color.rgb(11,18,29));canvas.drawRoundRect(0,0,w,h,16*d,16*d,p);
             p.setColor(Color.rgb(29,42,58));for(float y=16*d;y<h;y+=18*d)for(float x=16*d;x<w;x+=18*d)canvas.drawCircle(x,y,.7f*d,p);
-            int accent=WidgetStyle.accent(prefs);WidgetStyle widgetStyle=widget?new WidgetStyle(prefs):null;
+            WidgetStyle widgetStyle=widget?new WidgetStyle(prefs):null;OverlayStyle overlayStyle=widget?null:new OverlayStyle(prefs);
             float boxW=widget?Math.min(w-24*d,240*d):Math.min(w-36*d,Math.max(100,Math.min(320,prefs.getInt("overlay_width",210)))*d);
             int font=Math.max(10,Math.min(22,prefs.getInt("overlay_size",12)));
             float text=font*getResources().getDisplayMetrics().scaledDensity;
@@ -160,7 +160,7 @@ final class PulseViews {
             int style=prefs.getBoolean("overlay_bold",false)?Typeface.BOLD:Typeface.NORMAL;
             boolean compact=prefs.getBoolean("compact",true);float rowH=text*1.2f+(compact?2:8)*d,boxH=Math.min(h-30*d,4*d+chosen.size()*rowH);
             float x=(w-boxW)/2,y=(h-boxH)/2,radius=(widget?8:4)*d;
-            int background=widget?widgetStyle.backgroundColor:0xff0d1621;
+            int background=widget?widgetStyle.backgroundColor:overlayStyle.backgroundColor;
             int alpha=widget?widgetStyle.alpha:Math.round(Math.max(0,Math.min(100,prefs.getInt("overlay_alpha",88)))*255f/100);
             p.setColor((background&0xffffff)|(alpha<<24));canvas.drawRoundRect(x,y,x+boxW,y+boxH,radius,radius,p);
             if(!(widget?widgetStyle.borderless:prefs.getBoolean("overlay_borderless",false))) {
@@ -172,9 +172,9 @@ final class PulseViews {
                 String value=m.available?m.value+(m.unit==null||m.unit.isEmpty()?"":" "+m.unit):"—";
                 p.setTypeface(Typeface.create("monospace",style));p.setTextSize(text);
                 value=android.text.TextUtils.ellipsize(value,new android.text.TextPaint(p),(boxW-6*d)*.62f,android.text.TextUtils.TruncateAt.END).toString();float valueWidth=p.measureText(value);
-                p.setTypeface(Typeface.create("sans-serif",style));p.setTextSize(text*(font-1f)/font);p.setColor(widget?widgetStyle.labelColor:0xffa7b7c9);
+                p.setTypeface(Typeface.create("sans-serif",style));p.setTextSize(text*(font-1f)/font);p.setColor(widget?widgetStyle.labelColor:overlayStyle.labelColor);
                 String label=android.text.TextUtils.ellipsize(m.label,new android.text.TextPaint(p),Math.max(0,boxW-9*d-valueWidth),android.text.TextUtils.TruncateAt.END).toString();canvas.drawText(label,x+3*d,yy,p);
-                p.setTextAlign(Paint.Align.RIGHT);p.setTypeface(Typeface.create("monospace",style));p.setColor(widget?widgetStyle.valueColor(m.available):m.available?accent:0xff66778b);p.setTextSize(text);canvas.drawText(value,x+boxW-3*d,yy,p);p.setTextAlign(Paint.Align.LEFT);
+                p.setTextAlign(Paint.Align.RIGHT);p.setTypeface(Typeface.create("monospace",style));p.setColor(widget?widgetStyle.valueColor(m.available):overlayStyle.valueColor(m.available));p.setTextSize(text);canvas.drawText(value,x+boxW-3*d,yy,p);p.setTextAlign(Paint.Align.LEFT);
             }
             canvas.restore();
         }

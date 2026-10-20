@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 final class AdbBridge {
     static final String DESCRIPTOR="dev.pulse.monitor.AdbBridge.v1";
     static final int HELLO=1, READ=2, START=3, POLL=4, SIGNAL=5;
-    static final Uri URI=Uri.parse("content://dev.pulse.monitor.adb");
+    static final Uri URI=Uri.parse("content://"+BuildConfig.APPLICATION_ID+".adb");
     private static volatile IBinder remote;
 
     static void attach(IBinder binder) throws RemoteException {

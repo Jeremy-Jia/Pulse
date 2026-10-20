@@ -18,20 +18,21 @@ final class OverlayPanel {
     private final WindowManager.LayoutParams params;
     private String signature="";
     private boolean shown;
-    private int accent;
+    private final OverlayStyle style;
     private final int font;
     private final boolean compact;
     private final boolean bold;
     @android.annotation.SuppressLint("ClickableViewAccessibility")
     OverlayPanel(Context context,MonitorPrefs prefs) {
         this.context=context; this.prefs=prefs; manager=(WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-        String theme=prefs.getString("theme","mint");
-        accent="ice".equals(theme)?0xff89c9ff:"amber".equals(theme)?0xffffce85:"mono".equals(theme)?0xffebeff7:0xff78e8c6;
+        style=new OverlayStyle(prefs);
         font=Math.max(10,Math.min(22,prefs.getInt("overlay_size",12))); compact=prefs.getBoolean("compact",true);
         bold=prefs.getBoolean("overlay_bold",false);
         panel=new LinearLayout(context); panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(3),dp(2),dp(3),dp(2));
         panel.setVisibility(View.INVISIBLE);
-        GradientDrawable bg=new GradientDrawable(); bg.setColor(Color.argb(Math.max(40,Math.min(255,prefs.getInt("overlay_alpha",88)*255/100)),13,22,33));
+        GradientDrawable bg=new GradientDrawable();
+        int background=style.backgroundColor;
+        bg.setColor(Color.argb(Math.max(40,Math.min(255,prefs.getInt("overlay_alpha",88)*255/100)),Color.red(background),Color.green(background),Color.blue(background)));
         bg.setCornerRadius(dp(4));
         if(!prefs.getBoolean("overlay_borderless",false))bg.setStroke(Math.max(1,dp(.5f)),0x406caaab);
         panel.setBackground(bg);
@@ -111,8 +112,8 @@ final class OverlayPanel {
             signature=key.toString(); rows.removeAllViews(); values.clear();
             for(MetricsSnapshot.Metric metric:selected) {
                 LinearLayout row=new LinearLayout(context); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(0,dp(compact?1:4),0,dp(compact?1:4));
-                TextView label=text(metric.label,font-1,0xffa7b7c9,bold); label.setSingleLine(true); label.setEllipsize(android.text.TextUtils.TruncateAt.END);
-                TextView value=text("—",font,accent,bold); value.setGravity(Gravity.END); value.setSingleLine(true);
+                TextView label=text(metric.label,font-1,style.labelColor,bold); label.setSingleLine(true); label.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                TextView value=text("—",font,style.valueColor(false),bold); value.setGravity(Gravity.END); value.setSingleLine(true);
                 value.setTypeface(Typeface.create("monospace",bold?Typeface.BOLD:Typeface.NORMAL));
                 value.setMaxWidth(Math.round((params.width-dp(6))*.62f));value.setEllipsize(android.text.TextUtils.TruncateAt.END);
                 LinearLayout.LayoutParams vp=new LinearLayout.LayoutParams(-2,-2);vp.leftMargin=dp(3);
@@ -122,7 +123,7 @@ final class OverlayPanel {
         }
         for(MetricsSnapshot.Metric m:selected) { TextView value=values.get(m.id); if(value!=null) {
             value.setText(m.available?m.value+(m.unit.isEmpty()?"":" "+m.unit):"—");
-            value.setTextColor(m.available?accent:0xff66778b); value.setContentDescription(m.label+" "+(m.available?m.value+m.unit:"暂不可用"));
+            value.setTextColor(style.valueColor(m.available)); value.setContentDescription(m.label+" "+(m.available?m.value+m.unit:"暂不可用"));
         } }
         panel.setVisibility(selected.isEmpty()?View.GONE:View.VISIBLE);
         int maxHeight=Math.max(dp(80),(int)(screenBounds().height()*.64f));

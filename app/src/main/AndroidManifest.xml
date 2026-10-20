@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application android:theme="@style/AppTheme" android:label="Pulse" android:icon="@drawable/ic_pulse" android:allowBackup="false" android:supportsRtl="true" android:extractNativeLibs="true">
-        <provider android:name=".AdbBridgeProvider" android:authorities="dev.pulse.monitor.adb" android:exported="true" android:permission="android.permission.DUMP" />
+        <provider android:name=".AdbBridgeProvider" android:authorities="${applicationId}.adb" android:exported="true" android:permission="android.permission.DUMP" />
         <receiver android:name=".PulseWidgetProvider" android:label="@string/widget_name" android:exported="false">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/pulse_widget_info" />

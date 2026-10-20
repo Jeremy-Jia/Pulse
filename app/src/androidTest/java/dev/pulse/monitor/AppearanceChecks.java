@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Parcel;
 import android.os.SystemClock;
 import android.view.View;
@@ -114,6 +115,39 @@ final class AppearanceChecks {
                 check(((TextView)row.findViewById(R.id.widget_value)).getCurrentTextColor()==0xff89c9ff,"Default value color stopped following theme");
             });
 
+            prefs.putString("overlay_label_color","#FFCE85");
+            prefs.putString("overlay_value_color","#78E8C6");
+            prefs.putString("overlay_background_color","#19324D");
+            prefs.putInt("overlay_alpha",55);prefs.putBoolean("overlay_borderless",false);
+            final OverlayPanel[] styled={null};
+            try {
+                main(test,()->{styled[0]=new OverlayPanel(isolated,prefs);styled[0].update(snapshot);styled[0].show();});
+                SystemClock.sleep(300);
+                main(test,()->{try {
+                    java.lang.reflect.Field panelField=OverlayPanel.class.getDeclaredField("panel");panelField.setAccessible(true);
+                    View panel=(View)panelField.get(styled[0]);
+                    GradientDrawable background=(GradientDrawable)panel.getBackground();
+                    int color=background.getColor().getDefaultColor();
+                    check((color&0xffffff)==0x19324d,"Overlay background color did not apply: "+Integer.toHexString(color)+" pref="+prefs.getString("overlay_background_color",""));
+                    check((color>>>24)==140,"Overlay opacity did not apply: "+Integer.toHexString(color));
+                    java.lang.reflect.Field rowsField=OverlayPanel.class.getDeclaredField("rows");rowsField.setAccessible(true);
+                    ViewGroup rows=(ViewGroup)rowsField.get(styled[0]);
+                    check(rows.getChildCount()>0,"Overlay color test has no rows");
+                    for(int i=0;i<rows.getChildCount();i++) {
+                        ViewGroup row=(ViewGroup)rows.getChildAt(i);
+                        check(((TextView)row.getChildAt(0)).getCurrentTextColor()==0xffffce85,"Overlay label color did not apply");
+                        check(((TextView)row.getChildAt(1)).getCurrentTextColor()==0xff78e8c6,"Overlay value color did not apply");
+                    }
+                    save(target,panel,"overlay-colors.png");
+                } catch(ReflectiveOperationException e){throw new RuntimeException(e);}});
+            } finally {main(test,()->{if(styled[0]!=null)styled[0].remove();});}
+            prefs.remove(OverlayStyle.KEYS);prefs.putString("theme","ice");prefs.putInt("overlay_alpha",100);
+            OverlayStyle resetOverlay=new OverlayStyle(prefs);
+            check(resetOverlay.labelColor==0xffa7b7c9,"Overlay label color did not reset");
+            check(resetOverlay.backgroundColor==0xff0d1621,"Overlay background color did not reset");
+            check(resetOverlay.valueColor==0xff89c9ff&&!resetOverlay.customValue,"Overlay value color did not follow theme");
+            check(resetOverlay.valueColor(false)==0xff66778b,"Overlay unavailable color changed");
+
             final int[] borderPixels=new int[2];
             for(int i=0;i<2;i++) {
                 final int index=i;prefs.putBoolean("overlay_borderless",i==1);
@@ -135,7 +169,7 @@ final class AppearanceChecks {
                     java.lang.reflect.Field page=MainActivity.class.getDeclaredField("page");page.setAccessible(true);page.setInt(activity,1);
                     java.lang.reflect.Method build=MainActivity.class.getDeclaredMethod("buildScreen",boolean.class);build.setAccessible(true);build.invoke(activity,false);
                     View root=activity.findViewById(android.R.id.content);
-                    for(String label:new String[]{"无边框","小部件无边框","名称颜色，点按选择颜色","数值颜色，点按选择颜色","背景颜色，点按选择颜色","小部件背景不透明度"})
+                    for(String label:new String[]{"无边框","小部件无边框","名称颜色，点按选择颜色","数值颜色，点按选择颜色","背景颜色，点按选择颜色","小部件背景不透明度","悬浮窗名称颜色，点按选择颜色","悬浮窗数值颜色，点按选择颜色","悬浮窗背景颜色，点按选择颜色"})
                         check(hasDescription(root,label),"Missing settings control: "+label);
                     java.lang.reflect.Field preview=MainActivity.class.getDeclaredField("widgetPreview");preview.setAccessible(true);
                     check(preview.get(activity)!=null,"Settings page has no widget preview");
@@ -143,8 +177,9 @@ final class AppearanceChecks {
             });
             checkPicker(test,activity);
             check(before.equals(user.getAll()),"Appearance test modified user preferences");
-            return new JSONObject().put("result","pass").put("version","1.3.0")
+            return new JSONObject().put("result","pass").put("version","1.5.1")
                 .put("widget_colors",true).put("widget_border_toggle",true).put("opacity_0_55_100",true)
+                .put("overlay_colors",true).put("overlay_reset",true)
                 .put("overlay_border_toggle",true).put("reset_and_theme",true).put("legacy_factory",true)
                 .put("settings_controls_present",true).put("picker_validation_apply_cancel",true).put("user_preferences_unchanged",true);
         } finally {collector.close();scratch.edit().clear().commit();}

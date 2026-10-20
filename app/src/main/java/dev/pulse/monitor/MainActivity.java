@@ -183,6 +183,17 @@ public final class MainActivity extends Activity {
         top(display,text("布局密度",12,WHITE,false),17);top(display,booleanSegments("compact",new String[]{"紧凑","舒展"},true),10);
         top(display,divider(BORDER),17);top(display,toggle("固定悬浮位置","关闭时拖动指标移动；开启后可滚动长列表","position_locked",false),14);top(display,toggle("触摸穿透","点击交给下方应用；在此关闭可恢复拖动","touch_through",false),17);top(content,display,13);
 
+        LinearLayout overlayColors=card();overlayColors.addView(sectionHeader("悬浮窗配色","COLOR"));
+        TextView overlayColorsHelp=text("名称、数值与背景颜色独立于桌面小部件；未自选数值颜色时继续跟随主题。背景不透明度仍在「显示与交互」中调整。",11,MUTED,false);
+        overlayColorsHelp.setLineSpacing(dp(3),1);top(overlayColors,overlayColorsHelp,10);
+        OverlayStyle overlayStyle=new OverlayStyle(prefs);
+        top(overlayColors,colorControl("名称颜色","overlay_label_color",overlayStyle.labelColor,"悬浮窗"),16);
+        top(overlayColors,colorControl("数值颜色","overlay_value_color",overlayStyle.valueColor,"悬浮窗"),13);
+        top(overlayColors,colorControl("背景颜色","overlay_background_color",overlayStyle.backgroundColor,"悬浮窗"),13);
+        TextView resetOverlay=button("恢复悬浮窗默认配色",0xFF192538,MUTED);
+        resetOverlay.setOnClickListener(v->{prefs.remove(OverlayStyle.KEYS);notifySettings();buildScreen(true);});top(overlayColors,resetOverlay,14);
+        top(content,overlayColors,13);
+
         LinearLayout widget=card();widget.addView(sectionHeader("桌面小部件","WIDGET"));
         TextView widgetHelp=text("同步指标、字号、粗体与密度，配色和边框独立设置。以下外观应用于所有 Pulse 小部件。可调整大小、滑动查看更多，点按指标刷新；开启监测后约每 2 秒更新。无需悬浮窗权限。",11,MUTED,false);
         widgetHelp.setLineSpacing(dp(3),1);top(widget,widgetHelp,10);
@@ -262,14 +273,15 @@ public final class MainActivity extends Activity {
         LinearLayout view=column();LinearLayout labels=row();labels.addView(text(title,12,WHITE,false),new LinearLayout.LayoutParams(0,-2,1));TextView amount=mono(prefs.getInt(key,defaultValue)+suffix,11,MINT);labels.addView(amount);view.addView(labels);
         SeekBar slider=new SeekBar(this);slider.setMin(min);slider.setMax(max);slider.setProgress(prefs.getInt(key,defaultValue));slider.setProgressTintList(ColorStateList.valueOf(MINT));slider.setThumbTintList(ColorStateList.valueOf(MINT));slider.setProgressBackgroundTintList(ColorStateList.valueOf(BORDER));slider.setPadding(dp(2),0,dp(2),0);slider.setContentDescription(title);top(view,slider,6,33);slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int n,boolean user){amount.setText(n+suffix);if(user){prefs.putInt(key,n);invalidatePreviews();}}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){notifySettings();}});return view;
     }
-    private LinearLayout colorControl(String title,String key,int initial){
+    private LinearLayout colorControl(String title,String key,int initial){return colorControl(title,key,initial,"");}
+    private LinearLayout colorControl(String title,String key,int initial,String group){
         LinearLayout control=row();control.setPadding(0,dp(5),0,dp(5));
         LinearLayout labels=column();labels.addView(text(title,12,WHITE,false));
         TextView value=mono(WidgetStyle.hex(initial),10,MUTED);top(labels,value,4);
         control.addView(labels,new LinearLayout.LayoutParams(0,-2,1));
         View swatch=new View(this);swatch.setBackground(shape(initial,8,BORDER,1));
         LinearLayout.LayoutParams swatchParams=new LinearLayout.LayoutParams(dp(34),dp(34));swatchParams.rightMargin=dp(10);control.addView(swatch,swatchParams);
-        control.addView(text("更改 ›",11,MINT,false));control.setContentDescription(title+"，点按选择颜色");control.setFocusable(true);
+        control.addView(text("更改 ›",11,MINT,false));control.setContentDescription((group.isEmpty()?"":group)+title+"，点按选择颜色");control.setFocusable(true);
         control.setOnClickListener(v->{
             Integer saved=WidgetStyle.parseHex(prefs.getString(key,""));
             ColorPicker.show(this,title,saved==null?initial:saved,color->{
