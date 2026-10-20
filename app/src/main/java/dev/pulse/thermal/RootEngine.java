@@ -90,6 +90,23 @@ public final class RootEngine {
     void stop() throws Exception {
         root("if [ -f "+BASE+"/current ]; then id=$(cat "+BASE+"/current); /system/bin/sh "+RUNNER+" restore \"$id\" MANUAL; fi");
     }
+    /** Keep an already-running 15 session's boot hook in sync with the UI toggle. */
+    boolean updateBootResume(boolean enabled) throws Exception {
+        if(profile==null) throw new IllegalStateException("请先连接 Root");
+        if(profile.runtimeMount) return false;
+        String id=root("cat "+q(BASE+"/current")+" 2>/dev/null").trim();
+        if(id.isEmpty()) return false;
+        String dir=BASE+"/sessions/"+id;
+        String phase=root("cat "+q(dir+"/phase")+" 2>/dev/null").trim();
+        if(!phase.equals("active")&&!phase.equals("paused")) return false;
+        root("sed -i 's/^resume_boot=.*/resume_boot="+(enabled?1:0)+"/' "+q(dir+"/policy.env")+
+            " && chmod 600 "+q(dir+"/policy.env")+" && chown root:root "+q(dir+"/policy.env"));
+        String hook="/data/adb/service.d/70-pulse-thermal.sh";
+        if(enabled) root("mkdir -p /data/adb/service.d && printf '#!/system/bin/sh\\n/system/bin/sh /data/adb/pulse-thermal/runner.sh boot >> /data/adb/pulse-thermal/boot.log 2>&1\\n' > "+q(hook)+
+            " && chmod 700 "+q(hook)+" && chown root:root "+q(hook));
+        else root("rm -f "+q(hook));
+        return true;
+    }
     String export() throws Exception { return root("/system/bin/sh "+RUNNER+" export"); }
     private static byte[] readAll(InputStream input) throws Exception {
         ByteArrayOutputStream out=new ByteArrayOutputStream(); byte[] buffer=new byte[8192]; int n;

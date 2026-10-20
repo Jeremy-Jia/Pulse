@@ -41,6 +41,12 @@ final class ThermalHub {
             catch(Exception e) { message=e.getMessage(); android.util.Log.e("PulseThermal","restore failed",e); } finally { busy=false; emit(); } });
     }
     void sync() { statusKnown=false; if(!connected) { connect(); return; } worker.execute(this::refresh); }
+    void updateBootResume(boolean enabled) {
+        worker.execute(() -> { try { boolean updated=engine.updateBootResume(enabled);
+                message=updated?(enabled?"开机继续已写入当前会话":"已关闭开机继续"):"开机继续已保存；应用策略后生效"; }
+            catch(Exception e) { message=e.getMessage(); android.util.Log.e("PulseThermal","boot resume update failed",e); }
+            finally { emit(); } });
+    }
     private void refresh() {
         try { boolean wasActive=snapshot.active(); snapshot=engine.status(); statusKnown=true; if(wasActive && !snapshot.active()) message=snapshot.reason(); } catch(Exception e) { statusKnown=false; message="读取状态失败："+e.getMessage(); }
         emit();

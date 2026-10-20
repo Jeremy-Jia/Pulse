@@ -165,7 +165,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         LinearLayout time=card(body,18); label(time,"什么时候恢复",16,INK); gap(time,16);
         LinearLayout segments=row(); TextView timed=button("定时恢复",policy.unlimited?BG:0xff302821,policy.unlimited?MUTED:AMBER), endless=button("持续运行",policy.unlimited?0xff302821:BG,policy.unlimited?AMBER:MUTED);
         segments.addView(timed,new LinearLayout.LayoutParams(0,dp(this,44),1)); LinearLayout.LayoutParams ep=new LinearLayout.LayoutParams(0,dp(this,44),1); ep.leftMargin=dp(this,8); segments.addView(endless,ep); time.addView(segments);
-        timed.setOnClickListener(v -> { policy.unlimited=false; policy.resume=false; save(); showPage(1); }); endless.setOnClickListener(v -> { policy.unlimited=true; save(); showPage(1); }); gap(time,16);
+        timed.setOnClickListener(v -> { policy.unlimited=false; policy.resume=false; save(); if(hub.connected) hub.updateBootResume(false); showPage(1); }); endless.setOnClickListener(v -> { policy.unlimited=true; save(); showPage(1); }); gap(time,16);
         if(!policy.unlimited) {
             LinearLayout duration=row(); TextView val=text(this,policy.minutes+" 分钟",24,INK); duration.addView(val,new LinearLayout.LayoutParams(0,-2,1));
             TextView custom=text(this,"修改时间  ›",12,AMBER); custom.setPadding(dp(this,8),dp(this,10),0,dp(this,10)); custom.setOnClickListener(v -> durationDialog()); duration.addView(custom); time.addView(duration); gap(time,13);
@@ -175,8 +175,8 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
                 b.setOnClickListener(v -> { policy.minutes=n; save(); showPage(1); });
             } time.addView(quick);
         } else {
-            toggle(time,"重启后继续",policy.profile.runtimeMount?"临时 Root 仅本次开机有效；重启恢复原厂":"关闭时，重启会恢复原厂温控",policy.resume,!policy.profile.runtimeMount,checked -> { policy.resume=checked; save(); });
-            gap(time,9); TextView t=label(time,"持续模式没有倒计时；温度停止线始终有效。",11,MUTED); t.setLineSpacing(dp(this,3),1);
+            toggle(time,"重启后继续",policy.profile.runtimeMount?"临时 Root 仅本次开机有效；重启恢复原厂":"关闭时，重启会恢复原厂温控",policy.resume,!policy.profile.runtimeMount,checked -> { policy.resume=checked; save(); if(hub.connected) hub.updateBootResume(checked); });
+            gap(time,9); TextView t=label(time,"持续模式没有倒计时；温度停止线始终有效。"+(policy.profile.runtimeMount?"":" 运行中切换会立即写入当前会话的启动钩子。"),11,MUTED); t.setLineSpacing(dp(this,3),1);
         }
         TextView footer=label(body,"只调整 CPU 频率曲线，保留芯片、充电和其他系统保护。设置修改后，先恢复原厂再应用新策略。",11,MUTED); footer.setLineSpacing(dp(this,4),1); gap(body,10);
     }
