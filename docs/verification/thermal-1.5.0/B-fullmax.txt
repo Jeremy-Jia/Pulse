@@ -1,0 +1,102 @@
+BEFORE
+2026-10-20T09:41:13Z
+0
+Current temperatures from HAL:
+	Temperature{mValue=36.8, mType=2, mName=battery, mStatus=0}
+	Temperature{mValue=35.87996, mType=3, mName=skin, mStatus=0}
+	Temperature{mValue=43.2, mType=9, mName=nsp1-1-1, mStatus=0}
+	Temperature{mValue=43.5, mType=9, mName=nsp1-1-0, mStatus=0}
+	Temperature{mValue=43.8, mType=9, mName=nsp1-0-1, mStatus=0}
+	Temperature{mValue=43.5, mType=9, mName=nsp1-0-0, mStatus=0}
+	Temperature{mValue=42.9, mType=9, mName=nsp0-1-1, mStatus=0}
+	Temperature{mValue=43.8, mType=9, mName=nsp0-1-0, mStatus=0}
+	Temperature{mValue=42.2, mType=9, mName=nsp0-0-1, mStatus=0}
+	Temperature{mValue=43.5, mType=9, mName=nsp0-0-0, mStatus=0}
+	Temperature{mValue=43.2, mType=9, mName=nsptop, mStatus=0}
+	Temperature{mValue=43.2, mType=9, mName=nsp1-1, mStatus=0}
+	Temperature{mValue=43.5, mType=9, mName=nsp1-0, mStatus=0}
+	Temperature{mValue=43.8, mType=9, mName=nsp0-1, mStatus=0}
+	Temperature{mValue=43.5, mType=9, mName=nsp1, mStatus=0}
+	Temperature{mValue=44.1, mType=0, mName=CPU1, mStatus=0}
+	Temperature{mValue=43.0, mType=1, mName=GPUSS0, mStatus=0}
+	Temperature{mValue=42.9, mType=9, mName=nspq6, mStatus=0}
+	Temperature{mValue=44.1, mType=0, mName=CPU0, mStatus=0}
+	Temperature{mValue=43.6, mType=1, mName=GPU2-1, mStatus=0}
+	Temperature{mValue=41.7, mType=1, mName=GPU1-1, mStatus=0}
+	Temperature{mValue=43.3, mType=1, mName=GPU1-0, mStatus=0}
+	Temperature{mValue=44.3, mType=0, mName=CPU6, mStatus=0}
+	Temperature{mValue=42.7, mType=1, mName=GPU0-2, mStatus=0}
+	Temperature{mValue=42.7, mType=1, mName=GPU0-0, mStatus=0}
+	Temperature{mValue=42.2, mType=0, mName=CPU5, mStatus=0}
+	Temperature{mValue=42.3, mType=1, mName=GPU0-1, mStatus=0}
+	Temperature{mValue=43.5, mType=0, mName=CPU4, mStatus=0}
+	Temperature{mValue=43.8, mType=0, mName=CPU3, mStatus=0}
+	Temperature{mValue=44.8, mType=9, mName=nsp0-0, mStatus=0}
+	Temperature{mValue=43.0, mType=1, mName=GPUSS1, mStatus=0}
+	Temperature{mValue=44.5, mType=0, mName=CPU2, mStatus=0}
+	Temperature{mValue=43.5, mType=9, mName=nsp0, mStatus=0}
+	Temperature{mValue=44.0, mType=1, mName=GPU2-2, mStatus=0}
+	Temperature{mValue=43.6, mType=1, mName=GPU1-2, mStatus=0}
+	Temperature{mValue=35.664, mType=6, mName=vbat, mStatus=0}
+	Temperature{mValue=45.3, mType=0, mName=CPU7, mStatus=0}
+	Temperature{mValue=44.0, mType=1, mName=GPU2-0, mStatus=0}
+Current cooling devices from HAL:
+SAMPLES uptime_s scene balance cap0 cap3 cap6 cur0 cur3 cur6 board_mC cdev0 cdev3 cdev6
+{"event":"started","pid":29868}
+{"event":"phase","name":"calibration"}
+{"event":"phase","name":"measurement"}
+{"event":"result","schema":1,"result":"completed","kind":"dhrystone","cpu":6,"requested_seconds":10.000,"elapsed_seconds":12.205495,"calibration_seconds":0.230540,"exit_code":0,"signal":0,"affinity_errno":0,"timed_out":false,"output_truncated":false,"score":{"value":33170.9027,"unit":"DMIPS","valid":true,"detail":"Dhrystone 2.1; original workload, Android declarations/timer adaptation, separate compilation without LTO; DMIPS = runs/s divided by 1757. Final values checked."},"benchmark_time_seconds":12.2054947,"frequency":{"samples":101,"sampled_mean_mhz":3731.26337,"sampled_min_mhz":2611.2,"sampled_max_mhz":4704,"effective_mhz":3248.03584,"normalization_source":"user_cycles/task_clock"},"score_per_mhz":10.2126036,"affinity_stable":true,"affinity_samples":101,"observed_cpu_mask":64,"process_cpu_seconds":12.152308,"ipc":6.26678646,"pmu":{"cycles":{"available":true,"raw":39629759803,"scaled":3.96297598e+10,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"instructions":{"available":true,"raw":248351242066,"scaled":2.48351242e+11,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"branches":{"available":true,"raw":46698598512,"scaled":4.66985985e+10,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"branch_misses":{"available":true,"raw":40213,"scaled":40213,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"cache_references":{"available":true,"raw":70152166844,"scaled":7.01521668e+10,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"cache_misses":{"available":true,"raw":27485,"scaled":27485,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"stalled_frontend":{"available":true,"raw":3547824,"scaled":3547824,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"stalled_backend":{"available":true,"raw":854537043,"scaled":854537043,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"reference_cycles":{"available":false,"raw":null,"scaled":null,"time_enabled_ns":0,"time_running_ns":0,"running_ratio":null,"errno":2,"error":"No such file or directory"},"bus_cycles":{"available":true,"raw":20290437019136,"scaled":2.0290437e+13,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"l1d_read_accesses":{"available":true,"raw":70152166844,"scaled":7.01521668e+10,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"l1d_read_misses":{"available":true,"raw":27485,"scaled":27485,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"llc_read_accesses":{"available":false,"raw":null,"scaled":null,"time_enabled_ns":0,"time_running_ns":0,"running_ratio":null,"errno":2,"error":"No such file or directory"},"llc_read_misses":{"available":false,"raw":null,"scaled":null,"time_enabled_ns":0,"time_running_ns":0,"running_ratio":null,"errno":2,"error":"No such file or directory"},"task_clock":{"available":true,"raw":12201146080,"scaled":1.22011461e+10,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"context_switches":{"available":true,"raw":0,"scaled":0,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"cpu_migrations":{"available":true,"raw":0,"scaled":0,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"page_faults":{"available":true,"raw":666,"scaled":666,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"minor_faults":{"available":true,"raw":666,"scaled":666,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null},"major_faults":{"available":true,"raw":0,"scaled":0,"time_enabled_ns":12201146080,"time_running_ns":12201146080,"running_ratio":1,"errno":0,"error":null}},"pmu_scope":"Measurement process plus inherited children; userspace events; cycles and instructions scheduled as one group; other perf events may multiplex, raw counts with scaling and running ratio","benchmark_stdout":"\nDhrystone Benchmark, Version 2.1 (Language: C)\n\nProgram compiled without 'register' attribute\n\nPlease give the number of runs through the benchmark: \nExecution starts, 707534701 runs through Dhrystone\nExecution ends\n\nFinal values of the variables used in the benchmark:\n\nInt_Glob:            5\n        should be:   5\nBool_Glob:           1\n        should be:   1\nCh_1_Glob:           A\n        should be:   A\nCh_2_Glob:           B\n        should be:   B\nArr_1_Glob[8]:       7\n        should be:   7\nArr_2_Glob[8][7]:    707534711\n        should be:   Number_Of_Runs + 10\nPtr_Glob->\n  Ptr_Comp:          1302366816\n        should be:   (implementation-dependent)\n  Discr:             0\n        should be:   0\n  Enum_Comp:         2\n        should be:   2\n  Int_Comp:          17\n        should be:   17\n  Str_Comp:          DHRYSTONE PROGRAM, SOME STRING\n        should be:   DHRYSTONE PROGRAM, SOME STRING\nNext_Ptr_Glob->\n  Ptr_Comp:          1302366816\n        should be:   (implementation-dependent), same as above\n  Discr:             0\n        should be:   0\n  Enum_Comp:         1\n        should be:   1\n  Int_Comp:          18\n        should be:   18\n  Str_Comp:          DHRYSTONE PROGRAM, SOME STRING\n        should be:   DHRYSTONE PROGRAM, SOME STRING\nInt_1_Loc:           5\n        should be:   5\nInt_2_Loc:           13\n        should be:   13\nInt_3_Loc:           7\n        should be:   7\nEnum_Loc:            1\n        should be:   1\nStr_1_Loc:           DHRYSTONE PROGRAM, 1'ST STRING\n        should be:   DHRYSTONE PROGRAM, 1'ST STRING\nStr_2_Loc:           DHRYSTONE PROGRAM, 2'ND STRING\n        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n\nMicroseconds for one run through Dhrystone:    0.0 \nDhrystones per Second:                      58281276.0 \n\n","validation_stdout":""}
+SAMPLE 8455.99 0 2 3744000 4032000 4704000 1094400 864000 3552000 37205 0 0 0
+SAMPLE 8456.98 0 2 3744000 4032000 4166400 902400 864000 4704000 37205 0 0 0
+SAMPLE 8457.83 0 2 3744000 4032000 3552000 902400 384000 3552000 37205 0 0 0
+SAMPLE 8458.85 0 2 3744000 4032000 4704000 768000 768000 3206400 37205 0 0 0
+SAMPLE 8459.85 0 2 3744000 4032000 4550400 998400 2361600 2611200 37205 0 0 0
+SAMPLE 8460.85 0 2 3744000 4032000 3206400 518400 576000 3552000 37205 0 0 0
+SAMPLE 8461.90 0 2 3744000 4032000 2611200 768000 384000 3206400 37205 0 0 0
+SAMPLE 8462.97 0 2 3744000 4032000 4550400 384000 576000 3552000 37205 0 0 0
+SAMPLE 8464.05 0 2 3744000 4032000 4704000 384000 768000 3206400 37205 0 0 0
+SAMPLE 8465.13 0 2 3744000 4032000 3206400 384000 384000 3552000 37516 0 0 0
+SAMPLE 8466.18 0 2 3744000 4032000 2611200 768000 384000 2611200 37516 0 0 0
+SAMPLE 8467.19 0 2 3744000 4032000 4704000 768000 576000 3206400 37516 0 0 0
+SAMPLE 8468.23 0 2 3744000 4032000 3552000BENCH_EXIT 0
+AFTER
+Current temperatures from HAL:
+	Temperature{mValue=36.8, mType=2, mName=battery, mStatus=0}
+	Temperature{mValue=36.91128, mType=3, mName=skin, mStatus=0}
+	Temperature{mValue=55.7, mType=9, mName=nsp1-1-1, mStatus=0}
+	Temperature{mValue=54.4, mType=9, mName=nsp1-1-0, mStatus=0}
+	Temperature{mValue=55.4, mType=9, mName=nsp1-0-1, mStatus=0}
+	Temperature{mValue=54.4, mType=9, mName=nsp1-0-0, mStatus=0}
+	Temperature{mValue=56.3, mType=9, mName=nsp0-1-1, mStatus=0}
+	Temperature{mValue=57.6, mType=9, mName=nsp0-1-0, mStatus=0}
+	Temperature{mValue=55.4, mType=9, mName=nsp0-0-1, mStatus=0}
+	Temperature{mValue=55.0, mType=9, mName=nsp0-0-0, mStatus=0}
+	Temperature{mValue=57.0, mType=9, mName=nsptop, mStatus=0}
+	Temperature{mValue=57.4, mType=9, mName=nsp1-1, mStatus=0}
+	Temperature{mValue=56.1, mType=9, mName=nsp1-0, mStatus=0}
+	Temperature{mValue=59.0, mType=9, mName=nsp0-1, mStatus=0}
+	Temperature{mValue=55.1, mType=9, mName=nsp1, mStatus=0}
+	Temperature{mValue=57.9, mType=0, mName=CPU1, mStatus=0}
+	Temperature{mValue=52.4, mType=1, mName=GPUSS0, mStatus=0}
+	Temperature{mValue=60.3, mType=9, mName=nspq6, mStatus=0}
+	Temperature{mValue=56.9, mType=0, mName=CPU0, mStatus=0}
+	Temperature{mValue=53.1, mType=1, mName=GPU2-1, mStatus=0}
+	Temperature{mValue=49.5, mType=1, mName=GPU1-1, mStatus=0}
+	Temperature{mValue=51.1, mType=1, mName=GPU1-0, mStatus=0}
+	Temperature{mValue=62.4, mType=0, mName=CPU6, mStatus=0}
+	Temperature{mValue=49.5, mType=1, mName=GPU0-2, mStatus=0}
+	Temperature{mValue=50.8, mType=1, mName=GPU0-0, mStatus=0}
+	Temperature{mValue=58.5, mType=0, mName=CPU5, mStatus=0}
+	Temperature{mValue=50.2, mType=1, mName=GPU0-1, mStatus=0}
+	Temperature{mValue=61.1, mType=0, mName=CPU4, mStatus=0}
+	Temperature{mValue=59.2, mType=0, mName=CPU3, mStatus=0}
+	Temperature{mValue=60.9, mType=9, mName=nsp0-0, mStatus=0}
+	Temperature{mValue=51.1, mType=1, mName=GPUSS1, mStatus=0}
+	Temperature{mValue=57.9, mType=0, mName=CPU2, mStatus=0}
+	Temperature{mValue=61.9, mType=9, mName=nsp0, mStatus=0}
+	Temperature{mValue=53.1, mType=1, mName=GPU2-2, mStatus=0}
+	Temperature{mValue=50.5, mType=1, mName=GPU1-2, mStatus=0}
+	Temperature{mValue=35.664, mType=6, mName=vbat, mStatus=0}
+	Temperature{mValue=58.5, mType=0, mName=CPU7, mStatus=0}
+	Temperature{mValue=52.4, mType=1, mName=GPU2-0, mStatus=0}
+Current cooling devices from HAL:

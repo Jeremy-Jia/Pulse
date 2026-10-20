@@ -24,13 +24,19 @@ public final class ConfigCodec {
             new int[]{2745600,2745600,2400000,2227200,1785600,1785600,1785600,1785600,1363200,1363200,1152000,1152000,960000,960000};
     }
     private final byte[] key, iv, original, cipher;
+    private final ThermalProfile profile;
     public ConfigCodec(byte[] binary, byte[] ciphertext) throws Exception {
-        require(sha(binary).equals(BINARY_SHA), "温控程序版本不匹配，拒绝修改");
-        require(sha(ciphertext).equals(CIPHER_SHA), "原厂配置版本不匹配，拒绝修改");
-        key = Arrays.copyOfRange(binary, 0xd0538, 0xd0548);
-        iv = Arrays.copyOfRange(binary, 0xd0549, 0xd0559);
+        this(ThermalProfile.MI15,binary,ciphertext,null);
+    }
+    public ConfigCodec(ThermalProfile p,byte[] binary,byte[] ciphertext,byte[] recovered) throws Exception {
+        profile=p;
+        require(sha(binary).equals(p.binarySha), "温控程序版本不匹配，拒绝修改");
+        require(sha(ciphertext).equals(p.cipherSha), "原厂配置版本不匹配，拒绝修改");
+        require(!p.runtimeMount || (recovered!=null && recovered.length==16),"固件编码初始化失败");
+        key = p.runtimeMount?recovered.clone():Arrays.copyOfRange(binary, 0xd0538, 0xd0548);
+        iv = p.runtimeMount?recovered.clone():Arrays.copyOfRange(binary, 0xd0549, 0xd0559);
         cipher = ciphertext.clone(); original = crypt(ciphertext, Cipher.DECRYPT_MODE);
-        require(sha(original).equals(ORIGINAL_SHA), "原厂配置解码校验失败");
+        require(sha(original).equals(p.plainSha), "原厂配置解码校验失败");
         require(Arrays.equals(crypt(original, Cipher.ENCRYPT_MODE), cipher), "原厂配置往返校验失败");
     }
     private byte[] crypt(byte[] input, int mode) throws Exception {
@@ -43,32 +49,36 @@ public final class ConfigCodec {
         return make(mode,cap0,cap6,25,originalCurve(false),originalCurve(true));
     }
     public byte[] make(String mode,int cap0,int cap6,int percent,int[] custom0,int[] custom6) throws Exception {
+        return make(mode,cap0,0,cap6,percent,custom0,null,custom6);
+    }
+    public byte[] make(String mode,int cap0,int cap3,int cap6,int percent,int[] custom0,int[] custom3,int[] custom6) throws Exception {
         require(mode.equals("fullmax") || mode.equals("plus25") || mode.equals("boost") || mode.equals("custom"), "未知模式");
         require(percent>=0 && percent<=100,"增幅超出范围");
-        require(contains(TABLE0, cap0) && contains(TABLE6, cap6), "频率不在设备频率表中");
+        require(contains(profile.table(0), cap0) && contains(profile.table(6), cap6) && (!profile.runtimeMount||contains(profile.table(3),cap3)), "频率不在设备频率表中");
         String source = new String(original, StandardCharsets.UTF_8), changed = source;
-        changed = section(changed, "SS-CPU0", TABLE0, cap0, mode,percent,custom0);
-        changed = section(changed, "SS-CPU6", TABLE6, cap6, mode,percent,custom6);
+        changed = section(changed, "SS-CPU0", profile.table(0), cap0, mode,percent,custom0,profile.curve(0).length);
+        if(profile.runtimeMount) changed=section(changed,"SS-CPU3",profile.table(3),cap3,mode,percent,custom3,profile.curve(3).length);
+        changed = section(changed, "SS-CPU6", profile.table(6), cap6, mode,percent,custom6,profile.curve(6).length);
         String[] a = source.split("\n", -1), b = changed.split("\n", -1);
         require(a.length == b.length, "配置行数变化");
         int differences = 0;
         for (int i=0;i<a.length;i++) if (!a[i].equals(b[i])) {
             differences++; require(a[i].startsWith("target\t") && b[i].startsWith("target\t"), "非 CPU 目标被修改");
         }
-        require(differences>=1 && differences<=2, "曲线与原厂相同，请调整频率或直接使用原厂策略");
+        require(differences>=1 && differences<=profile.groups.length, "曲线与原厂相同，请调整频率或直接使用原厂策略");
         byte[] plain = changed.getBytes(StandardCharsets.UTF_8), encoded = crypt(plain, Cipher.ENCRYPT_MODE);
         require(Arrays.equals(crypt(encoded, Cipher.DECRYPT_MODE), plain), "新配置加密校验失败");
         return plain;
     }
     public byte[] encode(byte[] plain) throws Exception { return crypt(plain, Cipher.ENCRYPT_MODE); }
-    private static String section(String text, String name, int[] table, int cap, String mode,int percent,int[] custom) {
+    private static String section(String text, String name, int[] table, int cap, String mode,int percent,int[] custom,int count) {
         Matcher m = Pattern.compile("(?ms)^\\[" + name + "\\]\\r?\\n.*?(?=^\\[|\\z)").matcher(text);
         require(m.find(), "缺少 CPU 曲线 " + name);
         String block = m.group();
         Matcher target = Pattern.compile("(?m)^target[\\t ]+([^\\r\\n]+)").matcher(block);
         require(target.find(), "缺少目标频率");
         String[] values = target.group(1).trim().split("\\s+");
-        require(values.length == (name.equals("SS-CPU0") ? 14 : 16), "曲线档位数不匹配");
+        require(values.length == count, "曲线档位数不匹配");
         require(!mode.equals("custom") || (custom!=null && custom.length==values.length),"自定义曲线档位数不匹配");
         StringBuilder line = new StringBuilder("target");
         for (int i=0;i<values.length;i++) {

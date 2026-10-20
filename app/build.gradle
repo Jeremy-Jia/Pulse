@@ -11,8 +11,8 @@ android {
         applicationId 'dev.pulse.monitor'
         minSdk 26
         targetSdk 36
-        versionCode 5
-        versionName '1.4.0'
+        versionCode 6
+        versionName '1.5.0'
         testInstrumentationRunner 'dev.pulse.monitor.MonitorInstrumentation'
     }
 
@@ -35,7 +35,7 @@ android {
         jniLibs {
             // PIE executables are packaged using the native-library installation path.
             useLegacyPackaging = true
-            keepDebugSymbols += ['**/libpulsebench.so', '**/libcoremark.so', '**/libdhrystone.so', '**/libwhetstone.so']
+            keepDebugSymbols += ['**/libpulsebench.so', '**/libcoremark.so', '**/libdhrystone.so', '**/libwhetstone.so', '**/libpulsecodec.so']
         }
     }
 }
@@ -52,7 +52,7 @@ tasks.register('buildPulseBenchmarks', Exec) {
     group = 'build'
     inputs.files(fileTree('src/main/cpp'))
     inputs.property('ndkHome', System.getenv('PULSE_NDK_HOME') ?: 'default-r29')
-    outputs.files(['libpulsebench.so', 'libcoremark.so', 'libdhrystone.so', 'libwhetstone.so'].collect { new File(nativeOutputDir, it) })
+    outputs.files(['libpulsebench.so', 'libcoremark.so', 'libdhrystone.so', 'libwhetstone.so', 'libpulsecodec.so'].collect { new File(nativeOutputDir, it) })
     commandLine pythonCommand, file('src/main/cpp/build_native.py').absolutePath
 }
 tasks.named('preBuild').configure { dependsOn 'buildPulseBenchmarks' }

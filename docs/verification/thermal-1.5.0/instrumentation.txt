@@ -1,0 +1,7 @@
+Final Pulse 1.5.0 APK, hongkong, default prime cap 5011200 kHz
+Connecting from the actual Pulse process
+PASS Root from Pulse UID, three-domain curve loaded, global runtime-only mount
+PASS guardian and fresh status retain same session
+PASS one-minute timer, exact original hash and runtime unmount
+INSTRUMENTATION_RESULT: report_json={"guardian_and_resync":"pass","timer_and_unmount":"pass","watchdog_fallback":"pass","result":"pass"}
+INSTRUMENTATION_CODE: -1

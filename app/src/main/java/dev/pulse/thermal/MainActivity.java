@@ -19,6 +19,8 @@ import static dev.pulse.thermal.ThermalViews.*;
 
 public final class MainActivity extends Activity implements ThermalHub.Listener {
     ThermalHub hub; Policy policy;
+    final java.util.Map<Integer,TextView> frequencies=new java.util.HashMap<>(), maxima=new java.util.HashMap<>();
+    TextView connectionStatus;
     LinearLayout root, nav, body, dock;
     FrameLayout content;
     ScrollView pageScroll;
@@ -42,11 +44,13 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         LinearLayout header=row(); header.setPadding(dp(this,24),dp(this,17),dp(this,24),dp(this,15));
         LinearLayout brand=column(this);
         TextView name=text(this,"‹  温控策略",23,INK); name.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL)); name.setOnClickListener(v -> finish()); name.setContentDescription("返回 Pulse");
-        brand.addView(name); TextView sub=text(this,"PULSE  /  小米 15 性能控制",10,MUTED); marginTop(sub,7); brand.addView(sub);
+        brand.addView(name); TextView sub=text(this,"PULSE  /  "+policy.profile.name+" 性能控制",10,MUTED); marginTop(sub,7); brand.addView(sub);
         header.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
         rootBadge=text(this,"连接中",11,TEAL); rootBadge.setPadding(dp(this,11),dp(this,8),dp(this,11),dp(this,8));
         rootBadge.setBackground(shape(0xff1b302f,0,14,this)); rootBadge.setOnClickListener(v -> hub.connect()); header.addView(rootBadge);
         root.addView(header);
+        connectionStatus=text(this,hub.message,11,MUTED); connectionStatus.setPadding(dp(this,24),0,dp(this,24),dp(this,10));
+        connectionStatus.setOnClickListener(v -> hub.connect()); root.addView(connectionStatus);
         content=new FrameLayout(this); root.addView(content,new LinearLayout.LayoutParams(-1,0,1));
         dock=column(this); dock.setPadding(dp(this,20),dp(this,10),dp(this,20),dp(this,9));
         LinearLayout actions=row();
@@ -57,7 +61,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         nav=row(); nav.setPadding(dp(this,20),dp(this,4),dp(this,20),dp(this,6)); root.addView(nav,new LinearLayout.LayoutParams(-1,dp(this,59)));
         showPage(0);
     }
-    @Override protected void onResume() { super.onResume(); resumed=true; hub.listeners.add(this); if(!hub.connected && !hub.busy) hub.connect(); update(); }
+    @Override protected void onResume() { super.onResume(); resumed=true; hub.listeners.add(this); if(!hub.busy) hub.sync(); update(); }
     @Override protected void onPause() { resumed=false; hub.listeners.remove(this); super.onPause(); }
     LinearLayout row() { LinearLayout l=new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); l.setGravity(Gravity.CENTER_VERTICAL); return l; }
     void marginTop(View v,int n) { LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2); p.topMargin=dp(this,n); v.setLayoutParams(p); }
@@ -79,6 +83,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         int previousY=page==n && pageScroll!=null?pageScroll.getScrollY():0;
         page=n; content.removeAllViews();
         heroTitle=heroSub=countdown=tempBattery=tempBody=tempCpu=freq0=freq6=max0=max6=message=recordReason=recordTime=recordLimits=null; chart=null;
+        frequencies.clear(); maxima.clear();
         ScrollView scroll=new ScrollView(this); scroll.setClipToPadding(false); scroll.setFillViewport(false);
         pageScroll=scroll;
         body=column(this); body.setPadding(dp(this,20),dp(this,12),dp(this,20),dp(this,10)); scroll.addView(body); content.addView(scroll);
@@ -96,25 +101,26 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         LinearLayout hero=card(body,22);
         GradientDrawable g=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xff29313a,0xff171d25}); g.setCornerRadius(dp(this,25)); g.setStroke(dp(this,1),0xff3a4149); hero.setBackground(g);
         LinearLayout top=row(); TextView eyebrow=text(this,"CPU POLICY",11,AMBER); eyebrow.setLetterSpacing(.15f); top.addView(eyebrow,new LinearLayout.LayoutParams(0,-2,1));
-        TextView badge=text(this,"8 ELITE",10,MUTED); badge.setLetterSpacing(.12f); top.addView(badge); hero.addView(top); gap(hero,22);
+        TextView badge=text(this,policy.profile.runtimeMount?"3 CPU GROUPS":"8 ELITE",10,MUTED); badge.setLetterSpacing(.12f); top.addView(badge); hero.addView(top); gap(hero,22);
         heroTitle=label(hero,"原厂温控",31,INK); heroTitle.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL)); gap(hero,10);
         heroSub=label(hero,"按需放开频率，让每次测试都有据可查。",12,MUTED); heroSub.setLineSpacing(dp(this,3),1); gap(hero,24);
         LinearLayout timer=row(); LinearLayout tc=column(this); label(tc,"恢复倒计时",11,MUTED); gap(tc,7);
         countdown=label(tc,"未运行",27,AMBER); countdown.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL)); timer.addView(tc,new LinearLayout.LayoutParams(0,-2,1));
         TextView preserved=text(this,"原厂底层\n保护保留",11,TEAL); preserved.setGravity(Gravity.END); preserved.setLineSpacing(dp(this,5),1); timer.addView(preserved); hero.addView(timer);
-        LinearLayout cores=row(); coreCard(cores,false); coreCard(cores,true); LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.bottomMargin=dp(this,12); body.addView(cores,cp);
+        LinearLayout cores=row(); for(int group:policy.profile.groups) coreCard(cores,group); LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.bottomMargin=dp(this,12); body.addView(cores,cp);
         LinearLayout temperatures=row(); tempBattery=tempCard(temperatures,"电池",AMBER,0); tempBody=tempCard(temperatures,"估算机身",TEAL,1); tempCpu=tempCard(temperatures,"CPU 热点",0xffb9b5f3,2);
         body.addView(temperatures); gap(body,14);
         LinearLayout trend=card(body,18); LinearLayout tr=row(); TextView title=text(this,"温度趋势",14,INK); tr.addView(title,new LinearLayout.LayoutParams(0,-2,1)); tr.addView(text(this,"● 电池   ",10,AMBER)); tr.addView(text(this,"● 机身",10,TEAL)); trend.addView(tr);
         chart=new ThermalViews.Chart(this); trend.addView(chart,new LinearLayout.LayoutParams(-1,dp(this,122)));
         message=label(body,hub.message,12,MUTED); message.setLineSpacing(dp(this,4),1); message.setOnClickListener(v -> hub.connect()); gap(body,8);
     }
-    void coreCard(LinearLayout parent,boolean prime) {
+    void coreCard(LinearLayout parent,int group) {
         LinearLayout c=column(this); c.setPadding(dp(this,17),dp(this,17),dp(this,17),dp(this,17)); c.setBackground(shape(CARD,LINE,22,this));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-2,1); if(prime) p.leftMargin=dp(this,10); parent.addView(c,p);
-        label(c,prime?"超大核  ·  CPU6–7":"性能核  ·  CPU0–5",11,MUTED); gap(c,13);
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-2,1); if(group!=0) p.leftMargin=dp(this,8); parent.addView(c,p);
+        label(c,policy.profile.label(group),10,MUTED); gap(c,13);
         LinearLayout value=row(); TextView num=text(this,"—",31,INK); num.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL)); value.addView(num); TextView unit=text(this," GHz",10,MUTED); value.addView(unit); c.addView(value); gap(c,9);
-        TextView max=label(c,"上限 —",11,prime?AMBER:TEAL); if(prime) { freq6=num; max6=max; } else { freq0=num; max0=max; }
+        num.setTextSize(policy.profile.runtimeMount?25:31);
+        TextView max=label(c,"上限 —",10,group==6?AMBER:TEAL); frequencies.put(group,num); maxima.put(group,max);
     }
     TextView tempCard(LinearLayout row,String title,int color,int index) {
         LinearLayout c=column(this); c.setPadding(dp(this,12),dp(this,16),dp(this,8),dp(this,16)); c.setBackground(shape(CARD,0,19,this));
@@ -126,7 +132,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         LinearLayout modes=card(body,17);
         choice(modes,"全频释放","所有温度档使用所选频率上限",policy.mode.equals("fullmax"),() -> { policy.mode="fullmax"; save(); showPage(1); });
         divider(modes); choice(modes,"阶梯增强 +"+policy.boostPercent+"%","自选增幅 · 不超过硬件频率表上限",policy.mode.equals("boost"),() -> { policy.mode="boost"; save(); showPage(1); });
-        divider(modes); choice(modes,"逐档自定义","分别编辑两组核心每个温度档的频率",policy.mode.equals("custom"),() -> { policy.mode="custom"; save(); showPage(1); });
+        divider(modes); choice(modes,"逐档自定义","分别编辑各组核心每个温度档的频率",policy.mode.equals("custom"),() -> { policy.mode="custom"; save(); showPage(1); });
         if(policy.mode.equals("boost")) {
             LinearLayout boost=card(body,18); LinearLayout r=row(); r.addView(text(this,"阶梯增幅",14,INK),new LinearLayout.LayoutParams(0,-2,1));
             TextView amount=text(this,"+"+policy.boostPercent+"%",24,AMBER); r.addView(amount); boost.addView(r); gap(boost,12);
@@ -140,13 +146,15 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         }
         if(policy.mode.equals("custom")) {
             LinearLayout edit=card(body,18); label(edit,"温度档位曲线",15,INK); gap(edit,12);
-            TextView a=button("编辑 CPU0–5 性能核 · 14 档",BG,TEAL), b=button("编辑 CPU6–7 超大核 · 16 档",BG,AMBER);
-            edit.addView(a,new LinearLayout.LayoutParams(-1,dp(this,46))); gap(edit,10); edit.addView(b,new LinearLayout.LayoutParams(-1,dp(this,46)));
-            a.setOnClickListener(v -> curveEditor(false)); b.setOnClickListener(v -> curveEditor(true)); gap(edit,12);
+            for(int group:policy.profile.groups) {
+                TextView b=button("编辑 "+policy.profile.label(group)+" · "+policy.profile.curve(group).length+" 档",BG,group==6?AMBER:TEAL);
+                edit.addView(b,new LinearLayout.LayoutParams(-1,dp(this,46))); gap(edit,10); b.setOnClickListener(v -> curveEditor(group));
+            }
             label(edit,"档位温度是系统估算机身温度；不会改动原来的触发温度和回落滞后。",11,MUTED);
         }
         LinearLayout caps=card(body,18); label(caps,"频率上限",15,INK); gap(caps,14);
-        frequency(caps,"CPU0–5 性能核",false); gap(caps,13); frequency(caps,"CPU6–7 超大核",true);
+        for(int group:policy.profile.groups) { frequency(caps,policy.profile.label(group),group); gap(caps,13); }
+        if(policy.profile.runtimeMount) label(caps,"CPU6–7：4.704 GHz 为普通最高档；4.8576 / 4.9536 / 5.0112 GHz 为 Boost 档。上限不等于持续频率。",11,MUTED);
         gap(body,8); label(body,"温度停止线",19,INK); gap(body,8); TextView intro=label(body,"触发任一条件即恢复原厂，之后需手动重新启用。",11,MUTED); intro.setLineSpacing(dp(this,3),1); gap(body,14);
         LinearLayout limits=card(body,18);
         slider(limits,"电池温度",35,50,policy.batteryC,n -> { policy.batteryC=n; save(); },AMBER);
@@ -167,34 +175,34 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
                 b.setOnClickListener(v -> { policy.minutes=n; save(); showPage(1); });
             } time.addView(quick);
         } else {
-            toggle(time,"重启后继续","关闭时，重启会恢复原厂温控",policy.resume,true,checked -> { policy.resume=checked; save(); });
+            toggle(time,"重启后继续",policy.profile.runtimeMount?"临时 Root 仅本次开机有效；重启恢复原厂":"关闭时，重启会恢复原厂温控",policy.resume,!policy.profile.runtimeMount,checked -> { policy.resume=checked; save(); });
             gap(time,9); TextView t=label(time,"持续模式没有倒计时；温度停止线始终有效。",11,MUTED); t.setLineSpacing(dp(this,3),1);
         }
         TextView footer=label(body,"只调整 CPU 频率曲线，保留芯片、充电和其他系统保护。设置修改后，先恢复原厂再应用新策略。",11,MUTED); footer.setLineSpacing(dp(this,4),1); gap(body,10);
     }
     interface IntChange { void set(int n); }
-    void curveEditor(boolean prime) {
-        int[] working=(prime?policy.curve6:policy.curve0).clone(), temps=prime?ConfigCodec.TRIGGER6:ConfigCodec.TRIGGER0, table=prime?ConfigCodec.TABLE6:ConfigCodec.TABLE0;
+    void curveEditor(int group) {
+        int[] working=policy.curve(group).clone(), temps=policy.profile.triggers(group), table=policy.profile.table(group);
         LinearLayout list=column(this); list.setPadding(dp(this,20),dp(this,8),dp(this,20),dp(this,12));
         TextView note=label(list,"点击每个档位选择上限，最终还受核心组总上限约束。",12,MUTED); note.setLineSpacing(dp(this,4),1); gap(list,12);
         TextView[] values=new TextView[working.length];
         LinearLayout presets=row(); String[] names={"原厂","全频","当前增幅"};
         for(int j=0;j<names.length;j++) { final int kind=j; TextView btn=button(names[j],BG,AMBER); LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(this,42),1); lp.rightMargin=dp(this,6); presets.addView(btn,lp);
-            btn.setOnClickListener(v -> { int[] original=ConfigCodec.originalCurve(prime);
+            btn.setOnClickListener(v -> { int[] original=policy.profile.curve(group);
                 for(int i=0;i<working.length;i++) { int desired=kind==0?original[i]:kind==1||i==0?table[table.length-1]:original[i]*(100+policy.boostPercent)/100;
                     working[i]=table[0]; for(int f:table) if(f<=desired) working[i]=f; values[i].setText(String.format(Locale.ROOT,"%.4f GHz  ›",working[i]/1000000d)); }
             });
         } list.addView(presets); gap(list,8);
         for(int i=0;i<working.length;i++) { final int index=i; LinearLayout r=row(); r.setPadding(0,dp(this,13),0,dp(this,13));
             r.addView(text(this,String.format(Locale.ROOT,"%.1f°C 档",temps[i]/1000d),13,INK),new LinearLayout.LayoutParams(0,-2,1));
-            TextView value=text(this,String.format(Locale.ROOT,"%.4f GHz  ›",working[i]/1000000d),13,prime?AMBER:TEAL); r.addView(value); values[i]=value; list.addView(r);
+            TextView value=text(this,String.format(Locale.ROOT,"%.4f GHz  ›",working[i]/1000000d),13,group==6?AMBER:TEAL); r.addView(value); values[i]=value; list.addView(r);
             r.setOnClickListener(v -> { String[] items=new String[table.length]; int selected=0; for(int k=0;k<table.length;k++) { items[k]=String.format(Locale.ROOT,"%.4f GHz",table[k]/1000000d); if(table[k]==working[index]) selected=k; }
                 new AlertDialog.Builder(this).setTitle("温度 "+temps[index]/1000d+"°C 档").setSingleChoiceItems(items,selected,(d,which) -> { working[index]=table[which]; value.setText(items[which]+"  ›"); d.dismiss(); }).setNegativeButton("取消",null).show();
             });
         }
         ScrollView scroll=new ScrollView(this); scroll.addView(list);
-        new AlertDialog.Builder(this).setTitle(prime?"CPU6–7 超大核曲线":"CPU0–5 性能核曲线").setView(scroll).setNegativeButton("取消",null)
-            .setPositiveButton("保存曲线",(d,w) -> { if(prime) policy.curve6=working; else policy.curve0=working; save(); }).show();
+        new AlertDialog.Builder(this).setTitle(policy.profile.label(group)+"曲线").setView(scroll).setNegativeButton("取消",null)
+            .setPositiveButton("保存曲线",(d,w) -> { policy.curve(group,working); save(); }).show();
     }
     interface BoolChange { void set(boolean b); }
     void slider(LinearLayout parent,String title,int min,int max,int value,IntChange changed,int color) {
@@ -207,13 +215,13 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
             public void onStartTrackingTouch(SeekBar s) {} public void onStopTrackingTouch(SeekBar s) {}
         });
     }
-    void frequency(LinearLayout parent,String title,boolean prime) {
+    void frequency(LinearLayout parent,String title,int group) {
         LinearLayout r=row(); r.addView(text(this,title,12,MUTED),new LinearLayout.LayoutParams(0,-2,1));
-        TextView value=text(this,String.format(Locale.ROOT,"%.4f GHz  ›",(prime?policy.cap6:policy.cap0)/1000000d),14,INK); r.addView(value); parent.addView(r);
+        TextView value=text(this,String.format(Locale.ROOT,"%.4f GHz  ›",policy.cap(group)/1000000d),14,INK); r.addView(value); parent.addView(r);
         r.setPadding(0,dp(this,6),0,dp(this,6)); r.setOnClickListener(v -> {
-            int[] table=prime?ConfigCodec.TABLE6:ConfigCodec.TABLE0; String[] items=new String[table.length]; int selected=0;
-            for(int i=0;i<table.length;i++) { items[i]=String.format(Locale.ROOT,"%.4f GHz",table[i]/1000000d); if(table[i]==(prime?policy.cap6:policy.cap0)) selected=i; }
-            new AlertDialog.Builder(this).setTitle(title+"上限").setSingleChoiceItems(items,selected,(d,which) -> { if(prime) policy.cap6=table[which]; else policy.cap0=table[which]; save(); d.dismiss(); showPage(1); }).setNegativeButton("取消",null).show();
+            int[] table=policy.profile.table(group); String[] items=new String[table.length]; int selected=0;
+            for(int i=0;i<table.length;i++) { items[i]=String.format(Locale.ROOT,"%.4f GHz",table[i]/1000000d); if(table[i]==policy.cap(group)) selected=i; }
+            new AlertDialog.Builder(this).setTitle(title+"上限").setSingleChoiceItems(items,selected,(d,which) -> { policy.cap(group,table[which]); save(); d.dismiss(); showPage(1); }).setNegativeButton("取消",null).show();
         });
     }
     void choice(LinearLayout parent,String title,String desc,boolean selected,Runnable callback) {
@@ -243,11 +251,11 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         recordTime=label(c,"运行时长 —",13,MUTED); gap(c,10); recordLimits=label(c,"停止条件 —",12,MUTED); gap(c,20);
         TextView export=button("导出温度与频率记录",0xff243631,TEAL); c.addView(export,new LinearLayout.LayoutParams(-1,dp(this,48))); export.setOnClickListener(v -> exportDialog());
         LinearLayout scope=card(body,20); label(scope,"已验证的工作范围",16,INK); gap(scope,15);
-        TextView details=label(scope,"Xiaomi 15 / dada\nHyperOS 4.0.0.19 · 当前已验证温控版本\nCPU0–5 性能核 · CPU6–7 超大核\n\n只对匹配版本启用修改。系统更新后若校验不匹配，会拒绝应用旧配置。",12,MUTED); details.setLineSpacing(dp(this,6),1);
+        TextView details=label(scope,policy.profile.name+" / "+policy.profile.device+"\n"+(policy.profile.runtimeMount?"HyperOS 4.0.24.0 · 三组 CPU 曲线\n临时 Root · 重启恢复原厂":"HyperOS 4.0.0.19 · 两组 CPU 曲线")+"\n\n只对匹配版本启用修改。系统更新后若校验不匹配，会拒绝应用旧配置。",12,MUTED); details.setLineSpacing(dp(this,6),1);
         LinearLayout recovery=card(body,20); label(recovery,"恢复与卸载",16,INK); gap(recovery,12);
         TextView text=label(recovery,"手动停止、时间到、温度触线或守护异常，都会恢复原厂配置。\n\n卸载前请先点“恢复原厂”。持续模式的开机继续也会一并关闭。",12,MUTED); text.setLineSpacing(dp(this,5),1);
         TextView b=button("立即恢复原厂",BG,AMBER); gap(recovery,17); recovery.addView(b,new LinearLayout.LayoutParams(-1,dp(this,46))); b.setOnClickListener(v -> hub.stop());
-        label(body,"Pulse 1.4  ·  无网络权限",11,MUTED); gap(body,10);
+        label(body,"Pulse 1.5  ·  无网络权限",11,MUTED); gap(body,10);
     }
     void exportDialog() { Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/csv").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE,"Pulse-Thermal-"+System.currentTimeMillis()+".csv"); startActivityForResult(i,18); }
     @Override protected void onActivityResult(int request,int result,Intent data) {
@@ -259,7 +267,6 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
     }
     void save() { policy.save(this); }
     void startPolicy() {
-        if(!hub.connected) { hub.connect(); return; }
         try { policy.validate(); } catch(Exception e) { Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show(); return; }
         if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED) requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},19);
         policy.save(this); startForegroundService(new Intent(this,ThermalService.class).setAction(ThermalService.START));
@@ -267,15 +274,16 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
     @Override public void update() {
         if(!resumed) return;
         Snapshot s=hub.snapshot; boolean active=s.active();
+        connectionStatus.setText(hub.message);
         rootBadge.setText(hub.busy?"处理中":hub.connected?"● ROOT 已连接":"连接 ROOT"); rootBadge.setTextColor(hub.connected?TEAL:AMBER);
-        apply.setText(hub.busy?"处理中…":active?"策略运行中":hub.connected?"应用策略":"连接 Root");
+        apply.setText(hub.busy?"处理中…":s.paused()?"等待场景恢复":active?"策略运行中":hub.connected?"应用策略":"连接并应用策略");
         apply.setEnabled(!hub.busy && !active); apply.setAlpha((hub.busy||active)?.55f:1);
-        restore.setEnabled(!hub.busy && hub.connected); restore.setText(s.recoveryFailed()?"重试恢复":"恢复原厂");
+        restore.setEnabled(!hub.busy && (hub.connected||hub.engine.rootGranted)); restore.setText(s.recoveryFailed()?"重试恢复":"恢复原厂");
         if(heroTitle!=null) {
-            heroTitle.setText(active?(s.s("mode").equals("fullmax")?"全频释放":s.s("mode").equals("custom")?"逐档自定义":"阶梯增强 +"+s.n("boost_percent")+"%"):s.recoveryFailed()?"恢复待确认":"原厂温控");
-            heroSub.setText(active?"频率曲线已放开 · 达到停止条件自动恢复":s.s("state").equals("restored")?s.reason():"按需放开频率，让每次测试都有据可查。");
-            countdown.setText(s.countdown()); freq0.setText(s.frequency("freq0")); freq6.setText(s.frequency("freq6"));
-            max0.setText("上限 "+s.frequency("max0")+" GHz"); max6.setText("上限 "+s.frequency("max6")+" GHz");
+            heroTitle.setText(s.paused()?"策略已暂停":active?(s.s("mode").equals("fullmax")?"全频释放":s.s("mode").equals("custom")?"逐档自定义":"阶梯增强 +"+s.n("boost_percent")+"%"):s.recoveryFailed()?"恢复待确认":!hub.statusKnown?"正在核对状态":"原厂温控");
+            heroSub.setText(s.paused()?s.reason():active?"频率曲线已放开 · 达到停止条件自动恢复":s.s("state").equals("restored")?s.reason():"按需放开频率，让每次测试都有据可查。");
+            countdown.setText(s.countdown());
+            for(int group:policy.profile.groups) { frequencies.get(group).setText(s.frequency("freq"+group)); maxima.get(group).setText("上限 "+s.frequency("max"+group)+" GHz"); }
             tempBattery.setText(s.temperature("battery_dc",10)); tempBody.setText(s.temperature("body_mc",1000)); tempCpu.setText(s.temperature("cpu_mc",1000));
             chart.add(s); message.setText(hub.message);
         }

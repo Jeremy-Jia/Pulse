@@ -33,7 +33,7 @@ public final class ThermalService extends Service implements ThermalHub.Listener
         } else {
             requested=true;
             Policy p=Policy.load(this); if(p.unlimited && p.resume) bootWaitUntil=SystemClock.elapsedRealtime()+150000;
-            if(!hub.connected) hub.connect(); else update();
+            hub.sync();
         }
         return START_STICKY;
     }
@@ -48,9 +48,9 @@ public final class ThermalService extends Service implements ThermalHub.Listener
         Snapshot s=hub.snapshot;
         if(s.active()) {
             bootWaitUntil=0;
-            getSystemService(NotificationManager.class).notify(ID,notification("电池 "+s.temperature("battery_dc",10)+"  ·  机身 "+s.temperature("body_mc",1000)+"  ·  "+s.countdown()));
+            getSystemService(NotificationManager.class).notify(ID,notification((s.paused()?"等待普通场景 · ":"")+"电池 "+s.temperature("battery_dc",10)+"  ·  机身 "+s.temperature("body_mc",1000)+"  ·  "+s.countdown()));
         }
-        else if(requested && !hub.busy && (s.s("reason").equals("MANUAL") || SystemClock.elapsedRealtime()>=bootWaitUntil)) { stopForeground(STOP_FOREGROUND_REMOVE); stopSelf(); }
+        else if(requested && hub.statusKnown && !hub.busy && (s.s("reason").equals("MANUAL") || SystemClock.elapsedRealtime()>=bootWaitUntil)) { stopForeground(STOP_FOREGROUND_REMOVE); stopSelf(); }
     }
     @Override public void onDestroy() { hub.listeners.remove(this); if(wake!=null && wake.isHeld()) wake.release(); super.onDestroy(); }
     @Override public IBinder onBind(Intent intent) { return null; }
