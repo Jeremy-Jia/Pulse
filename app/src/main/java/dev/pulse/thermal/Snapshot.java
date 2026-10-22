@@ -10,19 +10,29 @@ public final class Snapshot {
     public String s(String k) { return values.getOrDefault(k, ""); }
     public long n(String k) { try { return Long.parseLong(s(k)); } catch(Exception ignored) { return 0; } }
     /** Session ownership includes a paused scene; it is not a stopped session. */
-    public boolean active() { return s("state").equals("active") || s("state").equals("starting") || paused(); }
+    public boolean active() { return s("state").equals("active") || s("state").equals("starting") || paused() || thermalPaused() || s("state").equals("thermal_pausing"); }
+    public boolean thermalPaused() { return s("state").equals("thermal_paused"); }
+    public String resumeRule() { return (n("cpu_limit")>0?"CPU ≤"+n("cpu_resume")/1000+"°C · ":"")+"电池 ≤"+n("battery_resume")/10+"°C · 机身 <"+n("body_limit")/1000+"°C，稳定 5 秒后恢复"; }
     public boolean paused() { return s("state").equals("paused"); }
+    public boolean regulatesBody() { return s("body_mode").equals("regulate") || s("body_mode").equals("performance"); }
+    public String bodyRule() {
+        return s("body_mode").equals("performance")?"机身 ≥"+n("body_limit")/1000+"°C 降频 / 低于上限全释放":
+            "机身 "+n("body_limit")/1000+"°C 降频 / "+n("body_resume")/1000+"°C 回升";
+    }
+    public boolean cooling() { return s("state").equals("active") && regulatesBody() && n("cooling_level")>0; }
     public boolean recoveryFailed() { return s("state").equals("recovery_failed"); }
     public String temperature(String key, int divisor) { return n(key)>0 ? String.format(Locale.ROOT,"%.1f°", n(key)/(double)divisor) : "—"; }
     public String frequency(String key) { return n(key)>0 ? String.format(Locale.ROOT,"%.2f",n(key)/1000000d) : "—"; }
     public String countdown() {
         if (!active()) return "未运行";
+        if (thermalPaused()) return "等待降温 · 自动恢复";
         if (paused()) return "等待场景恢复";
         if (n("remaining")<0) return s("resume").equals("1") ? "持续 · 开机继续" : "持续运行";
         long seconds=Math.max(0,n("remaining"));
         return String.format(Locale.ROOT,"%02d:%02d",seconds/60,seconds%60);
     }
     public String reason() {
+        if(thermalPaused()) return s("reason").equals("CPU_LIMIT")?"CPU 热点触发保护，已暂停性能策略":"电池温度触发保护，已暂停性能策略";
         return switch(s("reason")) {
             case "MANUAL" -> "手动恢复原厂";
             case "TIMER", "DEADLINE_FALLBACK" -> "倒计时结束，已恢复原厂";
@@ -37,6 +47,7 @@ public final class Snapshot {
             case "WATCHDOG_LOST", "WATCHDOG_EXIT", "ACTIVATION_TIMEOUT", "ACTIVATION_FAILED" -> "守护退出，已恢复原厂";
             case "APP_REMOVED" -> "应用卸载，已恢复原厂";
             case "THERMAL_SERVICE_STOPPED" -> "系统温控服务异常，已停止";
+            case "CONTROL_ERROR" -> "温度调频执行异常，已恢复原厂";
             case "SENSOR_ERROR" -> "温度读取异常，已停止";
             case "RECOVERY_FAILED" -> "恢复未确认，请点击恢复原厂重试";
             default -> "尚无运行记录";

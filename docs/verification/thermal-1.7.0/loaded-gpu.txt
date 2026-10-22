@@ -1,0 +1,7 @@
+renderer=Adreno (TM) 845
+version=OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)
+frames=287
+seconds=12.033670
+fps=23.849748
+pixel=94,36,194,73
+gl_error=0

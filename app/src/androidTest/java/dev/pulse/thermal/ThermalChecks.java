@@ -9,6 +9,36 @@ import java.util.concurrent.Callable;
 
 /** Explicit, bounded hardware-writing integration suite. No benchmark workload. */
 public final class ThermalChecks {
+    public static JSONObject runGpu18(Instrumentation i) throws Exception {
+        Context c=i.getTargetContext(); Policy saved=Policy.load(c);
+        MainActivity activity=(MainActivity)i.startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        i.runOnMainSync(() -> activity.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        ThermalHub hub=ThermalHub.get(c);
+        waitFor(() -> hub.connected&&!hub.busy,45000,"connect GPU test: "+hub.message);
+        check(hub.engine.profile==ThermalProfile.MI18&&!hub.snapshot.active(),"requires idle hongkong");
+        JSONObject report=new JSONObject();
+        try {
+            Policy p=new Policy(); p.gpuEnabled=true; p.unlimited=true; p.batteryC=50; p.bodyC=50; p.cpuGuard=true; p.cpuC=105;
+            hub.engine.start(p);
+            waitFor(() -> hub.engine.status().n("gpu_max_hz")==1450000000,15000,"GPU actuator settling");
+            Snapshot s=hub.engine.status(); check(s.active()&&s.n("gpu_enabled")==1,"GPU enabled session");
+            check(s.n("gpu_max_hz")==1450000000,"GPU upper vote not released: "+s.n("gpu_max_hz"));
+            report.put("gpu_max_hz",s.n("gpu_max_hz"));
+            waitFor(() -> hub.engine.export().contains("gpu_hz,gpu_max_hz,gpu_thermal_level,gpu_enabled"),5000,"GPU CSV fields");
+            report.put("csv_export","pass");
+            hub.engine.stop(); factoryMi18(); report.put("manual_restore","pass"); note(i,"PASS GPU upper vote and exact factory restoration");
+            p.unlimited=false; p.minutes=1; hub.engine.start(p);
+            waitFor(() -> hub.engine.status().s("state").equals("restored"),85000,"GPU timer");
+            check(hub.engine.status().s("reason").equals("TIMER"),"GPU timer reason"); factoryMi18(); report.put("timer_restore","pass"); note(i,"PASS GPU one-minute timer restores original configuration");
+            p.unlimited=true; hub.engine.start(p);
+            SystemClock.sleep(2000);
+            RootEngine.root("id=$(cat /data/adb/pulse-thermal/current); kill -KILL $(cat /data/adb/pulse-thermal/sessions/$id/watch.pid)");
+            waitFor(() -> hub.engine.status().s("state").equals("restored"),30000,"GPU sentry"); factoryMi18();
+            check(hub.engine.status().s("reason").equals("WATCHDOG_LOST"),"GPU sentry reason"); report.put("independent_sentry_restore","pass");
+            report.put("result","pass");
+        } finally { try { hub.engine.stop(); } finally { saved.save(c); } }
+        return report;
+    }
     public static JSONObject runMi18(Instrumentation i) throws Exception {
         Context c=i.getTargetContext(); Policy saved=Policy.load(c); ThermalHub hub=ThermalHub.get(c);
         ThermalHub.Listener listener=() -> {};

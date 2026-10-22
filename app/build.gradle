@@ -11,8 +11,8 @@ android {
         applicationId 'dev.pulse.monitor'
         minSdk 26
         targetSdk 36
-        versionCode 7
-        versionName '1.5.1'
+        versionCode 10
+        versionName '1.8.0'
         testInstrumentationRunner 'dev.pulse.monitor.MonitorInstrumentation'
     }
 

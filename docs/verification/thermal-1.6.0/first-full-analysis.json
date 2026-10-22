@@ -1,0 +1,32 @@
+{
+  "body_mc": 50746,
+  "battery_dc": 434,
+  "cpu_hot_mc": 95800,
+  "start_body_mc": 33234,
+  "start_battery_dc": 328,
+  "samples": 442,
+  "phases": [
+    "active",
+    "restored",
+    "restoring"
+  ],
+  "first_not_active": {
+    "uptime": "6035.31",
+    "cpu0": "1094400",
+    "cpu3": "864000",
+    "cpu6": "1017600",
+    "max0": "1190400",
+    "max3": "1190400",
+    "max6": "1017600",
+    "gpu_hz": "125000000",
+    "gpu_max_hz": "1450000000",
+    "gpu_thermal_level": "0",
+    "gpu_busy_pct": "6",
+    "battery_dc": "428",
+    "body_mc": "50506",
+    "cpu_hot_mc": "78900",
+    "current_ua": "1073000",
+    "scene": "0",
+    "phase": "restoring"
+  }
+}

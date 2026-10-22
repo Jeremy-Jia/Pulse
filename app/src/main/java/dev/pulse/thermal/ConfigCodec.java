@@ -52,6 +52,10 @@ public final class ConfigCodec {
         return make(mode,cap0,0,cap6,percent,custom0,null,custom6);
     }
     public byte[] make(String mode,int cap0,int cap3,int cap6,int percent,int[] custom0,int[] custom3,int[] custom6) throws Exception {
+        return make(mode,cap0,cap3,cap6,percent,custom0,custom3,custom6,false,1450000000);
+    }
+    public byte[] make(String mode,int cap0,int cap3,int cap6,int percent,int[] custom0,int[] custom3,int[] custom6,boolean gpuEnabled,int gpuCapHz) throws Exception {
+        require(!gpuEnabled || profile.supportsGpu(),"此设备尚未适配 GPU 曲线");
         require(mode.equals("fullmax") || mode.equals("plus25") || mode.equals("boost") || mode.equals("custom"), "未知模式");
         require(percent>=0 && percent<=100,"增幅超出范围");
         require(contains(profile.table(0), cap0) && contains(profile.table(6), cap6) && (!profile.runtimeMount||contains(profile.table(3),cap3)), "频率不在设备频率表中");
@@ -59,18 +63,36 @@ public final class ConfigCodec {
         changed = section(changed, "SS-CPU0", profile.table(0), cap0, mode,percent,custom0,profile.curve(0).length);
         if(profile.runtimeMount) changed=section(changed,"SS-CPU3",profile.table(3),cap3,mode,percent,custom3,profile.curve(3).length);
         changed = section(changed, "SS-CPU6", profile.table(6), cap6, mode,percent,custom6,profile.curve(6).length);
+        if(gpuEnabled) changed=gpuSection(changed,profile.gpuLevel(gpuCapHz));
         String[] a = source.split("\n", -1), b = changed.split("\n", -1);
         require(a.length == b.length, "配置行数变化");
-        int differences = 0;
-        for (int i=0;i<a.length;i++) if (!a[i].equals(b[i])) {
-            differences++; require(a[i].startsWith("target\t") && b[i].startsWith("target\t"), "非 CPU 目标被修改");
+        int differences = 0; String current="";
+        for (int i=0;i<a.length;i++) {
+            if(a[i].startsWith("[")) current=a[i].trim();
+            if (a[i].equals(b[i])) continue;
+            boolean allowed=current.equals("[SS-CPU0]") || current.equals("[SS-CPU6]") || (profile.runtimeMount && current.equals("[SS-CPU3]")) || (gpuEnabled && current.equals("[MONITOR-GPU]"));
+            differences++; require(allowed && a[i].startsWith("target\t") && b[i].startsWith("target\t"), "未授权的配置字段被修改");
         }
-        require(differences>=1 && differences<=profile.groups.length, "曲线与原厂相同，请调整频率或直接使用原厂策略");
+        require(differences>=1 && differences<=profile.groups.length+(gpuEnabled?1:0), "曲线与原厂相同，请调整频率或直接使用原厂策略");
         byte[] plain = changed.getBytes(StandardCharsets.UTF_8), encoded = crypt(plain, Cipher.ENCRYPT_MODE);
         require(Arrays.equals(crypt(encoded, Cipher.DECRYPT_MODE), plain), "新配置加密校验失败");
         return plain;
     }
     public byte[] encode(byte[] plain) throws Exception { return crypt(plain, Cipher.ENCRYPT_MODE); }
+    private static String gpuSection(String text,int level) {
+        Matcher m=Pattern.compile("(?ms)^\\[MONITOR-GPU\\]\\r?\\n.*?(?=^\\[|\\z)").matcher(text);
+        require(m.find(),"缺少已验证 GPU 曲线"); String block=m.group();
+        String[][] expected={{"algo_type","monitor"},{"sensor","VIRTUAL-SENSOR-FORMULA"},{"device","gpu"},{"polling","1000"},{"trig","35000 37000 40000 45000 47000 50000"},{"clr","33000 35000 38000 43000 45000 48000"},{"target","8 10 13 17 19 22"}};
+        for(String[] field:expected) {
+            Matcher f=Pattern.compile("(?m)^"+field[0]+"[\\t ]+([^\\r\\n]+)").matcher(block);
+            require(f.find() && f.group(1).trim().replaceAll("\\s+"," ").equals(field[1]),"GPU 曲线字段不匹配："+field[0]);
+            require(!f.find(),"GPU 曲线字段重复");
+        }
+        Matcher target=Pattern.compile("(?m)^target[\\t ]+([^\\r\\n]+)").matcher(block); require(target.find(),"缺少 GPU 档位");
+        StringBuilder line=new StringBuilder("target"); for(int i=0;i<6;i++) line.append('\t').append(level);
+        String result=block.substring(0,target.start())+line+block.substring(target.end());
+        return text.substring(0,m.start())+result+text.substring(m.end());
+    }
     private static String section(String text, String name, int[] table, int cap, String mode,int percent,int[] custom,int count) {
         Matcher m = Pattern.compile("(?ms)^\\[" + name + "\\]\\r?\\n.*?(?=^\\[|\\z)").matcher(text);
         require(m.find(), "缺少 CPU 曲线 " + name);

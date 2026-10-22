@@ -31,7 +31,7 @@ public final class RootEngine {
         if(!p.waitFor(40,TimeUnit.SECONDS)) { p.destroyForcibly(); throw new IllegalStateException("Root 请求超时；请检查 KernelSU 授权"); }
         reader.join(2000);
         String text=new String(output.toByteArray(),StandardCharsets.UTF_8);
-        if(p.exitValue()!=0) throw new IllegalStateException(text.trim().isEmpty()?"Root 被拒绝；请在 KernelSU 授权 Pulse":friendly(text));
+        if(p.exitValue()!=0) throw new IllegalStateException(text.trim().isEmpty()?"Root 命令未完成，退出码 "+p.exitValue():friendly(text));
         return text;
     }
     void connect() throws Exception {
@@ -67,19 +67,27 @@ public final class RootEngine {
         String scriptSha=ConfigCodec.sha(Files.readAllBytes(script.toPath()));
         root("mkdir -p "+BASE+"/sessions && chmod 700 "+BASE+" "+BASE+"/sessions; " +
             "if [ -f "+q(BASE+"/current")+" ]; then id=$(cat "+q(BASE+"/current")+"); state=$(cat "+BASE+"/sessions/$id/phase 2>/dev/null); " +
-            "case \"$state\" in active|paused|starting|restoring|recovery_failed) [ \"$(sha256sum "+RUNNER+" | cut -d ' ' -f 1)\" = "+q(scriptSha)+" ] || { echo ERROR RESTORE_BEFORE_UPDATE; exit 1; };; esac; fi; " +
+            "case \"$state\" in active|paused|thermal_paused|thermal_pausing|starting|restoring|recovery_failed) [ \"$(sha256sum "+RUNNER+" | cut -d ' ' -f 1)\" = "+q(scriptSha)+" ] || { echo ERROR RESTORE_BEFORE_UPDATE; exit 1; };; esac; fi; " +
             "cp "+q(script.getPath())+" "+RUNNER+".new && chown root:root "+RUNNER+".new && chmod 600 "+RUNNER+".new && mv "+RUNNER+".new "+RUNNER+" && /system/bin/sh -n "+RUNNER);
     }
     Snapshot status() throws Exception { return new Snapshot(root("/system/bin/sh "+RUNNER+" status")); }
     void start(Policy p) throws Exception {
         p.validate(); if(codec==null) connect();
         if(!p.profile.device.equals(profile.device)) throw new IllegalStateException("策略设备与连接设备不一致");
-        byte[] plain=codec.make(p.mode,p.cap0,p.cap3,p.cap6,p.boostPercent,p.curve0,p.curve3,p.curve6), encrypted=codec.encode(plain);
+        if(p.gpuEnabled) {
+            String[] parts=root("cat /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies").trim().split("\\s+");
+            int[] actual=new int[parts.length]; for(int i=0;i<parts.length;i++) actual[i]=Integer.parseInt(parts[i]);
+            if(!java.util.Arrays.equals(actual,profile.gpuTable())) throw new IllegalStateException("GPU 频率表已变化，拒绝修改曲线");
+        }
+        byte[] plain=codec.make(p.mode,p.cap0,p.cap3,p.cap6,p.boostPercent,p.curve0,p.curve3,p.curve6,p.gpuEnabled,p.gpuCapHz), encrypted=codec.encode(plain);
         String id=Long.toString(System.currentTimeMillis());
         File trial=new File(stage,"trial.bin"), policy=new File(stage,"policy.env");
         Files.write(trial.toPath(),encrypted);
         String env="battery_limit="+p.batteryC*10+"\nbody_limit="+p.bodyC*1000+"\ncpu_limit="+(p.cpuGuard?p.cpuC*1000:0)+
+            "\nbody_mode="+(p.regulatesBody()?"performance":"stop")+"\nbody_resume="+p.bodyC*1000+
+            "\nthermal_auto_resume="+(p.thermalAutoResume?1:0)+"\nbattery_resume="+p.batteryResumeC*10+"\ncpu_resume="+p.cpuResumeC*1000+
             "\nduration="+(p.unlimited?0:p.minutes*60)+"\nresume_boot="+(p.unlimited&&p.resume?1:0)+"\ncap0="+p.cap0+"\ncap3="+p.cap3+"\ncap6="+p.cap6+
+            "\ngpu_enabled="+(p.gpuEnabled?1:0)+"\ngpu_cap_hz="+(p.gpuEnabled?p.gpuCapHz:0)+"\ngpu_level="+(p.gpuEnabled?profile.gpuLevel(p.gpuCapHz):0)+
             "\nmode="+p.mode+"\nboost_percent="+p.boostPercent+"\nowner_uid="+Process.myUid()+"\ntrial_hash="+ConfigCodec.sha(plain)+"\ntrial_cipher_hash="+ConfigCodec.sha(encrypted)+"\n";
         Files.write(policy.toPath(),env.getBytes(StandardCharsets.UTF_8));
         String d=BASE+"/sessions/"+id;

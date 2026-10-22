@@ -1,0 +1,4 @@
+2026-10-22T13:28:39Z BODY_CONTROL level=3 percent=40 body=37159 high=35000 resume=34000
+2026-10-22T13:28:39Z ACTIVE mode=fullmax duration=60 resume=0 gpu=1 gpu_cap_hz=1450000000
+2026-10-22T13:28:44Z BODY_CONTROL level=4 percent=20 body=37159 high=35000 resume=34000
+2026-10-22T13:29:38Z RESTORED TIMER

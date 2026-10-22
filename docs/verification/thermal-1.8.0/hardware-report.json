@@ -1,0 +1,7 @@
+{
+  "real_cpu_pause_resume_same_session": "pass",
+  "manual_cancel_during_cooldown": "pass",
+  "deadline_during_cooldown": "pass",
+  "sentry_during_cooldown": "pass",
+  "result": "pass"
+}

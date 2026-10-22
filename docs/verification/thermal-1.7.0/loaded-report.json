@@ -1,0 +1,11 @@
+{
+  "loaded_gpu_cap": {
+    "result": "pass",
+    "user_level": 21,
+    "upper_hz": 274000000,
+    "measured_max_hz": 274000000,
+    "samples": 100,
+    "probe_seconds": 12
+  },
+  "timer_while_cooling": "pass"
+}

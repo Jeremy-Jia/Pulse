@@ -20,7 +20,7 @@ import static dev.pulse.thermal.ThermalViews.*;
 public final class MainActivity extends Activity implements ThermalHub.Listener {
     ThermalHub hub; Policy policy;
     final java.util.Map<Integer,TextView> frequencies=new java.util.HashMap<>(), maxima=new java.util.HashMap<>();
-    TextView connectionStatus;
+    TextView connectionStatus, gpuStatus;
     LinearLayout root, nav, body, dock;
     FrameLayout content;
     ScrollView pageScroll;
@@ -54,7 +54,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         content=new FrameLayout(this); root.addView(content,new LinearLayout.LayoutParams(-1,0,1));
         dock=column(this); dock.setPadding(dp(this,20),dp(this,10),dp(this,20),dp(this,9));
         LinearLayout actions=row();
-        apply=button("应用策略",AMBER,BG); apply.setContentDescription("应用所选 CPU 策略");
+        apply=button("应用策略",AMBER,BG); apply.setContentDescription("应用所选性能策略");
         actions.addView(apply,new LinearLayout.LayoutParams(0,dp(this,54),1));
         restore=button("恢复原厂",CARD,INK); LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(dp(this,112),dp(this,54)); rp.leftMargin=dp(this,10); actions.addView(restore,rp);
         apply.setOnClickListener(v -> startPolicy()); restore.setOnClickListener(v -> hub.stop()); dock.addView(actions); root.addView(dock);
@@ -83,7 +83,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         int previousY=page==n && pageScroll!=null?pageScroll.getScrollY():0;
         page=n; content.removeAllViews();
         heroTitle=heroSub=countdown=tempBattery=tempBody=tempCpu=freq0=freq6=max0=max6=message=recordReason=recordTime=recordLimits=null; chart=null;
-        frequencies.clear(); maxima.clear();
+        frequencies.clear(); maxima.clear(); gpuStatus=null;
         ScrollView scroll=new ScrollView(this); scroll.setClipToPadding(false); scroll.setFillViewport(false);
         pageScroll=scroll;
         body=column(this); body.setPadding(dp(this,20),dp(this,12),dp(this,20),dp(this,10)); scroll.addView(body); content.addView(scroll);
@@ -108,6 +108,10 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         countdown=label(tc,"未运行",27,AMBER); countdown.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL)); timer.addView(tc,new LinearLayout.LayoutParams(0,-2,1));
         TextView preserved=text(this,"原厂底层\n保护保留",11,TEAL); preserved.setGravity(Gravity.END); preserved.setLineSpacing(dp(this,5),1); timer.addView(preserved); hero.addView(timer);
         LinearLayout cores=row(); for(int group:policy.profile.groups) coreCard(cores,group); LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.bottomMargin=dp(this,12); body.addView(cores,cp);
+        if(policy.profile.supportsGpu()) {
+            LinearLayout gpu=card(body,18); label(gpu,"GPU · Adreno",13,TEAL); gap(gpu,9);
+            gpuStatus=label(gpu,"正在读取频率…",14,INK); gpuStatus.setLineSpacing(dp(this,4),1);
+        }
         LinearLayout temperatures=row(); tempBattery=tempCard(temperatures,"电池",AMBER,0); tempBody=tempCard(temperatures,"估算机身",TEAL,1); tempCpu=tempCard(temperatures,"CPU 热点",0xffb9b5f3,2);
         body.addView(temperatures); gap(body,14);
         LinearLayout trend=card(body,18); LinearLayout tr=row(); TextView title=text(this,"温度趋势",14,INK); tr.addView(title,new LinearLayout.LayoutParams(0,-2,1)); tr.addView(text(this,"● 电池   ",10,AMBER)); tr.addView(text(this,"● 机身",10,TEAL)); trend.addView(tr);
@@ -128,9 +132,9 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         label(c,title,11,MUTED); gap(c,11); TextView t=label(c,"—",25,color); t.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL)); return t;
     }
     void settings() {
-        heading("你的性能策略","选择频率策略，再设置退出条件。");
+        heading("你的性能策略",policy.regulatesBody()?"选择频率策略，再设置温度调节与停止保护。":"选择频率策略，再设置退出条件。");
         LinearLayout modes=card(body,17);
-        choice(modes,"全频释放","所有温度档使用所选频率上限",policy.mode.equals("fullmax"),() -> { policy.mode="fullmax"; save(); showPage(1); });
+        choice(modes,policy.profile.supportsGpu()?"CPU 全频释放":"全频释放","所有 CPU 温度档使用所选频率上限",policy.mode.equals("fullmax"),() -> { policy.mode="fullmax"; save(); showPage(1); });
         divider(modes); choice(modes,"阶梯增强 +"+policy.boostPercent+"%","自选增幅 · 不超过硬件频率表上限",policy.mode.equals("boost"),() -> { policy.mode="boost"; save(); showPage(1); });
         divider(modes); choice(modes,"逐档自定义","分别编辑各组核心每个温度档的频率",policy.mode.equals("custom"),() -> { policy.mode="custom"; save(); showPage(1); });
         if(policy.mode.equals("boost")) {
@@ -140,7 +144,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
             boost.addView(seek,new LinearLayout.LayoutParams(-1,dp(this,40)));
             seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 public void onProgressChanged(SeekBar s,int n,boolean user) { amount.setText("+"+n+"%"); if(user) { policy.boostPercent=n; save(); } }
-                public void onStartTrackingTouch(SeekBar s) {} public void onStopTrackingTouch(SeekBar s) {}
+                public void onStartTrackingTouch(SeekBar s) {} public void onStopTrackingTouch(SeekBar s) { showPage(1); }
             });
             gap(boost,8); label(boost,"25°C 档使用所选上限；其余档按比例增加，向下取支持的频率。",11,MUTED);
         }
@@ -155,13 +159,46 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         LinearLayout caps=card(body,18); label(caps,"频率上限",15,INK); gap(caps,14);
         for(int group:policy.profile.groups) { frequency(caps,policy.profile.label(group),group); gap(caps,13); }
         if(policy.profile.runtimeMount) label(caps,"CPU6–7：4.704 GHz 为普通最高档；4.8576 / 4.9536 / 5.0112 GHz 为 Boost 档。上限不等于持续频率。",11,MUTED);
-        gap(body,8); label(body,"温度停止线",19,INK); gap(body,8); TextView intro=label(body,"触发任一条件即恢复原厂，之后需手动重新启用。",11,MUTED); intro.setLineSpacing(dp(this,3),1); gap(body,14);
+        if(policy.profile.supportsGpu()) {
+            LinearLayout gpu=card(body,18);
+            toggle(gpu,"GPU 曲线放开","仅小米 18 · 35°C 起的温度档使用所选 GPU 目标",policy.gpuEnabled,true,checked -> { policy.gpuEnabled=checked; save(); showPage(1); });
+            if(policy.gpuEnabled) {
+                gap(gpu,14); LinearLayout r=row(); r.addView(text(this,"GPU 曲线目标",13,MUTED),new LinearLayout.LayoutParams(0,-2,1));
+                TextView value=text(this,policy.gpuCapHz/1000000+" MHz  ›",16,TEAL); r.addView(value); gpu.addView(r); r.setPadding(0,dp(this,10),0,dp(this,10));
+                r.setOnClickListener(v -> {
+                    int[] table=policy.profile.gpuTable(); String[] items=new String[table.length]; int selected=policy.profile.gpuLevel(policy.gpuCapHz);
+                    for(int i=0;i<table.length;i++) items[i]=table[i]/1000000+" MHz";
+                    new AlertDialog.Builder(this).setTitle("GPU 曲线目标").setSingleChoiceItems(items,selected,(d,which) -> { policy.gpuCapHz=table[which]; save(); d.dismiss(); showPage(1); }).setNegativeButton("取消",null).show();
+                });
+            }
+            gap(gpu,10); TextView info=label(gpu,"默认关闭。启用后，机身升温会同时调低 CPU 与 GPU 上限，低于机身上限即放回所选最高频率，会话持续运行。电池与 CPU 热点仍有独立停止保护；实际频率受负载与底层保护影响。",11,MUTED); info.setLineSpacing(dp(this,4),1);
+        }
+        if(policy.regulatesBody()) {
+            gap(body,8); label(body,"机身温度调节",19,INK); gap(body,8);
+            label(body,"CPU 与 GPU 性能优先。达到机身上限才降频；低于上限即全释放，会话始终保留。",11,MUTED); gap(body,14);
+            LinearLayout cooling=card(body,18);
+            bodyTemperature(cooling);
+            gap(cooling,12); label(cooling,"超温时逐档降低上限，持续超温约每 5 秒再降一档。低于上限后立即撤销额外限频，放回所选上限；不恢复原厂曲线。",11,MUTED);
+        }
+        gap(body,8); label(body,policy.regulatesBody()?"独立停止保护":"温度停止线",19,INK); gap(body,8);
+        TextView intro=label(body,policy.regulatesBody()?"电池或 CPU 热点触发后先暂停性能策略，通知提醒；降温后可自动恢复所选曲线。":"触发任一条件即恢复原厂，之后需手动重新启用。",11,MUTED);
+        intro.setLineSpacing(dp(this,3),1); gap(body,14);
         LinearLayout limits=card(body,18);
-        slider(limits,"电池温度",35,50,policy.batteryC,n -> { policy.batteryC=n; save(); },AMBER);
-        gap(limits,17); slider(limits,"估算机身温度",35,50,policy.bodyC,n -> { policy.bodyC=n; save(); },TEAL);
+        slider(limits,"电池温度",35,50,policy.batteryC,n -> { policy.batteryC=n; policy.batteryResumeC=Math.min(policy.batteryResumeC,n-1); save(); },AMBER);
+        if(!policy.regulatesBody()) { gap(limits,17); slider(limits,"估算机身温度",35,50,policy.bodyC,n -> { policy.bodyC=n; save(); },TEAL); }
         gap(limits,8); divider(limits);
         toggle(limits,"CPU 热点停止线","可选的额外保护，不是系统硬件阈值",policy.cpuGuard,true,checked -> { policy.cpuGuard=checked; save(); showPage(1); });
-        if(policy.cpuGuard) slider(limits,"CPU 热点",70,110,policy.cpuC,n -> { policy.cpuC=n; save(); },0xffb9b5f3);
+        if(policy.cpuGuard) slider(limits,"CPU 热点",70,110,policy.cpuC,n -> { policy.cpuC=n; policy.cpuResumeC=Math.min(policy.cpuResumeC,n-1); save(); },0xffb9b5f3);
+        if(policy.regulatesBody()) {
+            gap(limits,8); divider(limits);
+            toggle(limits,"降温后自动恢复","触发时系统通知；恢复原来选定的 CPU/GPU 策略",policy.thermalAutoResume,true,b -> { policy.thermalAutoResume=b; save(); showPage(1); });
+            if(policy.thermalAutoResume) {
+                gap(limits,12);
+                temperatureChoice(limits,"电池恢复温度",30,policy.batteryC-1,policy.batteryResumeC,n -> policy.batteryResumeC=n);
+                if(policy.cpuGuard) temperatureChoice(limits,"CPU 热点恢复温度",60,policy.cpuC-1,policy.cpuResumeC,n -> policy.cpuResumeC=n);
+                gap(limits,10); label(limits,"所有恢复条件同时满足，且机身低于所设上限，稳定 5 秒后自动恢复。手动停止、计时结束或异常退出后不会自动重启。",11,MUTED);
+            }
+        }
         LinearLayout time=card(body,18); label(time,"什么时候恢复",16,INK); gap(time,16);
         LinearLayout segments=row(); TextView timed=button("定时恢复",policy.unlimited?BG:0xff302821,policy.unlimited?MUTED:AMBER), endless=button("持续运行",policy.unlimited?0xff302821:BG,policy.unlimited?AMBER:MUTED);
         segments.addView(timed,new LinearLayout.LayoutParams(0,dp(this,44),1)); LinearLayout.LayoutParams ep=new LinearLayout.LayoutParams(0,dp(this,44),1); ep.leftMargin=dp(this,8); segments.addView(endless,ep); time.addView(segments);
@@ -176,9 +213,21 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
             } time.addView(quick);
         } else {
             toggle(time,"重启后继续",policy.profile.runtimeMount?"临时 Root 仅本次开机有效；重启恢复原厂":"关闭时，重启会恢复原厂温控",policy.resume,!policy.profile.runtimeMount,checked -> { policy.resume=checked; save(); if(hub.connected) hub.updateBootResume(checked); });
-            gap(time,9); TextView t=label(time,"持续模式没有倒计时；温度停止线始终有效。"+(policy.profile.runtimeMount?"":" 运行中切换会立即写入当前会话的启动钩子。"),11,MUTED); t.setLineSpacing(dp(this,3),1);
+            gap(time,9); TextView t=label(time,(policy.regulatesBody()?"持续模式没有倒计时；机身自动调频与独立停止保护始终有效。":"持续模式没有倒计时；温度停止线始终有效。")+(policy.profile.runtimeMount?"":" 运行中切换会立即写入当前会话的启动钩子。"),11,MUTED); t.setLineSpacing(dp(this,3),1);
         }
-        TextView footer=label(body,"只调整 CPU 频率曲线，保留芯片、充电和其他系统保护。设置修改后，先恢复原厂再应用新策略。",11,MUTED); footer.setLineSpacing(dp(this,4),1); gap(body,10);
+        TextView footer=label(body,(policy.profile.supportsGpu()?"调整 CPU 曲线，可选放开 GPU 曲线；":"只调整 CPU 频率曲线，")+"保留芯片、充电和其他系统保护。设置修改后，先恢复原厂再应用新策略。",11,MUTED); footer.setLineSpacing(dp(this,4),1); gap(body,10);
+    }
+    void bodyTemperature(LinearLayout parent) { temperatureChoice(parent,"估算机身温度上限",35,52,policy.bodyC,n -> policy.bodyC=n); }
+    void temperatureChoice(LinearLayout parent,String title,int min,int max,int value,IntChange change) {
+        LinearLayout r=row(); r.setPadding(0,dp(this,10),0,dp(this,10));
+        r.addView(text(this,title,14,INK),new LinearLayout.LayoutParams(0,-2,1));
+        r.addView(text(this,value+"°C  ›",22,TEAL)); parent.addView(r);
+        r.setOnClickListener(v -> {
+            String[] items=new String[max-min+1]; for(int n=0;n<items.length;n++) items[n]=(n+min)+"°C";
+            new AlertDialog.Builder(this).setTitle(title).setSingleChoiceItems(items,value-min,(d,n) -> {
+                change.set(n+min); save(); d.dismiss(); showPage(1);
+            }).setNegativeButton("取消",null).show();
+        });
     }
     interface IntChange { void set(int n); }
     void curveEditor(int group) {
@@ -212,7 +261,7 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         parent.addView(seek,new LinearLayout.LayoutParams(-1,dp(this,38)));
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar s,int n,boolean fromUser) { v.setText((n+min)+"°C"); if(fromUser) changed.set(n+min); }
-            public void onStartTrackingTouch(SeekBar s) {} public void onStopTrackingTouch(SeekBar s) {}
+            public void onStartTrackingTouch(SeekBar s) {} public void onStopTrackingTouch(SeekBar s) { showPage(1); }
         });
     }
     void frequency(LinearLayout parent,String title,int group) {
@@ -253,9 +302,9 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         LinearLayout scope=card(body,20); label(scope,"已验证的工作范围",16,INK); gap(scope,15);
         TextView details=label(scope,policy.profile.name+" / "+policy.profile.device+"\n"+(policy.profile.runtimeMount?"HyperOS 4.0.24.0 · 三组 CPU 曲线\n临时 Root · 重启恢复原厂":"HyperOS 4.0.0.19 · 两组 CPU 曲线")+"\n\n只对匹配版本启用修改。系统更新后若校验不匹配，会拒绝应用旧配置。",12,MUTED); details.setLineSpacing(dp(this,6),1);
         LinearLayout recovery=card(body,20); label(recovery,"恢复与卸载",16,INK); gap(recovery,12);
-        TextView text=label(recovery,"手动停止、时间到、温度触线或守护异常，都会恢复原厂配置。\n\n卸载前请先点“恢复原厂”。持续模式的开机继续也会一并关闭。",12,MUTED); text.setLineSpacing(dp(this,5),1);
+        TextView text=label(recovery,(policy.regulatesBody()?"机身达到温度上限只调低频率，低于上限即全释放；会话继续运行。\n\n独立温度保护触发时暂停并通知；启用自动恢复后，降温至所设条件会恢复性能策略。手动停止、时间到或守护异常会结束会话。":"手动停止、时间到、温度触线或守护异常，都会恢复原厂配置。")+"\n\n卸载前请先点“恢复原厂”。持续模式的开机继续也会一并关闭。",12,MUTED); text.setLineSpacing(dp(this,5),1);
         TextView b=button("立即恢复原厂",BG,AMBER); gap(recovery,17); recovery.addView(b,new LinearLayout.LayoutParams(-1,dp(this,46))); b.setOnClickListener(v -> hub.stop());
-        label(body,"Pulse 1.5  ·  无网络权限",11,MUTED); gap(body,10);
+        label(body,"Pulse "+dev.pulse.monitor.BuildConfig.VERSION_NAME+"  ·  无网络权限",11,MUTED); gap(body,10);
     }
     void exportDialog() { Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/csv").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE,"Pulse-Thermal-"+System.currentTimeMillis()+".csv"); startActivityForResult(i,18); }
     @Override protected void onActivityResult(int request,int result,Intent data) {
@@ -276,20 +325,24 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
         Snapshot s=hub.snapshot; boolean active=s.active();
         connectionStatus.setText(hub.message);
         rootBadge.setText(hub.busy?"处理中":hub.connected?"● ROOT 已连接":"连接 ROOT"); rootBadge.setTextColor(hub.connected?TEAL:AMBER);
-        apply.setText(hub.busy?"处理中…":s.paused()?"等待场景恢复":active?"策略运行中":hub.connected?"应用策略":"连接并应用策略");
+        apply.setText(hub.busy?"处理中…":s.thermalPaused()?"等待降温恢复":s.paused()?"等待场景恢复":active?"策略运行中":hub.connected?"应用策略":"连接并应用策略");
         apply.setEnabled(!hub.busy && !active); apply.setAlpha((hub.busy||active)?.55f:1);
-        restore.setEnabled(!hub.busy && (hub.connected||hub.engine.rootGranted)); restore.setText(s.recoveryFailed()?"重试恢复":"恢复原厂");
+        restore.setEnabled(!hub.busy && (hub.connected||hub.engine.rootGranted)); restore.setText(s.thermalPaused()?"停止策略":s.recoveryFailed()?"重试恢复":"恢复原厂");
         if(heroTitle!=null) {
-            heroTitle.setText(s.paused()?"策略已暂停":active?(s.s("mode").equals("fullmax")?"全频释放":s.s("mode").equals("custom")?"逐档自定义":"阶梯增强 +"+s.n("boost_percent")+"%"):s.recoveryFailed()?"恢复待确认":!hub.statusKnown?"正在核对状态":"原厂温控");
-            heroSub.setText(s.paused()?s.reason():active?"频率曲线已放开 · 达到停止条件自动恢复":s.s("state").equals("restored")?s.reason():"按需放开频率，让每次测试都有据可查。");
+            heroTitle.setText(s.thermalPaused()?"降温暂停":s.paused()?"策略已暂停":active?(s.cooling()?"温度调节中":s.s("mode").equals("fullmax")?"全频释放":s.s("mode").equals("custom")?"逐档自定义":"阶梯增强 +"+s.n("boost_percent")+"%"):s.recoveryFailed()?"恢复待确认":!hub.statusKnown?"正在核对状态":"原厂温控");
+            heroSub.setText(s.thermalPaused()?s.reason()+"\n"+s.resumeRule():s.paused()?s.reason():active?(s.regulatesBody()?s.bodyRule()+(s.cooling()?"\n上限档位 "+s.n("cooling_percent")+"% · 会话持续":" · 会话持续"):"频率曲线已放开 · 达到停止条件自动恢复"):s.s("state").equals("restored")?s.reason():"按需放开频率，让每次测试都有据可查。");
             countdown.setText(s.countdown());
             for(int group:policy.profile.groups) { frequencies.get(group).setText(s.frequency("freq"+group)); maxima.get(group).setText("上限 "+s.frequency("max"+group)+" GHz"); }
             tempBattery.setText(s.temperature("battery_dc",10)); tempBody.setText(s.temperature("body_mc",1000)); tempCpu.setText(s.temperature("cpu_mc",1000));
             chart.add(s); message.setText(hub.message);
+            if(gpuStatus!=null) {
+                String scope=active && !s.paused() && !s.thermalPaused() && s.n("gpu_enabled")==1?"曲线已放开 · 设置 "+s.n("gpu_cap_hz")/1000000+" MHz":"GPU 原厂曲线";
+                gpuStatus.setText(scope+(s.cooling() && s.n("gpu_enabled")==1?" · 温度调节 "+s.n("cooling_percent")+"%":"")+"\n当前 "+(s.n("gpu_hz")>0?s.n("gpu_hz")/1000000+" MHz":"—")+"  ·  实际上限 "+(s.n("gpu_max_hz")>0?s.n("gpu_max_hz")/1000000+" MHz":"—"));
+            }
         }
         if(recordReason!=null) {
-            recordReason.setText(active?"策略正在运行":s.reason()); long elapsed=s.n("elapsed"); recordTime.setText("运行时长 "+elapsed/60+" 分 "+elapsed%60+" 秒");
-            recordLimits.setText(s.s("session").isEmpty()?"还没有运行策略":"电池 "+s.n("battery_limit")/10+"°C  ·  机身 "+s.n("body_limit")/1000+"°C"+(s.n("cpu_limit")>0?"\nCPU 热点 "+s.n("cpu_limit")/1000+"°C":"  ·  CPU 随系统保护"));
+            recordReason.setText(s.thermalPaused()?"降温暂停 · 将自动恢复":s.cooling()?"温度调节中 · 会话持续":active?"策略正在运行":s.reason()); long elapsed=s.n("elapsed"); recordTime.setText("运行时长 "+elapsed/60+" 分 "+elapsed%60+" 秒");
+            recordLimits.setText(s.s("session").isEmpty()?"还没有运行策略":"电池停止 "+s.n("battery_limit")/10+"°C"+(s.regulatesBody()?"\n"+s.bodyRule():"  ·  机身停止 "+s.n("body_limit")/1000+"°C")+(s.n("cpu_limit")>0?"\nCPU 热点 "+s.n("cpu_limit")/1000+"°C":"  ·  CPU 随系统保护"));
         }
     }
 }

@@ -1,0 +1,21 @@
+35-second private trace, 10399 SCMI frequency-QoS updates. Excerpt only; full local evidence retained.
+  kworker/u32:14-23593   [000] ...1.  5783.405622: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4550400
+  kworker/u32:14-23593   [000] ...1.  5783.409733: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3552000
+  kworker/u32:14-23593   [000] ...1.  5783.413821: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3206400
+  kworker/u32:14-23593   [000] ...1.  5783.417936: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4550400
+  kworker/u32:14-23593   [000] ...1.  5783.422024: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3206400
+  kworker/u32:14-23593   [000] ...1.  5783.426139: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4704000
+  kworker/u32:14-23593   [000] ...1.  5783.430222: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3206400
+  kworker/u32:14-23593   [000] ...1.  5783.434335: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4550400
+  kworker/u32:14-23593   [000] ...1.  5783.438425: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=2611200
+  kworker/u32:14-23593   [000] ...1.  5783.442527: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4704000
+  kworker/u32:14-23593   [000] ...1.  5783.446627: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=2611200
+  kworker/u32:14-23593   [000] ...1.  5783.450740: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4704000
+  kworker/u32:14-23593   [000] ...1.  5783.454822: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4032000
+  kworker/u32:14-23593   [000] ...1.  5783.458927: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3552000
+  kworker/u32:14-23593   [000] ...1.  5783.487629: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3206400
+  kworker/u32:14-23593   [000] ...1.  5783.491736: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4550400
+  kworker/u32:14-23593   [000] ...1.  5783.495824: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3552000
+  kworker/u32:14-23593   [004] ...1.  5783.499931: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3206400
+  kworker/u32:14-23593   [004] ...1.  5783.504029: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=4550400
+  kworker/u32:14-23593   [004] ...1.  5783.508141: freq_qos_request: variation=update client=scmi_limit_notify_cb+0x54/0xc0 type=2 val=3552000

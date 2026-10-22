@@ -1,0 +1,99 @@
+{
+  "A_cpu_only": {
+    "session": "1792672590774",
+    "metrics": {
+      "renderer": "Adreno (TM) 845",
+      "version": "OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)",
+      "frames": "1945",
+      "seconds": "12.002654",
+      "fps": "162.047496",
+      "pixel": "134,22,143,149",
+      "gl_error": "0"
+    },
+    "active_all_samples": true,
+    "samples": 14,
+    "gpu_freq_hz": [
+      222000000,
+      325000000,
+      357000000,
+      390000000,
+      422000000,
+      461000000,
+      500000000,
+      539000000,
+      578000000,
+      636000000,
+      693000000
+    ],
+    "gpu_max_hz": [
+      759000000
+    ],
+    "gpu_busy_max": 84,
+    "body_start_mc": "37998",
+    "body_max_mc": 38177,
+    "battery_max_dc": 387
+  },
+  "B_cpu_gpu": {
+    "session": "1792672616374",
+    "metrics": {
+      "renderer": "Adreno (TM) 845",
+      "version": "OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)",
+      "frames": "2186",
+      "seconds": "12.004316",
+      "fps": "182.101164",
+      "pixel": "57,60,127,145",
+      "gl_error": "0"
+    },
+    "active_all_samples": true,
+    "samples": 14,
+    "gpu_freq_hz": [
+      190000000,
+      325000000,
+      422000000,
+      461000000,
+      500000000,
+      578000000,
+      636000000,
+      693000000,
+      759000000
+    ],
+    "gpu_max_hz": [
+      1450000000
+    ],
+    "gpu_busy_max": 85,
+    "body_start_mc": "38375",
+    "body_max_mc": 38464,
+    "battery_max_dc": 387
+  },
+  "A2_cpu_only": {
+    "session": "1792672644165",
+    "metrics": {
+      "renderer": "Adreno (TM) 845",
+      "version": "OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)",
+      "frames": "2166",
+      "seconds": "12.003745",
+      "fps": "180.443687",
+      "pixel": "60,71,237,71",
+      "gl_error": "0"
+    },
+    "active_all_samples": true,
+    "samples": 14,
+    "gpu_freq_hz": [
+      222000000,
+      357000000,
+      500000000,
+      539000000,
+      578000000,
+      636000000,
+      693000000,
+      759000000
+    ],
+    "gpu_max_hz": [
+      759000000
+    ],
+    "gpu_busy_max": 86,
+    "body_start_mc": "38692",
+    "body_max_mc": 38692,
+    "battery_max_dc": 388
+  }
+}

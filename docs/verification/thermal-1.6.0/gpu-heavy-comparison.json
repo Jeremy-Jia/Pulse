@@ -1,0 +1,85 @@
+{
+  "A_heavy_cpu_only": {
+    "session": "1792672706419",
+    "metrics": {
+      "renderer": "Adreno (TM) 845",
+      "version": "OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)",
+      "frames": "747",
+      "seconds": "12.010994",
+      "fps": "62.193022",
+      "pixel": "117,56,46,109",
+      "gl_error": "0"
+    },
+    "active_all_samples": true,
+    "samples": 14,
+    "gpu_freq_hz": [
+      222000000,
+      759000000
+    ],
+    "gpu_max_hz": [
+      759000000
+    ],
+    "gpu_busy_max": 92,
+    "body_start_mc": "38069",
+    "body_max_mc": 38337,
+    "battery_max_dc": 383
+  },
+  "B_heavy_cpu_gpu": {
+    "session": "1792672731964",
+    "metrics": {
+      "renderer": "Adreno (TM) 845",
+      "version": "OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)",
+      "frames": "1099",
+      "seconds": "12.002341",
+      "fps": "91.565471",
+      "pixel": "233,8,121,16",
+      "gl_error": "0"
+    },
+    "active_all_samples": true,
+    "samples": 14,
+    "gpu_freq_hz": [
+      222000000,
+      1025000000,
+      1126000000,
+      1201000000,
+      1275000000,
+      1350000000
+    ],
+    "gpu_max_hz": [
+      1025000000,
+      1126000000,
+      1201000000,
+      1275000000,
+      1450000000
+    ],
+    "gpu_busy_max": 94,
+    "body_start_mc": "38696",
+    "body_max_mc": 38696,
+    "battery_max_dc": 386
+  },
+  "A2_heavy_cpu_only": {
+    "session": "1792672759822",
+    "metrics": {
+      "renderer": "Adreno (TM) 845",
+      "version": "OpenGL ES 3.2 V@0891.7.7 (GIT@2e7141916e, I279bfac5b2, 1789359853) (Date:09/14/26)",
+      "frames": "577",
+      "seconds": "12.012890",
+      "fps": "48.031739",
+      "pixel": "24,179,51,163",
+      "gl_error": "0"
+    },
+    "active_all_samples": true,
+    "samples": 14,
+    "gpu_freq_hz": [
+      222000000,
+      578000000
+    ],
+    "gpu_max_hz": [
+      578000000
+    ],
+    "gpu_busy_max": 94,
+    "body_start_mc": "40606",
+    "body_max_mc": 40606,
+    "battery_max_dc": 393
+  }
+}

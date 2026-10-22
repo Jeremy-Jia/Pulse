@@ -1,0 +1,33 @@
+battery_limit=500
+body_limit=50000
+cpu_limit=105000
+duration=0
+resume_boot=0
+cap0=3744000
+cap3=4032000
+cap6=5011200
+gpu_enabled=1
+gpu_cap_hz=1450000000
+gpu_level=0
+mode=fullmax
+boost_percent=100
+owner_uid=10395
+trial_hash=7b559ef764dd34f2f2fc25d3caaac04aa9e77f1a9f71426c5c0c1b70cc4d6147
+trial_cipher_hash=b59aa7c12bec87596a2dcf3f51dca868316d40fb55e3f041866be33c3807e797
+LOADED_HASH
+7b559ef764dd34f2f2fc25d3caaac04aa9e77f1a9f71426c5c0c1b70cc4d6147  /data/vendor/thermal/decrypt.txt
+GPU_CURVE
+[MONITOR-GPU]
+algo_type	monitor
+sensor	VIRTUAL-SENSOR-FORMULA
+device	gpu
+polling	1000
+trig	35000	37000	40000	45000	47000	50000
+clr	33000	35000	38000	43000	45000	48000
+target	0	0	0	0	0	0
+
+DYNAMIC_TJ
+95000
+VERSION
+    versionCode=8 minSdk=26 targetSdk=36
+    versionName=1.6.0

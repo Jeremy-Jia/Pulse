@@ -1,0 +1,13 @@
+{
+  "injected_user_level_reset": 0,
+  "expected": 21,
+  "observed": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "21"
+  ],
+  "seconds": 1.47
+}

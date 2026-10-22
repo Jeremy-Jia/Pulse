@@ -1,12 +1,24 @@
 # Pulse
 
-面向 Android 的本地性能仪表与原生基准测试工具。提供设备概览、可配置悬浮窗、常驻通知、硬件传感器读数与性能实验室。1.5 在小米 15 温控功能上增加小米 18 Pro 三组 CPU 曲线，并改进持续运行的场景切换与状态同步；1.5.1 增加悬浮窗独立的名称、数值与背景配色。原有功能保留。界面和业务代码独立开发；内置基准测试保留上游源码及来源说明。
+面向 Android 的本地性能仪表与原生基准测试工具。提供设备概览、可配置悬浮窗、常驻通知、硬件传感器读数与性能实验室。1.5 在小米 15 温控功能上增加小米 18 Pro 三组 CPU 曲线，并改进持续运行的场景切换与状态同步；1.5.1 增加悬浮窗独立的名称、数值与背景配色；1.6 增加小米 18 独立 GPU 曲线控制与实际频率记录；1.7 将 18 的机身停止线改为 52°C 以下全释放、达到 52°C 才降频的持续调节。原有功能保留。1.8 增加独立保护系统通知与降温后自动恢复。界面和业务代码独立开发；内置基准测试保留上游源码及来源说明。
 
 > Local-first performance telemetry and native benchmarking for Android, with standalone, ADB shell and Root access modes.
 
 ## 非 Root 兼容版
 
 已加入普通权限运行、ADB shell 辅助进程、传感器命名兼容和全屏贴边悬浮窗。1.2.0 增加桌面小部件、粗体显示和仅含所选指标的极简悬浮窗；1.3.0 增加悬浮窗无边框，以及小部件独立配色、透明背景与边框设置。说明与激活命令见 [NON_ROOT.md](docs/NON_ROOT.md)。源码已更新到本仓库；发布 APK 见 `releases/` 与下文签名说明。
+
+## 1.8：独立保护通知与自动恢复
+
+小米 18 的电池/CPU 独立保护触发后暂停性能策略，发送系统通知。默认等 CPU 热点 ≤75°C（启用 CPU 保护时）、电池 ≤42°C、估算机身 <52°C 同时稳定 5 秒，再自动恢复原来的 CPU/GPU 策略并通知。开关及恢复温度可调；手动停止、计时结束、守护/固件异常会结束会话，取消自动恢复。详情与实机通知证据见 [1.8 验证记录](docs/verification/thermal-1.8.0/REPORT.md)。
+
+## 1.7：小米 18 持续温度调节
+
+机身默认低于 52°C 就放回全部所选 CPU/GPU 上限，达到 52°C 才降频；一旦回落到上限以下，下一次采样直接撤销额外限频。性能策略与 GPU 解锁设置全程保留，会话持续运行；电池和可选 CPU 热点仍保留独立停止保护。控制台、通知和 CSV 显示调节档位。小米 15 保持原来的停止规则。详见 [温控说明](docs/THERMAL.md) 和 [1.7 验证记录](docs/verification/thermal-1.7.0/REPORT.md)。
+
+## 1.6：小米 18 GPU 曲线控制
+
+温控策略页新增独立的「GPU 曲线放开」开关与 26 档频率上限，控制台显示 GPU 当前频率和实际上限，CSV 增加对应字段。默认关闭，仅适配 hongkong 已验证固件；小米 15 保持原有 CPU 方案。1.6 的 CPU/GPU 共用温度停止线、计时和双守护恢复（机身行为在 1.7 更新），不关闭底层芯片与电流保护。同机离屏 GPU 重负载测得 62.2 → 91.6 FPS（约 +47%）；DevCheck 完整运行中途触及机身停止线，尚不能确认总分恢复。详见 [温控说明](docs/THERMAL.md) 和 [1.6 验证记录](docs/verification/thermal-1.6.0/REPORT.md)。
 
 ## 1.5.1：悬浮窗独立配色
 
@@ -25,19 +37,19 @@
 
 ## 下载
 
-**最新版：[下载 Pulse 1.5.0 ARM64 APK](releases/Pulse-1.5.0-arm64.apk)**
+**最新版：[下载 Pulse 1.8.0 ARM64 APK](releases/Pulse-1.8.0-arm64.apk)**
 
-版本 `1.5.0`，versionCode `6`，ARM64，最低 Android 8.0（API 26）。同一包支持普通权限、ADB shell 和 Root。1.5 在 hongkong OS4.0.24.0 / Android 17 临时 KernelSU 上验证。15 的原有配置逐字节回归通过，本次未重新连接 15 做硬件测试；此前真机证据见 [1.4 验证记录](docs/verification/thermal-1.4.0/REPORT.md)。
+版本 `1.8.0`，versionCode `10`，ARM64，最低 Android 8.0（API 26）。同一包支持普通权限、ADB shell 和 Root。已在 hongkong OS4.0.24.0 / Android 17 临时 KernelSU 上覆盖安装验证。1.8 通过独立保护暂停、系统通知、同一会话自动恢复，以及等待降温期间手动停止、计时结束和守护异常取消恢复的实机测试；52°C 调节和 75/42°C 恢复边界另有测试记录。1.6 已验证 18 的 26 档 GPU 配置及 GPU 关闭时的旧版 CPU 字节一致性。15 保持原有 CPU 方案，本次未连接 15 做硬件测试；此前真机证据见 [1.4 验证记录](docs/verification/thermal-1.4.0/REPORT.md)。
 
 APK SHA-256（全部安装包的校验值见 [SHA256SUMS](releases/SHA256SUMS)）：
 
 ```text
-fd28a0ab03b0d006ffec1f246ebba700bc51b9f3a89e16a7c9cf961d8274e249
+6a08c555cf7e190f5860aff7f96f5f66619f9bc8b456d6c20ddbb781620fe37f  Pulse-1.8.0-arm64.apk
 ```
 
 1.5 与 Windows 1.4 使用相同调试签名，可保留数据覆盖升级；与早期 Mac 1.3 签名不同。请勿用卸载绕过签名检查。签名与构建方式见 [构建文档](docs/BUILD.md) 和 [安装签名说明](docs/NON_ROOT.md#安装签名)。
 
-当前源码为 `1.5.1`（versionCode `7`）。本机构建的 1.5.1 APK 使用 Mac 开发证书 `540e097b…`，与手机上的 Windows 1.5.0 证书 `64233655…` 不同，不能直接覆盖安装；本次已在 hongkong 上通过备份、卸载、重装与数据恢复完成迁移，后续更新必须使用同一 Mac keystore。悬浮窗配色验证见 [1.5.1 验证记录](docs/verification/ui-1.5.1/REPORT.md)。
+当前源码为 `1.8.0`（versionCode `10`），最新包继续使用同一 Mac 开发证书，可直接覆盖已迁移到 Mac 签名的 1.5.1，不卸载、不清数据。签名历史：本机构建的 1.5.1 APK 使用 Mac 开发证书 `540e097b…`，与手机上的 Windows 1.5.0 证书 `64233655…` 不同，不能直接覆盖安装；本次已在 hongkong 上通过备份、卸载、重装与数据恢复完成迁移，后续更新必须使用同一 Mac keystore。悬浮窗配色验证见 [1.5.1 验证记录](docs/verification/ui-1.5.1/REPORT.md)。
 
 1.3.0 的构建、颜色配置、透明度、无边框和设置保留验证见 [外观验证报告](docs/verification/ui-1.3.0/REPORT.txt)。[Pulse 1.3.0 APK](releases/Pulse-1.3.0-arm64.apk) 与 [Pulse 1.0.0 APK](releases/Pulse-1.0.0.apk) 保留为历史版本。
 
@@ -67,7 +79,7 @@ fd28a0ab03b0d006ffec1f246ebba700bc51b9f3a89e16a7c9cf961d8274e249
 
 原版 Root 实测设备为 **小米 15（dada），HyperOS OS4.0.0.19.XOCCNXM，Android 17，KernelSU Root**。项目使用 Android API 36 编译并设为目标版本，最低支持 API 26；这不表示已验证所有 Android 8.0 及以上设备。硬件读数依赖访问模式与固件开放接口；ADB 模式可在非 Root 手机上使用允许的 shell 接口，Root 模式需在 KernelSU 中为 Pulse 单独授权。桌面与系统应用名称为 Pulse，内部界面保留中文标题「脉冲」。
 
-应用不申请联网权限。日常监测只读取设备状态；温控子页仅在主动应用策略后，通过 Root 修改已适配的 CPU 曲线，保留其他系统保护，不刷写设备分区。
+应用不申请联网权限。日常监测只读取设备状态；温控子页仅在主动应用策略后，通过 Root 修改已适配的 CPU 曲线及可选的 18 GPU 曲线，保留其他系统保护，不刷写设备分区。
 
 小米 15 实机验证中，一轮完整采样耗时约 81–137 ms，144 个指标中有 129 个可用；可用数量会随内核、硬件节点和当前状态变化。原生测试的 CRC、结果变量、超时、取消、PMU 与 Raw 参数边界记录保存在 [验证报告](docs/verification/) 中，这些记录用于功能验证，不作为受控环境下的性能排名。
 

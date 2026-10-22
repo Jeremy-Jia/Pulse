@@ -1,0 +1,4 @@
+PASS GPU upper vote and exact factory restoration
+PASS GPU one-minute timer restores original configuration
+INSTRUMENTATION_RESULT: report_json={"gpu_max_hz":1450000000,"csv_export":"pass","manual_restore":"pass","timer_restore":"pass","independent_sentry_restore":"pass","result":"pass"}
+INSTRUMENTATION_CODE: -1

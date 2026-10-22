@@ -6,12 +6,17 @@ import android.content.SharedPreferences;
 public final class Policy {
     public final ThermalProfile profile;
     public Policy() { this(android.os.Build.DEVICE.equals("hongkong")?ThermalProfile.MI18:ThermalProfile.MI15); }
-    public Policy(ThermalProfile p) { profile=p; cap0=p.maximum(0); cap6=p.maximum(6); cap3=p.runtimeMount?p.maximum(3):0; curve0=p.curve(0); curve6=p.curve(6); curve3=p.runtimeMount?p.curve(3):new int[0]; }
+    public Policy(ThermalProfile p) { profile=p; cap0=p.maximum(0); cap6=p.maximum(6); cap3=p.runtimeMount?p.maximum(3):0; curve0=p.curve(0); curve6=p.curve(6); curve3=p.runtimeMount?p.curve(3):new int[0]; if(p.supportsGpu()) { bodyC=52; thermalAutoResume=true; } }
     public String mode = "fullmax";
     public int boostPercent = 25;
     public int[] curve0 = ConfigCodec.originalCurve(false), curve6 = ConfigCodec.originalCurve(true);
     public int batteryC = 45, bodyC = 43, cpuC = 100, minutes = 15;
+    public boolean thermalAutoResume=false;
+    public int cpuResumeC=75, batteryResumeC=42;
+    public boolean regulatesBody() { return profile.supportsGpu(); }
     public boolean cpuGuard = false, unlimited = false, resume = false;
+    public boolean gpuEnabled = false;
+    public int gpuCapHz = 1450000000;
     public int cap0 = 3532800, cap6 = 4320000;
     public int cap3; public int[] curve3;
     public int cap(int g) { return g==0?cap0:g==3?cap3:cap6; }
@@ -19,10 +24,12 @@ public final class Policy {
     public int[] curve(int g) { return g==0?curve0:g==3?curve3:curve6; }
     public void curve(int g,int[] a) { if(g==0) curve0=a; else if(g==3) curve3=a; else curve6=a; }
     public void validate() {
+        if(gpuEnabled) { if(!profile.supportsGpu()) throw new IllegalArgumentException("此设备尚未适配 GPU 曲线"); profile.gpuLevel(gpuCapHz); }
         if (!mode.equals("fullmax") && !mode.equals("boost") && !mode.equals("custom")) throw new IllegalArgumentException("未知策略");
         if (boostPercent<0 || boostPercent>100) throw new IllegalArgumentException("阶梯增幅应为 0–100%");
-        if (batteryC < 35 || batteryC > 50 || bodyC < 35 || bodyC > 50 || cpuC < 70 || cpuC > 110)
+        if (batteryC < 35 || batteryC > 50 || bodyC < 35 || bodyC > (regulatesBody()?52:50) || cpuC < 70 || cpuC > 110)
             throw new IllegalArgumentException("温度设置超出范围");
+        if(thermalAutoResume && (!profile.supportsGpu() || batteryResumeC<30 || batteryResumeC>=batteryC || cpuResumeC<60 || cpuResumeC>=cpuC)) throw new IllegalArgumentException("恢复温度须低于独立保护触发温度");
         if (minutes < 1 || minutes > 1440) throw new IllegalArgumentException("时间应为 1–1440 分钟");
         if (resume && !unlimited) throw new IllegalArgumentException("开机继续仅适用于持续运行");
         if(resume && profile.runtimeMount) throw new IllegalArgumentException("临时 Root 设备仅支持本次开机持续运行");
@@ -34,9 +41,15 @@ public final class Policy {
         SharedPreferences s = context.getSharedPreferences(p.profile.runtimeMount?"thermal_policy_hongkong":"thermal_policy", 0);
         p.mode = s.getString("mode", p.mode); if(p.mode.equals("plus25")) p.mode="boost";
         p.boostPercent=s.getInt("boostPercent",25);
+        p.gpuEnabled=p.profile.supportsGpu() && s.getBoolean("gpuEnabled",false);
+        int gpu=s.getInt("gpuCapHz",p.gpuCapHz); if(ConfigCodec.contains(p.profile.gpuTable(),gpu)) p.gpuCapHz=gpu;
         for(int g:p.profile.groups) p.curve(g,curve(s.getString("curve"+g,""),p.profile,g));
         p.batteryC = s.getInt("battery", p.batteryC);
-        p.bodyC = s.getInt("body", p.bodyC); p.cpuC = s.getInt("cpu", p.cpuC);
+        p.bodyC = p.regulatesBody()?s.getInt("bodyThrottle",52):s.getInt("body", p.bodyC);
+        p.cpuC = s.getInt("cpu", p.cpuC);
+        p.thermalAutoResume=p.profile.supportsGpu() && s.getBoolean("thermalAutoResume",true);
+        p.batteryResumeC=Math.min(s.getInt("batteryResume",42),p.batteryC-1);
+        p.cpuResumeC=Math.min(s.getInt("cpuResume",75),p.cpuC-1);
         p.minutes = s.getInt("minutes", p.minutes); p.cpuGuard = s.getBoolean("cpuGuard", false);
         p.unlimited = s.getBoolean("unlimited", false); p.resume = s.getBoolean("resume", false);
         for(int g:p.profile.groups) { int n=s.getInt("cap"+g,p.cap(g)); if(ConfigCodec.contains(p.profile.table(g),n)) p.cap(g,n); }
@@ -44,6 +57,8 @@ public final class Policy {
     }
     public void save(Context c) {
         c.getSharedPreferences(profile.runtimeMount?"thermal_policy_hongkong":"thermal_policy", 0).edit().putString("mode", mode).putInt("battery", batteryC)
+            .putBoolean("gpuEnabled",gpuEnabled).putInt("gpuCapHz",gpuCapHz)
+            .putInt("bodyThrottle",bodyC).putBoolean("thermalAutoResume",thermalAutoResume).putInt("batteryResume",batteryResumeC).putInt("cpuResume",cpuResumeC)
             .putInt("boostPercent",boostPercent).putString("curve0",join(curve0)).putString("curve6",join(curve6))
             .putString("curve3",join(curve3)).putInt("cap3",cap3)
             .putInt("body", bodyC).putInt("cpu", cpuC).putInt("minutes", minutes)

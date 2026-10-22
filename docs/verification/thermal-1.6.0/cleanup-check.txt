@@ -1,0 +1,8 @@
+SAMPLER
+FINISHED 442 samples
+TRACES
+btspi
+drm
+hsuart
+km
+PROCESSES

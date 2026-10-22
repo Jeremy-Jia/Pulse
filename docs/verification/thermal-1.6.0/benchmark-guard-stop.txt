@@ -1,0 +1,32 @@
+2026-10-22T12:24:36Z ACTIVE mode=fullmax duration=0 resume=0 gpu=1 gpu_cap_hz=1450000000
+2026-10-22T12:30:35Z LIMIT cpu=92900 battery=428 body=50506
+2026-10-22T12:30:35Z RESTORED BODY_LIMIT
+state=restored
+session=1792671874343
+mode=fullmax
+boost_percent=100
+elapsed=361
+remaining=-1
+resume=0
+cpu_mc=55600
+battery_dc=432
+body_mc=47159
+freq0=633600
+freq6=902400
+max0=1305600
+max6=1248000
+freq3=768000
+max3=1305600
+scene=0
+balance=3
+gpu_enabled=1
+gpu_cap_hz=1450000000
+gpu_hz=357000000
+gpu_max_hz=357000000
+gpu_thermal_level=19
+battery_limit=500
+body_limit=50000
+cpu_limit=105000
+reason=BODY_LIMIT
+current_ua=-322000
+voltage_uv=4411000

@@ -30,6 +30,15 @@ public final class ThermalProfile {
             new int[]{288000,441600,633600,787200,902400,1017600,1132800,1248000,1363200,1478400,1593600,1708800,1804800,1920000,2035200,2265600,2438400,2611200,2880000,3110400,3206400,3321600,3552000,3782400,4032000,4108800,4166400,4243200,4300800,4377600,4435200,4550400,4627200,4704000});
     }
     public int maximum(int g) { int[] t=table(g); return t[t.length-1]; }
+    public boolean supportsGpu() { return device.equals("hongkong"); }
+    /** KGSL power levels are ordered from fastest (index 0) to slowest. Hz. */
+    public int[] gpuTable() {
+        return supportsGpu()?new int[]{1450000000,1400000000,1350000000,1275000000,1201000000,1126000000,1025000000,951000000,843000000,801000000,759000000,693000000,636000000,578000000,539000000,500000000,461000000,422000000,390000000,357000000,325000000,274000000,222000000,190000000,157000000,125000000}:new int[0];
+    }
+    public int gpuLevel(int hz) {
+        int[] table=gpuTable(); for(int i=0;i<table.length;i++) if(table[i]==hz) return i;
+        throw new IllegalArgumentException("GPU 频率不在已验证频率表中");
+    }
     public int[] curve(int g) {
         if(!runtimeMount) return ConfigCodec.originalCurve(g==6);
         return g==0?new int[]{2726400,2380800,2284800,1670400,1420800,1305600,1190400}:
