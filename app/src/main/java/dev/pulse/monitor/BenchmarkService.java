@@ -28,7 +28,7 @@ public final class BenchmarkService extends Service {
     @Override public int onStartCommand(Intent intent,int flags,int id){
         if(intent==null){stopSelf();return START_NOT_STICKY;}
         if(CANCEL.equals(intent.getAction())){cancel();return START_NOT_STICKY;}
-        if(running)return START_NOT_STICKY;
+        if(running||ResearchService.running){if(!running)stopSelf();return START_NOT_STICKY;}
         Notification n=notification("准备测试环境…");
         if(Build.VERSION.SDK_INT>=34)startForeground(42,n,ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);else startForeground(42,n);
         running=true;cancelled=false;wrapperPid=0;lastOutput="";lastResult=null;startedAt=SystemClock.elapsedRealtime();

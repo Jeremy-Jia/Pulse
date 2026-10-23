@@ -13,6 +13,10 @@
         </receiver>
         <service android:name=".PulseWidgetRowsService" android:exported="false" android:permission="android.permission.BIND_REMOTEVIEWS" />
         <activity android:name=".BenchActivity" android:exported="false" />
+        <activity android:name=".ResearchActivity" android:exported="false" />
+        <service android:name=".ResearchService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-started bounded memory bandwidth, ML-DSA signature, and frequency efficiency experiments with progress, cancellation and restoration" />
+        </service>
         <activity android:name="dev.pulse.thermal.MainActivity" android:exported="false" />
         <service android:name="dev.pulse.thermal.ThermalService" android:exported="false" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-started root CPU thermal policy with temperature guards, countdown, live status and restoration notification" />

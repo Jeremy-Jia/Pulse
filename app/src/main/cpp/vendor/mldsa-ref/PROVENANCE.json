@@ -1,0 +1,40 @@
+{
+  "source": "https://github.com/pq-crystals/dilithium",
+  "commit": "d35ba3fe5449bee3e6d43e1f296c3ca818bd36be",
+  "algorithm": "FIPS 204 ML-DSA-87, DILITHIUM_MODE=5 (sizes 2592/4896/4627)",
+  "kat_source": "https://github.com/usnistgov/ACVP-Server/blob/master/gen-val/json-files/ML-DSA-sigGen-FIPS204/internalProjection.json",
+  "kat_source_sha256": "72dcaf5f69853ca267ccd16af9cb40949786aca0fcfbf05d1ebeba132b93af22",
+  "kat_cases": [
+    {
+      "tgId": 5,
+      "tcId": 61,
+      "deterministic": true
+    },
+    {
+      "tgId": 5,
+      "tcId": 62,
+      "deterministic": true
+    },
+    {
+      "tgId": 5,
+      "tcId": 63,
+      "deterministic": true
+    },
+    {
+      "tgId": 17,
+      "tcId": 241,
+      "deterministic": false
+    },
+    {
+      "tgId": 17,
+      "tcId": 242,
+      "deterministic": false
+    },
+    {
+      "tgId": 17,
+      "tcId": 243,
+      "deterministic": false
+    }
+  ],
+  "note": "Upstream reference source kept intact. Pulse vector kernels and generated ports are benchmark-only."
+}

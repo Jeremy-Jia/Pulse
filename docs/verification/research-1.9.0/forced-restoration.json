@@ -1,0 +1,21 @@
+{
+  "result": "pass",
+  "tests": [
+    {
+      "signal": "TERM",
+      "original_khz": 2880000,
+      "applied_khz": 1708800,
+      "restored_khz": 2880000,
+      "concurrent_owner_blocked": true,
+      "pass": true
+    },
+    {
+      "signal": "KILL",
+      "original_khz": 2880000,
+      "applied_khz": 1708800,
+      "restored_khz": 2880000,
+      "concurrent_owner_blocked": true,
+      "pass": true
+    }
+  ]
+}

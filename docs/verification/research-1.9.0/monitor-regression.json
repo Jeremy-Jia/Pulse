@@ -1,0 +1,5 @@
+{
+  "result": "pass",
+  "parserChecks": "pass",
+  "test": "MonitorInstrumentation default: parsing boundaries and two real telemetry snapshots"
+}

@@ -82,6 +82,8 @@ def main() -> None:
     compile_exe("libwhetstone.so", [whet], ["-std=gnu11", "-fno-builtin", "-fno-inline-functions"])
     compile_exe("libpulsebench.so", [HERE / "pulsebench.c"], ["-std=gnu11", "-Wall", "-Wextra"])
     compile_exe("libpulsecodec.so", [HERE / "thermal_codec.c"], ["-std=gnu11", "-Wall", "-Wextra", "-ldl"])
+    from build_lab import build as build_lab
+    build_lab(HERE, PORT, OUT, CLANG, READELF)
     outputs = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob("*.so")}
     (PROJECT / "app/build/native/build-manifest.json").write_text(json.dumps({"ndk": (NDK / "source.properties").read_text(encoding="utf-8"), "target": "aarch64-linux-android26", "sha256": outputs}, indent=2), encoding="utf-8")
 

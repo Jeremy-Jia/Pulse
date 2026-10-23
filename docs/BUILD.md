@@ -57,6 +57,15 @@ macOS/Linux 使用 `./gradlew assembleDebug`，并按本机路径设置 JDK 和 
 
 ## 构建完整性与签名
 
+1.9 支持通过环境变量选择已有开发签名，便于保留应用数据覆盖升级：
+
+```powershell
+$env:PULSE_SIGNING_STORE='C:\path\to\debug.keystore'
+.\gradlew.bat assembleDebug --console=plain
+```
+
+默认别名为 `androiddebugkey`、开发密码为 `android`；自定义签名使用 `PULSE_SIGNING_ALIAS` 和 `PULSE_SIGNING_PASSWORD`。密钥只从本机路径读取，不提交仓库。1.9 发布包继续使用 1.8 的同一开发证书。
+
 Gradle distribution 的官方 SHA-256 已写入 `gradle/wrapper/gradle-wrapper.properties`：
 
 ```text

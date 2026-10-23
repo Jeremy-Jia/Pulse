@@ -1,0 +1,30 @@
+{
+  "scalar": {
+    "instruction_pattern_matches": 0,
+    "flags": [
+      "-march=armv8-a",
+      "-mgeneral-regs-only"
+    ]
+  },
+  "neon": {
+    "instruction_pattern_matches": 109,
+    "flags": [
+      "-march=armv8-a",
+      "-DPULSE_NEON"
+    ]
+  },
+  "sve": {
+    "instruction_pattern_matches": 96,
+    "flags": [
+      "-march=armv8.2-a+sve",
+      "-DPULSE_SVE"
+    ]
+  },
+  "sve2": {
+    "instruction_pattern_matches": 16,
+    "flags": [
+      "-march=armv8.5-a+sve2",
+      "-DPULSE_SVE2"
+    ]
+  }
+}

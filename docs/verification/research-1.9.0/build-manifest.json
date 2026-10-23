@@ -1,0 +1,16 @@
+{
+  "ndk": "Pkg.Desc = Android NDK\nPkg.Revision = 29.0.14206865\nPkg.BaseRevision = 29.0.14206865\nPkg.ReleaseName = r29\n",
+  "target": "aarch64-linux-android26",
+  "sha256": {
+    "libcoremark.so": "15f44853b16a94fc1a96f0e2499c91875e6f8de0213030fd6a9ed0a0f942ac2a",
+    "libdhrystone.so": "25a697bd11b5fcea9a83e906623204acdbff3d9c6b92ab092758b48ed394ad41",
+    "libmldsa_neon.so": "e765fc917cdbe16629cd40cc2a9f449340629d012422da4b43855242a99ec8ae",
+    "libmldsa_scalar.so": "82bd4b7165b6a6600bdbebcc669aba6433e28a9d8be67c4a42e73e1e47701bff",
+    "libmldsa_sve.so": "b06878089aac23a64555e783ec576ffcd1c8d88da13c175ffc0fe70a49ca77bf",
+    "libmldsa_sve2.so": "d1652b0e2569566b6cce3b513d0f6da0a0ae5b60a757e6f27b3b9bbb68a7a066",
+    "libpulsebench.so": "a5a64f4acaaab86dbc59efc8a5b2d3c69a9f1aab825a7c21c47109e3d16537da",
+    "libpulsecodec.so": "9957e20dd9f9f7d3ec65b1e030dc529bd409ad7208fa742430f792e6fcc7daec",
+    "libpulsememory.so": "965e99c626d6ad7d419e079ff4f19e6dd88262da13f9cd32798dc3ec18e8b41f",
+    "libwhetstone.so": "ddaec2da4da57dde25415872d4a30ac8455e8026cd4626bf9c09e0da08c77cab"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "result": "pass",
+  "scope": "cancel",
+  "report": {
+    "schema": 1,
+    "suite": "memory",
+    "device": "hongkong",
+    "model": "M610BB",
+    "build": "CP2A.260605.016",
+    "cpu": 6,
+    "rounds": 5,
+    "captured_at": 1792729478716,
+    "execution_backend": "root",
+    "runs": [
+      {
+        "event": "result",
+        "kind": "memory",
+        "mode": "read",
+        "result": "completed",
+        "valid": true,
+        "working_set_bytes": 262144,
+        "source_plus_destination_bytes": 524288,
+        "threads": 1,
+        "cpu": 6,
+        "elapsed_seconds": 1.000000208,
+        "payload_gbps": 72.510588,
+        "logical_traffic_gbps": 72.510588,
+        "bytes_processed": 72510603264,
+        "traffic_note": "copy payload counts source bytes once; logical traffic counts read+write twice; DRAM bus traffic is not measured",
+        "workers": [
+          {
+            "cpu": 6,
+            "passes": 276606,
+            "affinity_errno": 0,
+            "affinity_stable": true,
+            "valid": true
+          }
+        ],
+        "telemetry": {
+          "frequency_samples": 47,
+          "sampled_mean_mhz": 2708.42553191,
+          "sampled_min_mhz": 2611.2,
+          "sampled_max_mhz": 2880,
+          "effective_mhz": 2615.55730664,
+          "cycles": 2587150322,
+          "instructions": 9105605155,
+          "ipc": 3.51955009,
+          "pmu_errno": 0,
+          "pmu_running_ratio": 1,
+          "battery_net_watts": 9.75440915,
+          "battery_net_joules": 9.75441118,
+          "power_samples": 47,
+          "charging_or_unknown": true,
+          "energy_comparable": false,
+          "battery_peak_c": 37.6,
+          "temperature_stop": false,
+          "cpu_at_end": 6,
+          "cap_requested_khz": 0,
+          "cap_observed_start_khz": 0,
+          "cap_observed_end_khz": 0,
+          "cap_original_khz": 0,
+          "pmu_scope": "main benchmark thread; excludes kernel and telemetry thread"
+        },
+        "exit_code": 0,
+        "round": 0
+      },
+      {
+        "event": "result",
+        "kind": "memory",
+        "mode": "write",
+        "result": "cancelled",
+        "valid": false,
+        "working_set_bytes": 262144,
+        "source_plus_destination_bytes": 524288,
+        "threads": 1,
+        "cpu": 6,
+        "elapsed_seconds": 0.260708854,
+        "payload_gbps": 69.226993,
+        "logical_traffic_gbps": 69.226993,
+        "bytes_processed": 18048090112,
+        "traffic_note": "copy payload counts source bytes once; logical traffic counts read+write twice; DRAM bus traffic is not measured",
+        "workers": [
+          {
+            "cpu": 6,
+            "passes": 68848,
+            "affinity_errno": 0,
+            "affinity_stable": true,
+            "valid": true
+          }
+        ],
+        "telemetry": {
+          "frequency_samples": 12,
+          "sampled_mean_mhz": 2790.4,
+          "sampled_min_mhz": 2611.2,
+          "sampled_max_mhz": 2880,
+          "effective_mhz": 2686.13760363,
+          "cycles": 694020870,
+          "instructions": 1137820135,
+          "ipc": 1.63946098,
+          "pmu_errno": 0,
+          "pmu_running_ratio": 1,
+          "battery_net_watts": 9.13428975,
+          "battery_net_joules": 2.38139021,
+          "power_samples": 12,
+          "charging_or_unknown": true,
+          "energy_comparable": false,
+          "battery_peak_c": 37.6,
+          "temperature_stop": false,
+          "cpu_at_end": 6,
+          "cap_requested_khz": 0,
+          "cap_observed_start_khz": 0,
+          "cap_observed_end_khz": 0,
+          "cap_original_khz": 0,
+          "pmu_scope": "main benchmark thread; excludes kernel and telemetry thread"
+        },
+        "exit_code": 5,
+        "round": 0
+      }
+    ],
+    "method": "Same ML-DSA-87 reference and public test key; 1024-byte messages; complete signing, verification outside timing; six NIST ACVP KATs per executable; same message/randomness corpus per round; rotated backend order. Memory payload GB/s uses decimal 10^9; copy traffic is separately reported. Battery values are whole-device net energy, not CPU power.",
+    "capabilities": {
+      "event": "result",
+      "kind": "isa",
+      "neon": true,
+      "sve": true,
+      "sve2": true,
+      "sve_bits": 128,
+      "sme_bits": 512,
+      "hwcap": "0xffffffff",
+      "hwcap2": "0x440043cbb73ef",
+      "exit_code": 0
+    },
+    "error": "\u5185\u5b58\u6d4b\u8bd5\u6821\u9a8c\u5931\u8d25\u6216\u88ab\u505c\u6b62",
+    "cancelled": true,
+    "summary": [
+      {
+        "key": "read:262144",
+        "n": 1,
+        "mode": "read",
+        "working_set_bytes": 262144,
+        "payload_gbps": 72.510588,
+        "logical_traffic_gbps": 72.510588
+      }
+    ]
+  }
+}

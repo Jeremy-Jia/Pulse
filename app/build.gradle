@@ -11,8 +11,8 @@ android {
         applicationId 'dev.pulse.monitor'
         minSdk 26
         targetSdk 36
-        versionCode 10
-        versionName '1.8.0'
+        versionCode 11
+        versionName '1.9.0'
         testInstrumentationRunner 'dev.pulse.monitor.MonitorInstrumentation'
     }
 
@@ -29,6 +29,17 @@ android {
         }
     }
 
+    signingConfigs {
+        debug {
+            if (System.getenv('PULSE_SIGNING_STORE')) {
+                storeFile file(System.getenv('PULSE_SIGNING_STORE'))
+                storePassword System.getenv('PULSE_SIGNING_PASSWORD') ?: 'android'
+                keyAlias System.getenv('PULSE_SIGNING_ALIAS') ?: 'androiddebugkey'
+                keyPassword System.getenv('PULSE_SIGNING_PASSWORD') ?: 'android'
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -40,7 +51,7 @@ android {
         jniLibs {
             // PIE executables are packaged using the native-library installation path.
             useLegacyPackaging = true
-            keepDebugSymbols += ['**/libpulsebench.so', '**/libcoremark.so', '**/libdhrystone.so', '**/libwhetstone.so', '**/libpulsecodec.so']
+            keepDebugSymbols += ['**/libpulsebench.so', '**/libcoremark.so', '**/libdhrystone.so', '**/libwhetstone.so', '**/libpulsecodec.so', '**/libmldsa_*.so', '**/libpulsememory.so']
         }
     }
 }
@@ -57,7 +68,7 @@ tasks.register('buildPulseBenchmarks', Exec) {
     group = 'build'
     inputs.files(fileTree('src/main/cpp'))
     inputs.property('ndkHome', System.getenv('PULSE_NDK_HOME') ?: 'default-r29')
-    outputs.files(['libpulsebench.so', 'libcoremark.so', 'libdhrystone.so', 'libwhetstone.so', 'libpulsecodec.so'].collect { new File(nativeOutputDir, it) })
+    outputs.files(['libpulsebench.so', 'libcoremark.so', 'libdhrystone.so', 'libwhetstone.so', 'libpulsecodec.so', 'libmldsa_scalar.so', 'libmldsa_neon.so', 'libmldsa_sve.so', 'libmldsa_sve2.so', 'libpulsememory.so'].collect { new File(nativeOutputDir, it) })
     commandLine pythonCommand, file('src/main/cpp/build_native.py').absolutePath
 }
 tasks.named('preBuild').configure { dependsOn 'buildPulseBenchmarks' }
