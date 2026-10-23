@@ -322,26 +322,28 @@ public final class MainActivity extends Activity implements ThermalHub.Listener 
     }
     @Override public void update() {
         if(!resumed) return;
-        Snapshot s=hub.snapshot; boolean active=s.active();
+        Snapshot s=hub.snapshot; boolean active=hub.statusKnown && s.active();
+        if(active && !hub.busy && !ThermalService.running) startForegroundService(new Intent(this,ThermalService.class));
         connectionStatus.setText(hub.message);
         rootBadge.setText(hub.busy?"处理中":hub.connected?"● ROOT 已连接":"连接 ROOT"); rootBadge.setTextColor(hub.connected?TEAL:AMBER);
-        apply.setText(hub.busy?"处理中…":s.thermalPaused()?"等待降温恢复":s.paused()?"等待场景恢复":active?"策略运行中":hub.connected?"应用策略":"连接并应用策略");
-        apply.setEnabled(!hub.busy && !active); apply.setAlpha((hub.busy||active)?.55f:1);
+        apply.setText(hub.busy?"处理中…":!hub.statusKnown&&hub.connected?"正在核对状态":s.unprotected()||s.recoveryFailed()||s.restoring()?"请先确认恢复":s.thermalPaused()?"等待降温恢复":s.paused()?"等待场景恢复":active?"策略运行中":hub.connected?"应用策略":"连接并应用策略");
+        boolean canApply=!hub.busy && !active && !s.unprotected() && !s.recoveryFailed() && !s.restoring() && (!hub.connected || hub.statusKnown);
+        apply.setEnabled(canApply); apply.setAlpha(canApply?1:.55f);
         restore.setEnabled(!hub.busy && (hub.connected||hub.engine.rootGranted)); restore.setText(s.thermalPaused()?"停止策略":s.recoveryFailed()?"重试恢复":"恢复原厂");
         if(heroTitle!=null) {
-            heroTitle.setText(s.thermalPaused()?"降温暂停":s.paused()?"策略已暂停":active?(s.cooling()?"温度调节中":s.s("mode").equals("fullmax")?"全频释放":s.s("mode").equals("custom")?"逐档自定义":"阶梯增强 +"+s.n("boost_percent")+"%"):s.recoveryFailed()?"恢复待确认":!hub.statusKnown?"正在核对状态":"原厂温控");
-            heroSub.setText(s.thermalPaused()?s.reason()+"\n"+s.resumeRule():s.paused()?s.reason():active?(s.regulatesBody()?s.bodyRule()+(s.cooling()?"\n上限档位 "+s.n("cooling_percent")+"% · 会话持续":" · 会话持续"):"频率曲线已放开 · 达到停止条件自动恢复"):s.s("state").equals("restored")?s.reason():"按需放开频率，让每次测试都有据可查。");
-            countdown.setText(s.countdown());
+            heroTitle.setText(!hub.statusKnown?"正在核对状态":s.unprotected()?"守护异常":s.restoring()?"正在恢复原厂":s.s("state").equals("starting")?"正在启动策略":s.thermalPaused()?"降温暂停":s.paused()?"策略已暂停":active?(s.cooling()?"温度调节中":s.s("mode").equals("fullmax")?"全频释放":s.s("mode").equals("custom")?"逐档自定义":"阶梯增强 +"+s.n("boost_percent")+"%"):s.recoveryFailed()?"恢复待确认":"原厂温控");
+            heroSub.setText(!hub.statusKnown?"正在读取实时进程与心跳；上次状态暂不作为运行依据":s.unprotected()||s.recoveryFailed()?s.reason():s.thermalPaused()?s.reason()+"\n"+s.resumeRule():s.paused()?s.reason():active?(s.regulatesBody()?s.bodyRule()+(s.cooling()?"\n上限档位 "+s.n("cooling_percent")+"% · 会话持续":" · 会话持续")+"\n双守护在线 · 心跳正常":"频率曲线已放开 · 达到停止条件自动恢复"):s.s("state").equals("restored")?s.reason():"按需放开频率，让每次测试都有据可查。");
+            countdown.setText(hub.statusKnown?s.countdown():"核对中");
             for(int group:policy.profile.groups) { frequencies.get(group).setText(s.frequency("freq"+group)); maxima.get(group).setText("上限 "+s.frequency("max"+group)+" GHz"); }
             tempBattery.setText(s.temperature("battery_dc",10)); tempBody.setText(s.temperature("body_mc",1000)); tempCpu.setText(s.temperature("cpu_mc",1000));
             chart.add(s); message.setText(hub.message);
             if(gpuStatus!=null) {
-                String scope=active && !s.paused() && !s.thermalPaused() && s.n("gpu_enabled")==1?"曲线已放开 · 设置 "+s.n("gpu_cap_hz")/1000000+" MHz":"GPU 原厂曲线";
+                String scope=!hub.statusKnown||s.unprotected()||s.recoveryFailed()||s.restoring()?"GPU 策略状态待确认":active && !s.paused() && !s.thermalPaused() && s.n("gpu_enabled")==1?"曲线已放开 · 设置 "+s.n("gpu_cap_hz")/1000000+" MHz":"GPU 原厂曲线";
                 gpuStatus.setText(scope+(s.cooling() && s.n("gpu_enabled")==1?" · 温度调节 "+s.n("cooling_percent")+"%":"")+"\n当前 "+(s.n("gpu_hz")>0?s.n("gpu_hz")/1000000+" MHz":"—")+"  ·  实际上限 "+(s.n("gpu_max_hz")>0?s.n("gpu_max_hz")/1000000+" MHz":"—"));
             }
         }
         if(recordReason!=null) {
-            recordReason.setText(s.thermalPaused()?"降温暂停 · 将自动恢复":s.cooling()?"温度调节中 · 会话持续":active?"策略正在运行":s.reason()); long elapsed=s.n("elapsed"); recordTime.setText("运行时长 "+elapsed/60+" 分 "+elapsed%60+" 秒");
+            recordReason.setText(!hub.statusKnown?"正在核对状态":s.thermalPaused()?"降温暂停 · 将自动恢复":s.cooling()?"温度调节中 · 会话持续":active?"策略正在运行":s.reason()); long elapsed=s.n("elapsed"); recordTime.setText("运行时长 "+elapsed/60+" 分 "+elapsed%60+" 秒");
             recordLimits.setText(s.s("session").isEmpty()?"还没有运行策略":"电池停止 "+s.n("battery_limit")/10+"°C"+(s.regulatesBody()?"\n"+s.bodyRule():"  ·  机身停止 "+s.n("body_limit")/1000+"°C")+(s.n("cpu_limit")>0?"\nCPU 热点 "+s.n("cpu_limit")/1000+"°C":"  ·  CPU 随系统保护"));
         }
     }

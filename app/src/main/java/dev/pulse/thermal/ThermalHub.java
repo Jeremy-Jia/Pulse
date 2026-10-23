@@ -27,18 +27,18 @@ final class ThermalHub {
     void connect() {
         if(busy) return; busy=true; message="正在请求 Root 并验证固件…"; emit();
         worker.execute(() -> { try { engine.connect(); connected=true; snapshot=engine.status(); statusKnown=true; message=engine.profile.name+" · 当前固件适配通过"; }
-            catch(Exception e) { connected=false; message=e.getMessage(); } finally { busy=false; emit(); } });
+            catch(Exception e) { connected=false; statusKnown=false; message=e.getMessage(); } finally { busy=false; emit(); } });
     }
     void apply(Policy p) {
         if(busy) return; busy=true; message="正在应用策略并校验实际加载结果…"; emit();
         worker.execute(() -> { try { if(!connected) { engine.connect(); connected=true; } engine.start(p); snapshot=engine.status(); statusKnown=true; message="策略已生效，独立守护正在运行"; }
-            catch(Exception e) { message=e.getMessage(); android.util.Log.e("PulseThermal","apply failed",e); try { snapshot=engine.status(); statusKnown=true; } catch(Exception ignored) {} }
+            catch(Exception e) { message=e.getMessage(); android.util.Log.e("PulseThermal","apply failed",e); try { snapshot=engine.status(); statusKnown=true; } catch(Exception ignored) { statusKnown=false; } }
             finally { busy=false; emit(); } });
     }
     void stop() {
         if(busy) return; busy=true; emit();
         worker.execute(() -> { try { android.util.Log.i("PulseThermal","restore begin"); engine.stop(); if(!connected) { engine.connect(); connected=true; } snapshot=engine.status(); statusKnown=true; message="已恢复原厂温控"; android.util.Log.i("PulseThermal","restore complete "+snapshot.s("state")); }
-            catch(Exception e) { message=e.getMessage(); android.util.Log.e("PulseThermal","restore failed",e); } finally { busy=false; emit(); } });
+            catch(Exception e) { statusKnown=false; message=e.getMessage(); android.util.Log.e("PulseThermal","restore failed",e); } finally { busy=false; emit(); } });
     }
     void sync() { statusKnown=false; if(!connected) { connect(); return; } worker.execute(this::refresh); }
     void updateBootResume(boolean enabled) {

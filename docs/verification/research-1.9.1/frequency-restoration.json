@@ -1,0 +1,81 @@
+{
+  "result": "pass",
+  "original_raw": 2147483647,
+  "final_raw": 2147483647,
+  "final_effective_khz": 5011200,
+  "tests": [
+    {
+      "case": "completed",
+      "before_raw": 2147483647,
+      "after_raw": 2147483647,
+      "requested_khz": 2611200,
+      "effective_after_khz": 5011200,
+      "verified": 8192,
+      "telemetry": {
+        "frequency_samples": 133,
+        "sampled_mean_mhz": 2611.2,
+        "sampled_min_mhz": 2611.2,
+        "sampled_max_mhz": 2611.2,
+        "effective_mhz": 2596.71912547,
+        "cycles": 7398587709.999999,
+        "instructions": 44189428494.0,
+        "ipc": 5.97268428,
+        "pmu_errno": 0,
+        "pmu_running_ratio": 1.0,
+        "battery_net_watts": 2.67259974,
+        "battery_net_joules": 7.69897269,
+        "power_samples": 133,
+        "charging_or_unknown": false,
+        "energy_comparable": true,
+        "battery_peak_c": 33.9,
+        "temperature_stop": false,
+        "cpu_at_end": 6,
+        "cap_requested_khz": 2611200,
+        "cap_observed_start_khz": 2611200,
+        "cap_observed_end_khz": 2611200,
+        "cap_original_khz": 5011200,
+        "cap_backend": "msm_performance_raw_vote",
+        "cap_vote_original": 2147483647,
+        "cap_vote_after": 2147483647,
+        "cap_restore_status": 0,
+        "pmu_scope": "main benchmark thread; excludes kernel and telemetry thread"
+      }
+    },
+    {
+      "case": "TERM",
+      "before_raw": 2147483647,
+      "after_raw": 2147483647,
+      "requested_khz": 2611200,
+      "effective_after_khz": 5011200,
+      "concurrent_owner_blocked": true
+    },
+    {
+      "case": "KILL",
+      "before_raw": 2147483647,
+      "after_raw": 2147483647,
+      "requested_khz": 2611200,
+      "effective_after_khz": 5011200
+    },
+    {
+      "case": "previous_raw_vote",
+      "before_raw": 2880000,
+      "after_raw": 2880000,
+      "requested_khz": 2611200,
+      "effective_after_khz": 2880000
+    },
+    {
+      "case": "external_policy_change",
+      "before_raw": 2147483647,
+      "after_raw": 2147483647,
+      "requested_khz": 2611200,
+      "effective_after_khz": 2438400
+    },
+    {
+      "case": "foreign_raw_vote",
+      "before_raw": 2147483647,
+      "after_raw": 2880000,
+      "requested_khz": 2611200,
+      "effective_after_khz": 2880000
+    }
+  ]
+}

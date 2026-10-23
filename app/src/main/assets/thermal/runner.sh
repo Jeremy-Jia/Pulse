@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# Pulse 1.8: hongkong body-temperature feedback, with independent hard-stop guards.
+# Pulse 1.9.1: detached guards, process identity and monotonic heartbeats.
 # Run explicitly with /system/bin/sh; do not depend on a root manager's ash mode.
 umask 077
 B=/data/adb/pulse-thermal
@@ -30,6 +30,47 @@ error() { echo "ERROR $*"; exit 1; }
 event() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" >> "$D/events.txt"; }
 phase() { echo "$1" > "$D/phase.new"; mv "$D/phase.new" "$D/phase"; }
 body_feedback() { case "$body_mode" in regulate|performance) return 0;; *) return 1;; esac; }
+guard_phase() { case "$1" in active|starting|paused|thermal_paused|thermal_pausing) return 0;; *) return 1;; esac; }
+birth() { awk '{print $22}' "/proc/$1/stat" 2>/dev/null; }
+peer_identity() {
+  peer=''; saved_birth=''
+  [ -s "$D/$1.pid" ] && [ -s "$D/$1.birth" ] || return 1
+  read -r peer < "$D/$1.pid" 2>/dev/null
+  read -r saved_birth < "$D/$1.birth" 2>/dev/null
+  number "$peer" && number "$saved_birth" && [ "$(birth "$peer")" = "$saved_birth" ] || return 1
+  tr '\0' ' ' < "/proc/$peer/cmdline" 2>/dev/null | grep -qF "$SELF $1 $ID "
+}
+peer_healthy() {
+  peer_identity "$1" || return 1
+  beat=''; read -r beat < "$D/$1.beat" 2>/dev/null
+  # Read the clock AFTER the heartbeat. A peer can publish in the next second
+  # while its identity is checked; the caller's earlier timestamp is obsolete.
+  upnow
+  number "$beat" && [ "$beat" -le "$now" ] && [ "$((now-beat))" -le 30 ]
+}
+heartbeat() {
+  upnow; previous_beat=$now
+  [ ! -s "$D/$command.beat" ] || read -r previous_beat < "$D/$command.beat"
+  number "$previous_beat" || previous_beat=$now
+  loop_gap=$((now-previous_beat))
+  echo "$now" > "$D/$command.beat.new"; mv "$D/$command.beat.new" "$D/$command.beat"
+}
+starting_grace() {
+  [ "$state" = starting ] || return 1
+  activation_start=''; read -r activation_start < "$D/start.uptime" 2>/dev/null
+  number "$activation_start" && [ "$((now-activation_start))" -le 30 ]
+}
+detach_guard() {
+  # setsid alone does not escape Android's UID cgroup kill/freeze operations.
+  for cg in /sys/fs/cgroup/cgroup.procs /dev/cpuset/cgroup.procs /dev/cpuctl/cgroup.procs /dev/blkio/cgroup.procs /sys/fs/cgroup/freezer/cgroup.procs; do
+    [ ! -e "$cg" ] || { echo $$ > "$cg" || return 1; }
+  done
+  echo -900 > /proc/$$/oom_score_adj 2>/dev/null
+  echo $$ > "$D/$command.pid.new"; mv "$D/$command.pid.new" "$D/$command.pid"
+  birth $$ > "$D/$command.birth.new"; mv "$D/$command.birth.new" "$D/$command.birth"
+  cat /proc/$$/cgroup > "$D/$command.cgroup"
+  heartbeat
+}
 select_session() {
   number "$1" || error BAD_SESSION
   [ "${#1}" -le 20 ] || error BAD_SESSION
@@ -146,11 +187,11 @@ choose_cooling() {
 }
 # A prewritten inode makes the lock owner visible atomically, including SIGKILL.
 control_lock() {
-  echo $$ > "$D/control.$$"
+  echo "$$ $(birth $$)" > "$D/control.$$"
   for lock_tick in $(seq 1 "${1:-30}"); do
     if ln "$D/control.$$" "$D/control.lock" 2>/dev/null; then rm -f "$D/control.$$"; return 0; fi
-    lock_owner=''; read -r lock_owner < "$D/control.lock" 2>/dev/null
-    if number "$lock_owner" && ! kill -0 "$lock_owner" 2>/dev/null; then rm -f "$D/control.lock"; fi
+    lock_owner=''; lock_birth=''; read -r lock_owner lock_birth < "$D/control.lock" 2>/dev/null
+    if number "$lock_owner" && { ! kill -0 "$lock_owner" 2>/dev/null || [ "$(birth "$lock_owner")" != "$lock_birth" ]; }; then rm -f "$D/control.lock"; fi
     sleep .1
   done
   rm -f "$D/control.$$"; return 1
@@ -347,13 +388,12 @@ unmount_runtime() {
   setprop ctl.restart mi_thermald
 }
 stop_peer() {
-  role=$1; peer=''; read -r peer < "$D/$role.pid" 2>/dev/null
-  number "$peer" || return 0
+  role=$1
+  peer_identity "$role" || return 0
   [ "$peer" != "$$" ] || return 0
-  cat "/proc/$peer/cmdline" 2>/dev/null | tr '\0' ' ' | grep -qF "$SELF $role $ID" || return 0
   kill -TERM "$peer" 2>/dev/null
   for stop_tick in $(seq 1 20); do
-    cat "/proc/$peer/cmdline" 2>/dev/null | tr '\0' ' ' | grep -qF "$SELF $role $ID" || return 0
+    peer_identity "$role" || return 0
     sleep .1
   done
   kill -KILL "$peer" 2>/dev/null
@@ -363,8 +403,8 @@ restore() {
   echo "$why" > "$D/stop.requested"
   [ "$(cat "$D/phase" 2>/dev/null)" = restored ] && return 0
   if ! mkdir "$D/restore.lock" 2>/dev/null; then
-    owner=''; read -r owner < "$D/restore.lock/pid" 2>/dev/null
-    if number "$owner" && kill -0 "$owner" 2>/dev/null; then
+    owner=''; owner_birth=''; read -r owner owner_birth < "$D/restore.lock/pid" 2>/dev/null
+    if number "$owner" && kill -0 "$owner" 2>/dev/null && [ "$(birth "$owner")" = "$owner_birth" ]; then
       for retry in $(seq 1 15); do
         [ "$(cat "$D/phase" 2>/dev/null)" = restored ] && return 0
         sleep 1
@@ -374,7 +414,7 @@ restore() {
     rm -f "$D/restore.lock/pid"; rmdir "$D/restore.lock" 2>/dev/null
     mkdir "$D/restore.lock" || return 1
   fi
-  echo $$ > "$D/restore.lock/pid"
+  echo "$$ $(birth $$)" > "$D/restore.lock/pid"
   phase restoring
   # Finish any in-flight frequency write before releasing our votes.
   control_lock 150 || { phase recovery_failed; return 1; }
@@ -449,14 +489,21 @@ restore() {
   rm -f "$D/restore.lock/pid"; rmdir "$D/restore.lock" 2>/dev/null
   return "$result"
 }
-snapshot() {
+snapshot() (
   state=$(cat "$D/phase" 2>/dev/null); [ -n "$state" ] || state=idle
+  recorded_state=$state
   started=0; read -r started < "$D/start.uptime" 2>/dev/null
   upnow
+  watch_alive=0; sentry_alive=0
+  peer_healthy watch && watch_alive=1
+  peer_healthy sentry && sentry_alive=1
+  if guard_phase "$state" && ! starting_grace && { [ "$watch_alive" != 1 ] || [ "$sentry_alive" != 1 ]; }; then state=unprotected; fi
   [ "$state" != restored ] || read -r now < "$D/stop.uptime" 2>/dev/null
   elapsed=$((now-started)); [ "$elapsed" -ge 0 ] || elapsed=0
   remaining=-1; [ "$duration" = 0 ] || remaining=$((duration-elapsed))
   echo "state=$state"; echo "session=$ID"; echo "mode=$mode"
+  echo "recorded_state=$recorded_state"; echo "watch_alive=$watch_alive"; echo "sentry_alive=$sentry_alive"
+  echo "watch_heartbeat=$(cat "$D/watch.beat" 2>/dev/null)"; echo "sentry_heartbeat=$(cat "$D/sentry.beat" 2>/dev/null)"
   echo "boost_percent=${boost_percent:-25}"
   echo "elapsed=$elapsed"; echo "remaining=$remaining"; echo "resume=$resume_boot"
   echo "cpu_mc=$hot"; echo "battery_dc=$bat"; echo "body_mc=$body"
@@ -471,16 +518,26 @@ snapshot() {
   notice_seq=0; notice_kind=''; [ ! -f "$D/notice" ] || read -r notice_seq notice_kind < "$D/notice"
   echo "thermal_auto_resume=$thermal_auto_resume"; echo "battery_resume=$battery_resume"; echo "cpu_resume=$cpu_resume"
   echo "notice_seq=$notice_seq"; echo "notice_kind=$notice_kind"; echo "resume_count=$(cat "$D/resume.count" 2>/dev/null)"
-  echo "reason=$(cat "$D/reason" 2>/dev/null)"; echo "current_ua=$current"; echo "voltage_uv=$voltage"
-}
+  if [ "$state" = unprotected ]; then echo reason=GUARD_UNHEALTHY; else echo "reason=$(cat "$D/reason" 2>/dev/null)"; fi
+  echo "current_ua=$current"; echo "voltage_uv=$voltage"
+)
 command=$1
 case "$command" in
-  status)
+  status|reconcile)
     discover; readings
     if [ -f "$B/current" ]; then
       read -r id < "$B/current"; select_session "$id"
       if [ "$RUNTIME_MOUNT" = 1 ] && [ "$(cat "$D/boot.id" 2>/dev/null)" != "$(cat /proc/sys/kernel/random/boot_id)" ]; then
         [ -n "$(mount_id)" ] || { echo REBOOT_RECOVERY > "$D/reason"; phase restored; }
+      fi
+      # UI polling may repair an orphan, but never silently restart a dead
+      # experiment. A read-only status still reports the actual unhealthy state.
+      state=$(cat "$D/phase" 2>/dev/null); upnow
+      if [ "$command" = reconcile ] && guard_phase "$state" && ! starting_grace && { ! peer_healthy watch || ! peer_healthy sentry; }; then
+        # /proc/uptime includes suspend. Let living guards refresh after a
+        # system-wide scheduling gap; dead/reused PIDs need no grace period.
+        if peer_identity watch && peer_identity sentry; then sleep 3; upnow; fi
+        if ! peer_healthy watch || ! peer_healthy sentry; then restore GUARD_UNHEALTHY || exit 1; readings; fi
       fi
       snapshot
     else
@@ -517,13 +574,13 @@ select_session "$2"
 case "$command" in
   restore) restore "${3:-MANUAL}"; exit $?;;
   sentry)
+    detach_guard || error GUARD_DETACH_FAILED
     read -r start < "$D/start.uptime"
     while :; do
       state=$(cat "$D/phase" 2>/dev/null); [ "$state" != restored ] || exit 0
-      upnow
-      watcher=''; read -r watcher < "$D/watch.pid" 2>/dev/null
-      if [ "$((now-start))" -gt 5 ]; then
-        if ! number "$watcher" || ! kill -0 "$watcher" 2>/dev/null || ! cat "/proc/$watcher/cmdline" 2>/dev/null | tr '\0' ' ' | grep -qF "$SELF watch $ID"; then
+      heartbeat
+      if [ "$((now-start))" -gt 5 ] && [ "$loop_gap" -le 30 ]; then
+        if ! peer_healthy watch; then
           restore WATCHDOG_LOST; exit
         fi
       fi
@@ -531,10 +588,11 @@ case "$command" in
       sleep 2
     done;;
   watch)
+    detach_guard || error GUARD_DETACH_FAILED
     trap 'restore WATCHDOG_EXIT' EXIT
     trap 'exit 130' HUP INT TERM
     discover
-    for tick in $(seq 1 15); do [ -f "$D/ready" ] && break; sleep 1; done
+    for tick in $(seq 1 25); do heartbeat; [ -f "$D/ready" ] && break; sleep 1; done
     [ -f "$D/ready" ] || { restore ACTIVATION_TIMEOUT; exit 1; }
     read -r start < "$D/start.uptime"; tick=0; cool_ready_since=0
     csv_header='uptime_s,elapsed_s,cpu_hottest_mc,battery_dc,body_mc,current0_khz,current6_khz,max0_khz,max6_khz,current_ua,voltage_uv,current3_khz,max3_khz,scene,state'
@@ -542,6 +600,8 @@ case "$command" in
     echo "$csv_header" > "$D/telemetry.csv"
     while :; do
       state=$(cat "$D/phase"); case "$state" in active|paused|thermal_paused) :;; *) break;; esac
+      heartbeat
+      if [ "$loop_gap" -le 30 ]; then peer_healthy sentry || { restore SENTRY_LOST; exit; }; fi
       within_limits; valid=$?
       csv_row="$now,$((now-start)),$hot,$bat,$body,$freq0,$freq6,$max0,$max6,$current,$voltage,$freq3,$max3,$scene,$state"
       load_cooling || { restore CONTROL_ERROR; exit; }
@@ -627,7 +687,7 @@ if [ -f "$B/current" ]; then
   case "$old_state" in active|paused|thermal_paused|thermal_pausing|starting|restoring|recovery_failed) error SESSION_ALREADY_ACTIVE;; esac
 fi
 [ ! -f "$D/ready" ] || [ "$3" = resume ] || error SESSION_ALREADY_USED
-rm -f "$D/ready" "$D/stop.requested" "$D/notice" "$D/resume.count"
+rm -f "$D/ready" "$D/stop.requested" "$D/notice" "$D/resume.count" "$D/watch.pid" "$D/sentry.pid" "$D/watch.birth" "$D/sentry.birth" "$D/watch.beat" "$D/sentry.beat"
 rm -f "$D/stop.uptime"
 read -r initial_balance < "$TM/balance_mode"
 echo "initial_balance=$initial_balance" > "$D/runtime.env"
@@ -648,12 +708,29 @@ if [ "$RUNTIME_MOUNT" = 0 ]; then
 fi
 trap '[ -f "$D/ready" ] || restore ACTIVATION_FAILED' EXIT
 trap 'exit 130' HUP INT TERM
-nohup /system/bin/sh "$SELF" watch "$ID" > "$D/watch.log" 2>&1 </dev/null &
-echo $! > "$D/watch.pid"
-nohup /system/bin/sh "$SELF" sentry "$ID" > "$D/sentry.log" 2>&1 </dev/null &
-echo $! > "$D/sentry.pid"
+nohup setsid /system/bin/sh "$SELF" watch "$ID" > "$D/watch.log" 2>&1 </dev/null &
+nohup setsid /system/bin/sh "$SELF" sentry "$ID" > "$D/sentry.log" 2>&1 </dev/null &
+guards_ready=0
+for guard_tick in $(seq 1 5); do
+  upnow
+  if peer_healthy watch && peer_healthy sentry; then guards_ready=1; break; fi
+  sleep 1
+done
+[ "$guards_ready" = 1 ] || error GUARD_START_FAILED
 mount_runtime || error RUNTIME_MOUNT_FAILED
 within_limits || error "PREFLIGHT_$reason"
+if body_feedback && [ "$gpu_enabled" = 1 ]; then
+  # Restarting mi_thermald can reset max_pwrlevel between the initial capture
+  # and our first write. Retain the stricter of both readings; never use this
+  # transition to lift a pre-existing GPU user cap.
+  gpu_user_read || error GPU_USER_LIMIT_UNAVAILABLE
+  if [ "$gpu_user_level" != "$initial_gpu_user_level" ]; then
+    [ "$initial_gpu_user_level" -ge "$gpu_user_level" ] || initial_gpu_user_level=$gpu_user_level
+    echo "initial_gpu_user_level=$initial_gpu_user_level" >> "$D/runtime.env"
+    echo "$gpu_user_level" >> "$D/gpu.votes"
+    event "GPU_RESTART_BASELINE current=$gpu_user_level retained=$initial_gpu_user_level"
+  fi
+fi
 if body_feedback; then update_cooling initial || error BODY_CONTROL_FAILED; fi
 install "$D/trial.bin" || error INSTALL_FAILED
 loaded=0

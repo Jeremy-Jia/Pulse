@@ -4,6 +4,10 @@
 
 > Local-first performance telemetry and native benchmarking for Android, with standalone, ADB shell and Root access modes.
 
+## 1.9.1：频率恢复与温控后台修复
+
+能效扫描改用可单独读取的 Qualcomm QoS 请求，结束后恢复原始请求，不再将系统临时有效上限写回 `scaling_max_freq`。正常退出、强制终止、其他限频变化均有实机回归。温控双守护脱离应用会话与 cgroup，状态核验 PID、进程启动时间和单调时钟心跳；退出应用后继续控制，返回后读取真实状态。守护失效会恢复原厂，Root 读取失败显示“正在核对状态”，不再展示缓存的运行状态。兼容旧的持续会话升级，保留原设置。详见 [1.9.1 验证记录](docs/verification/research-1.9.1/REPORT.md)。
+
 ## 1.9：向量、内存与频率实验
 
 从「性能实验室 → 向量与内存实验」进入。支持 256 KiB 到 256 MiB 工作集的读/写/复制带宽与 1/4/8 线程；ML-DSA-87 比较同一参考实现的标量、NEON、SVE、SVE2 算术路径，先通过 6 组 NIST ACVP KAT，计时后逐个验签，并验证同轮签名字节一致。真机检测 hongkong 的 SVE 为 128 bit、SME 流式长度为 512 bit；本次签名未使用 SME。
@@ -43,19 +47,19 @@ CPU 频率扫描在系统当前允许范围内临时设置五档上限，记录�
 
 ## 下载
 
-**最新版：[下载 Pulse 1.9.0 ARM64 APK](releases/Pulse-1.9.0-arm64.apk)**
+**最新版：[下载 Pulse 1.9.1 ARM64 APK](releases/Pulse-1.9.1-arm64.apk)**
 
-版本 `1.9.0`，versionCode `11`，ARM64，最低 Android 8.0（API 26）。同一包支持普通权限、ADB shell 和 Root。已在 hongkong OS4.0.24.0 / Android 17 临时 KernelSU 上覆盖安装验证。1.8 通过独立保护暂停、系统通知、同一会话自动恢复，以及等待降温期间手动停止、计时结束和守护异常取消恢复的实机测试；52°C 调节和 75/42°C 恢复边界另有测试记录。1.6 已验证 18 的 26 档 GPU 配置及 GPU 关闭时的旧版 CPU 字节一致性。15 保持原有 CPU 方案，本次未连接 15 做硬件测试；此前真机证据见 [1.4 验证记录](docs/verification/thermal-1.4.0/REPORT.md)。
+版本 `1.9.1`，versionCode `12`，ARM64，最低 Android 8.0（API 26）。同一包支持普通权限、ADB shell 和 Root。已在 hongkong OS4.0.24.0 / Android 17 临时 KernelSU 上覆盖安装验证。1.8 通过独立保护暂停、系统通知、同一会话自动恢复，以及等待降温期间手动停止、计时结束和守护异常取消恢复的实机测试；52°C 调节和 75/42°C 恢复边界另有测试记录。1.6 已验证 18 的 26 档 GPU 配置及 GPU 关闭时的旧版 CPU 字节一致性。15 保持原有 CPU 方案，本次未连接 15 做硬件测试；此前真机证据见 [1.4 验证记录](docs/verification/thermal-1.4.0/REPORT.md)。
 
 APK SHA-256（全部安装包的校验值见 [SHA256SUMS](releases/SHA256SUMS)）：
 
 ```text
-46170f3152770a017d297abbb2afedbacaa5c1e0301a1cb3f6e85d2e1b55631c  Pulse-1.9.0-arm64.apk
+4e4733e739168e42cd3e5bf94218071c8935158d391f75939930fc216e113f56  Pulse-1.9.1-arm64.apk
 ```
 
 1.5 与 Windows 1.4 使用相同调试签名，可保留数据覆盖升级；与早期 Mac 1.3 签名不同。请勿用卸载绕过签名检查。签名与构建方式见 [构建文档](docs/BUILD.md) 和 [安装签名说明](docs/NON_ROOT.md#安装签名)。
 
-当前源码为 `1.9.0`（versionCode `11`），最新包继续使用同一 Mac 开发证书，可直接覆盖已迁移到 Mac 签名的 1.5.1，不卸载、不清数据。签名历史：本机构建的 1.5.1 APK 使用 Mac 开发证书 `540e097b…`，与手机上的 Windows 1.5.0 证书 `64233655…` 不同，不能直接覆盖安装；本次已在 hongkong 上通过备份、卸载、重装与数据恢复完成迁移，后续更新必须使用同一 Mac keystore。悬浮窗配色验证见 [1.5.1 验证记录](docs/verification/ui-1.5.1/REPORT.md)。
+当前源码为 `1.9.1`（versionCode `12`），最新包继续使用同一 Mac 开发证书，可直接覆盖已迁移到 Mac 签名的 1.5.1，不卸载、不清数据。签名历史：本机构建的 1.5.1 APK 使用 Mac 开发证书 `540e097b…`，与手机上的 Windows 1.5.0 证书 `64233655…` 不同，不能直接覆盖安装；本次已在 hongkong 上通过备份、卸载、重装与数据恢复完成迁移，后续更新必须使用同一 Mac keystore。悬浮窗配色验证见 [1.5.1 验证记录](docs/verification/ui-1.5.1/REPORT.md)。
 
 1.3.0 的构建、颜色配置、透明度、无边框和设置保留验证见 [外观验证报告](docs/verification/ui-1.3.0/REPORT.txt)。[Pulse 1.3.0 APK](releases/Pulse-1.3.0-arm64.apk) 与 [Pulse 1.0.0 APK](releases/Pulse-1.0.0.apk) 保留为历史版本。
 

@@ -1,0 +1,9 @@
+{
+  "result": "pass",
+  "applied_khz": 1708800,
+  "before_raw": 2147483647,
+  "after_raw": 2147483647,
+  "thermal_state": "active",
+  "same_thermal_session": true,
+  "max6": "4704000"
+}

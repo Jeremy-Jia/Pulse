@@ -32,6 +32,9 @@ static int charging,temperature_stop,cap_pipe=-1,cap_lock=-1;
 static pid_t cap_guard=-1;
 static char cap_path[512];
 static long cap_original,cap_requested,cap_at_start,cap_at_end;
+static const char *vote_path="/sys/kernel/msm_performance/parameters/cpu_max_freq";
+static int cap_cpu,cap_restore_status;
+static long vote_original,vote_after;
 static void stop_signal(int signo){(void)signo;lab_stop=1;}
 double lab_now(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return t.tv_sec+t.tv_nsec/1e9;}
 double lab_cpu_time(void){struct timespec t;clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t);return t.tv_sec+t.tv_nsec/1e9;}
@@ -48,6 +51,28 @@ int lab_init(int cpu){
  printf("{\"event\":\"started\",\"pid\":%d}\n",getpid());return 0;
 }
 static int write_cap(const char *path,long value){char buf[40];int n=snprintf(buf,sizeof(buf),"%ld",value);int fd=open(path,O_WRONLY|O_CLOEXEC);if(fd<0)return -1;int ok=write(fd,buf,n)==n?0:-1;close(fd);return ok;}
+/* This getter returns the raw QoS request, unlike scaling_max_freq (the
+ * aggregate effective ceiling). Never write an effective ceiling back as a vote. */
+static long read_vote(void){
+ FILE *f=fopen(vote_path,"r");if(!f)return -1;
+ int cpu;long value,result=-1;
+ while(fscanf(f," %d:%ld",&cpu,&value)==2)if(cpu==cap_cpu){result=value;break;}
+ fclose(f);return result;
+}
+static int write_vote(long value){
+ char buf[64];int n=snprintf(buf,sizeof(buf),"%d:%ld",cap_cpu,value);
+ int fd=open(vote_path,O_WRONLY|O_CLOEXEC);if(fd<0)return -1;
+ int ok=write(fd,buf,n)==n?0:-1;close(fd);return ok;
+}
+static int detach_guard(void){
+ const char *groups[]={"/sys/fs/cgroup/cgroup.procs","/dev/cpuset/cgroup.procs",
+  "/dev/cpuctl/cgroup.procs","/dev/blkio/cgroup.procs","/sys/fs/cgroup/freezer/cgroup.procs"};
+ if(setsid()<0)return -1;
+ for(unsigned i=0;i<sizeof(groups)/sizeof(*groups);i++)
+  if(access(groups[i],F_OK)==0&&write_cap(groups[i],getpid()))return -1;
+ write_cap("/proc/self/oom_score_adj",-900);
+ return 0;
+}
 int lab_cap_begin(int cpu,long cap){
  if(!cap)return 0;
  /* The guardian inherits this lock, so a restarted app cannot overlap restorations. */
@@ -61,21 +86,32 @@ int lab_cap_begin(int cpu,long cap){
  if(cap_lock<0)return -1;
  if(flock(cap_lock,LOCK_EX|LOCK_NB)){close(cap_lock);cap_lock=-1;return -1;}
  snprintf(cap_path,sizeof(cap_path),"/sys/devices/system/cpu/cpu%d/cpufreq/scaling_max_freq",cpu);
- cap_original=lab_read_long(cap_path);cap_requested=cap;
+ cap_original=lab_read_long(cap_path);cap_requested=cap;cap_cpu=cpu;vote_original=read_vote();
  char minpath[512];snprintf(minpath,sizeof(minpath),"/sys/devices/system/cpu/cpu%d/cpufreq/scaling_min_freq",cpu);
  long minimum=lab_read_long(minpath);
  if(cap_original<=0||minimum<0){close(cap_lock);cap_lock=-1;errno=EACCES;return -1;}
+ /* A platform without a readable independent vote cannot be restored safely. */
+ if(vote_original<0){close(cap_lock);cap_lock=-1;return 2;}
  if(cap>cap_original||cap<minimum){close(cap_lock);cap_lock=-1;return 1;}
  int p[2];if(pipe2(p,O_CLOEXEC)){close(cap_lock);cap_lock=-1;return -1;}
+ int ready[2];if(pipe2(ready,O_CLOEXEC)){close(p[0]);close(p[1]);close(cap_lock);cap_lock=-1;return -1;}
  cap_guard=fork();
  if(cap_guard==0){
-  close(p[1]);setsid();signal(SIGTERM,SIG_IGN);signal(SIGINT,SIG_IGN);alarm(185);
+  close(p[1]);close(ready[0]);signal(SIGTERM,SIG_IGN);signal(SIGINT,SIG_IGN);alarm(185);
+  if(detach_guard()){close(ready[1]);_exit(3);}
+  char ok='1';if(write(ready[1],&ok,1)!=1)_exit(3);close(ready[1]);
   struct pollfd f={p[0],POLLIN|POLLHUP,0};int rc;
   do{rc=poll(&f,1,175000);}while(rc<0&&errno==EINTR);
-  write_cap(cap_path,cap_original);close(p[0]);_exit(0);
+  long current=read_vote();int restored=0;
+  if(current==cap_requested)restored=write_vote(vote_original)||read_vote()!=vote_original?3:0;
+  else if(current!=vote_original)restored=2; /* A newer foreign vote owns the node. */
+  close(p[0]);_exit(restored);
  }
- close(p[0]);if(cap_guard<0){close(p[1]);close(cap_lock);cap_lock=-1;return -1;}cap_pipe=p[1];
- if(write_cap(cap_path,cap)){lab_cap_end();return -1;}
+ close(p[0]);close(ready[1]);
+ if(cap_guard<0){close(p[1]);close(ready[0]);close(cap_lock);cap_lock=-1;return -1;}cap_pipe=p[1];
+ struct pollfd ack={ready[0],POLLIN|POLLHUP,0};char ok=0;
+ int prepared=poll(&ack,1,3000)>0&&read(ready[0],&ok,1)==1&&ok=='1';close(ready[0]);
+ if(!prepared||write_vote(cap)||read_vote()!=cap){lab_cap_end();return -1;}
  /* sysfs policy updates can settle asynchronously on vendor kernels. */
  for(int i=0;i<25&&!lab_stop;i++){cap_at_start=lab_read_long(cap_path);if(cap_at_start==cap)break;usleep(10000);}
  printf("{\"event\":\"frequency_cap\",\"original_khz\":%ld,\"requested_khz\":%ld,\"observed_khz\":%ld}\n",cap_original,cap,cap_at_start);
@@ -85,8 +121,11 @@ int lab_cap_end(void){
  if(cap_guard<0)return 1;
  cap_at_end=lab_read_long(cap_path);
  if(cap_pipe>=0){close(cap_pipe);cap_pipe=-1;}
- int status;waitpid(cap_guard,&status,0);cap_guard=-1;if(cap_lock>=0){close(cap_lock);cap_lock=-1;}
- return lab_read_long(cap_path)==cap_original;
+ int status=0;pid_t waited;do{waited=waitpid(cap_guard,&status,0);}while(waited<0&&errno==EINTR);
+ cap_guard=-1;vote_after=read_vote();
+ cap_restore_status=waited>0&&WIFEXITED(status)?WEXITSTATUS(status):3;
+ if(cap_lock>=0){close(cap_lock);cap_lock=-1;}
+ return cap_restore_status==0&&vote_after==vote_original;
 }
 static int is_charging(void){
  FILE *f=fopen("/sys/class/power_supply/battery/status","r");char text[48]={0};
@@ -133,5 +172,5 @@ void lab_telemetry_json(double elapsed,double cpu_seconds){
  fputs(",\"battery_net_watts\":",stdout);num(power_n?power_sum/power_n:NAN);
  fputs(",\"battery_net_joules\":",stdout);num(power_n?power_sum/power_n*elapsed:NAN);
  printf(",\"power_samples\":%ld,\"charging_or_unknown\":%s,\"energy_comparable\":%s,\"battery_peak_c\":",power_n,charging?"true":"false",!charging&&power_n>1&&elapsed>=2?"true":"false");num(peak_battery>0?peak_battery:NAN);
- printf(",\"temperature_stop\":%s,\"cpu_at_end\":%d,\"cap_requested_khz\":%ld,\"cap_observed_start_khz\":%ld,\"cap_observed_end_khz\":%ld,\"cap_original_khz\":%ld,\"pmu_scope\":\"main benchmark thread; excludes kernel and telemetry thread\"}",temperature_stop?"true":"false",sched_getcpu(),cap_requested,cap_at_start,cap_at_end,cap_original);
+ printf(",\"temperature_stop\":%s,\"cpu_at_end\":%d,\"cap_requested_khz\":%ld,\"cap_observed_start_khz\":%ld,\"cap_observed_end_khz\":%ld,\"cap_original_khz\":%ld,\"cap_backend\":\"msm_performance_raw_vote\",\"cap_vote_original\":%ld,\"cap_vote_after\":%ld,\"cap_restore_status\":%d,\"pmu_scope\":\"main benchmark thread; excludes kernel and telemetry thread\"}",temperature_stop?"true":"false",sched_getcpu(),cap_requested,cap_at_start,cap_at_end,cap_original,vote_original,vote_after,cap_restore_status);
 }

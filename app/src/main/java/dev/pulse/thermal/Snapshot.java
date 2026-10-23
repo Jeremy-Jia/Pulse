@@ -21,9 +21,13 @@ public final class Snapshot {
     }
     public boolean cooling() { return s("state").equals("active") && regulatesBody() && n("cooling_level")>0; }
     public boolean recoveryFailed() { return s("state").equals("recovery_failed"); }
+    public boolean unprotected() { return s("state").equals("unprotected"); }
+    public boolean restoring() { return s("state").equals("restoring"); }
     public String temperature(String key, int divisor) { return n(key)>0 ? String.format(Locale.ROOT,"%.1f°", n(key)/(double)divisor) : "—"; }
     public String frequency(String key) { return n(key)>0 ? String.format(Locale.ROOT,"%.2f",n(key)/1000000d) : "—"; }
     public String countdown() {
+        if (unprotected()) return "守护异常";
+        if (restoring()) return "恢复中";
         if (!active()) return "未运行";
         if (thermalPaused()) return "等待降温 · 自动恢复";
         if (paused()) return "等待场景恢复";
@@ -32,6 +36,8 @@ public final class Snapshot {
         return String.format(Locale.ROOT,"%02d:%02d",seconds/60,seconds%60);
     }
     public String reason() {
+        if(recoveryFailed()) return "恢复未确认，请点击恢复原厂重试";
+        if(restoring()) return "正在恢复原厂配置，尚未确认完成";
         if(thermalPaused()) return s("reason").equals("CPU_LIMIT")?"CPU 热点触发保护，已暂停性能策略":"电池温度触发保护，已暂停性能策略";
         return switch(s("reason")) {
             case "MANUAL" -> "手动恢复原厂";
@@ -44,7 +50,9 @@ public final class Snapshot {
             case "SCENE_CHANGED" -> "系统切换温控场景，已恢复原厂";
             case "SCENE_PAUSED" -> "场景暂不兼容，已暂停；回到普通场景后继续";
             case "CONFIG_CHANGED" -> "检测到其他策略变化，已恢复原厂";
-            case "WATCHDOG_LOST", "WATCHDOG_EXIT", "ACTIVATION_TIMEOUT", "ACTIVATION_FAILED" -> "守护退出，已恢复原厂";
+            case "GUARD_UNHEALTHY" -> unprotected()?"守护身份或心跳异常，配置可能仍生效":"守护状态异常，已恢复原厂";
+            case "CONTROLLER_UPDATE" -> "控制程序升级，旧策略已恢复原厂";
+            case "WATCHDOG_LOST", "SENTRY_LOST", "WATCHDOG_EXIT", "ACTIVATION_TIMEOUT", "ACTIVATION_FAILED" -> "守护退出，已恢复原厂";
             case "APP_REMOVED" -> "应用卸载，已恢复原厂";
             case "THERMAL_SERVICE_STOPPED" -> "系统温控服务异常，已停止";
             case "CONTROL_ERROR" -> "温度调频执行异常，已恢复原厂";

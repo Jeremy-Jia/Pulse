@@ -74,7 +74,7 @@ def main():
             if r.get('result')=='unsupported':
                 print('SKIP',cap,'system policy changed',flush=True)
                 continue
-            assert r['cap_restored'] and int(shell('cat '+base+'scaling_max_freq',True))==original
+            assert r['cap_restored'] and r['telemetry']['cap_vote_after']==r['telemetry']['cap_vote_original']
             print('SWEEP',cap,round_number(r['signatures_per_second']),r['telemetry']['sampled_mean_mhz'],flush=True)
             time.sleep(2)
     medians={}

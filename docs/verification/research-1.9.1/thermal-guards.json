@@ -1,0 +1,115 @@
+{
+  "result": "pass",
+  "tests": [
+    {
+      "test": "heartbeat_clock_read_order",
+      "stale_caller_clock_accepted": true
+    },
+    {
+      "test": "force_stop_app",
+      "session_retained": true,
+      "heartbeats_advance": true,
+      "root_cgroups": true,
+      "max6": "5011200"
+    },
+    {
+      "test": "return_to_pulse",
+      "result": "pass",
+      "state": "active",
+      "session": "1792737397062",
+      "max6": 5011200,
+      "watch_alive": 1,
+      "sentry_alive": 1,
+      "unknown_state_ui": "pass",
+      "service_running": true
+    },
+    {
+      "test": "kill_watch",
+      "reason": "WATCHDOG_LOST",
+      "factory_hash_verified": true
+    },
+    {
+      "test": "kill_sentry",
+      "reason": "SENTRY_LOST",
+      "factory_hash_verified": true
+    },
+    {
+      "test": "both_guards_lost",
+      "state": "unprotected",
+      "reason": "GUARD_UNHEALTHY"
+    },
+    {
+      "test": "app_reconcile_and_pid_reuse",
+      "factory_hash_verified": true,
+      "unrelated_process_alive": true
+    },
+    {
+      "test": "system_scheduling_gap_resync",
+      "session_retained": true,
+      "heartbeats_fresh": true
+    },
+    {
+      "test": "stale_heartbeats",
+      "factory_hash_verified": true,
+      "reason": "GUARD_UNHEALTHY"
+    },
+    {
+      "test": "final_saved_policy",
+      "state": "active",
+      "session": "1792737856783",
+      "mode": "fullmax",
+      "recorded_state": "active",
+      "watch_alive": "1",
+      "sentry_alive": "1",
+      "watch_heartbeat": "71660",
+      "sentry_heartbeat": "71660",
+      "boost_percent": "100",
+      "elapsed": "5",
+      "remaining": "-1",
+      "resume": "0",
+      "cpu_mc": "92500",
+      "battery_dc": "363",
+      "body_mc": "37662",
+      "freq0": "2841600",
+      "freq6": "3552000",
+      "max0": "3494400",
+      "max6": "3552000",
+      "freq3": "3398400",
+      "max3": "3513600",
+      "scene": "0",
+      "balance": "3",
+      "gpu_enabled": "1",
+      "gpu_cap_hz": "1450000000",
+      "gpu_hz": "500000000",
+      "gpu_max_hz": "1450000000",
+      "gpu_thermal_level": "0",
+      "battery_limit": "500",
+      "body_limit": "52000",
+      "cpu_limit": "105000",
+      "body_mode": "performance",
+      "body_resume": "52000",
+      "cooling_level": "0",
+      "cooling_percent": "100",
+      "thermal_auto_resume": "1",
+      "battery_resume": "420",
+      "cpu_resume": "75000",
+      "notice_seq": "0",
+      "notice_kind": "",
+      "resume_count": "",
+      "reason": "NONE",
+      "current_ua": "1050000",
+      "voltage_uv": "3926000"
+    },
+    {
+      "test": "final_ui",
+      "result": "pass",
+      "state": "active",
+      "session": "1792737856783",
+      "max6": 4550400,
+      "watch_alive": 1,
+      "sentry_alive": 1,
+      "unknown_state_ui": "pass",
+      "service_running": true
+    }
+  ]
+}

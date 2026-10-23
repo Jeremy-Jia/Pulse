@@ -65,12 +65,24 @@ public final class RootEngine {
         }
         try(InputStream in=context.getAssets().open("thermal/runner.sh")) { Files.write(script.toPath(),readAll(in)); }
         String scriptSha=ConfigCodec.sha(Files.readAllBytes(script.toPath()));
+        // Retire the old controller with its own restoration implementation.
+        // Preserve only an ongoing unlimited policy, from its actual session
+        // files (not possibly edited UI preferences). Timed/thermal-paused
+        // sessions end safely rather than acquiring a fresh timer on upgrade.
+        String migrationId=Long.toString(System.currentTimeMillis());
+        String migration=root("if [ -f "+BASE+"/current ] && [ -f "+RUNNER+" ] && [ \"$(sha256sum "+RUNNER+" | cut -d ' ' -f 1)\" != "+q(scriptSha)+" ]; then " +
+            "id=$(cat "+BASE+"/current); case \"$id\" in ''|*[!0-9]*) exit 1;; esac; d="+BASE+"/sessions/$id; state=$(cat $d/phase); " +
+            "case \"$state\" in active|paused|thermal_paused|thermal_pausing|starting|restoring|recovery_failed) " +
+            "resume=0; case \"$state\" in active|paused) grep -qx duration=0 $d/policy.env && resume=1;; esac; " +
+            "/system/bin/sh "+RUNNER+" restore \"$id\" CONTROLLER_UPDATE || exit 1; " +
+            "if [ \"$resume\" = 1 ]; then n="+BASE+"/sessions/"+migrationId+"; mkdir $n && cp $d/policy.env $d/original.bin $d/trial.bin $n/ || exit 1; echo MIGRATE; fi;; esac; fi");
         root("mkdir -p "+BASE+"/sessions && chmod 700 "+BASE+" "+BASE+"/sessions; " +
             "if [ -f "+q(BASE+"/current")+" ]; then id=$(cat "+q(BASE+"/current")+"); state=$(cat "+BASE+"/sessions/$id/phase 2>/dev/null); " +
             "case \"$state\" in active|paused|thermal_paused|thermal_pausing|starting|restoring|recovery_failed) [ \"$(sha256sum "+RUNNER+" | cut -d ' ' -f 1)\" = "+q(scriptSha)+" ] || { echo ERROR RESTORE_BEFORE_UPDATE; exit 1; };; esac; fi; " +
             "cp "+q(script.getPath())+" "+RUNNER+".new && chown root:root "+RUNNER+".new && chmod 600 "+RUNNER+".new && mv "+RUNNER+".new "+RUNNER+" && /system/bin/sh -n "+RUNNER);
+        if(migration.contains("MIGRATE")) root("/system/bin/sh "+RUNNER+" start "+migrationId);
     }
-    Snapshot status() throws Exception { return new Snapshot(root("/system/bin/sh "+RUNNER+" status")); }
+    Snapshot status() throws Exception { return new Snapshot(root("/system/bin/sh "+RUNNER+" reconcile")); }
     void start(Policy p) throws Exception {
         p.validate(); if(codec==null) connect();
         if(!p.profile.device.equals(profile.device)) throw new IllegalStateException("策略设备与连接设备不一致");

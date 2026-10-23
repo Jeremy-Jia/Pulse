@@ -9,12 +9,13 @@ import android.os.*;
 public final class ThermalService extends Service implements ThermalHub.Listener {
     static final String START="dev.pulse.thermal.START", STOP="dev.pulse.thermal.STOP";
     static final int ID=71, ALERT_ID=72;
+    static volatile boolean running;
     ThermalHub hub;
     PowerManager.WakeLock wake;
     boolean requested=false;
     long bootWaitUntil=0;
     @Override public void onCreate() {
-        super.onCreate(); hub=ThermalHub.get(this);
+        super.onCreate(); running=true; hub=ThermalHub.get(this);
         getSystemService(NotificationManager.class).createNotificationChannel(new NotificationChannel("pulse_thermal","温控策略运行状态",NotificationManager.IMPORTANCE_LOW));
         getSystemService(NotificationManager.class).createNotificationChannel(new NotificationChannel("pulse_thermal_alerts","温度保护与自动恢复",NotificationManager.IMPORTANCE_DEFAULT));
         hub.listeners.add(this);
@@ -41,12 +42,16 @@ public final class ThermalService extends Service implements ThermalHub.Listener
     Notification notification(String text) {
         PendingIntent open=PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent stop=PendingIntent.getService(this,1,new Intent(this,ThermalService.class).setAction(STOP),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
-        return new Notification.Builder(this,"pulse_thermal").setSmallIcon(R.drawable.ic_thermal_status).setContentTitle("Pulse · "+(hub.snapshot.active()?"温控策略运行中":"温控策略"))
+        return new Notification.Builder(this,"pulse_thermal").setSmallIcon(R.drawable.ic_thermal_status).setContentTitle("Pulse · "+(hub.statusKnown&&hub.snapshot.s("state").equals("starting")?"温控策略启动中":hub.statusKnown&&hub.snapshot.active()?"温控策略运行中":"温控策略"))
             .setContentText(text).setContentIntent(open).setOngoing(true).setOnlyAlertOnce(true)
             .addAction(new Notification.Action.Builder(null,hub.snapshot.thermalPaused()?"停止自动恢复":"恢复原厂",stop).build()).build();
     }
     @Override public void update() {
         Snapshot s=hub.snapshot;
+        if(!hub.statusKnown || s.unprotected() || s.recoveryFailed() || s.restoring()) {
+            getSystemService(NotificationManager.class).notify(ID,notification(!hub.statusKnown?"状态待确认 · 正在重新读取 Root 守护":s.restoring()?"正在恢复原厂配置":s.reason()));
+            return;
+        }
         if(hub.statusKnown) postTransition(s);
         if(s.active()) {
             bootWaitUntil=0;
@@ -75,6 +80,6 @@ public final class ThermalService extends Service implements ThermalHub.Listener
         if(s.thermalPaused()) b.addAction(new Notification.Action.Builder(null,"停止自动恢复",stop).build());
         manager.notify(ALERT_ID,b.build()); prefs.edit().putString("last",key).apply();
     }
-    @Override public void onDestroy() { hub.listeners.remove(this); if(wake!=null && wake.isHeld()) wake.release(); super.onDestroy(); }
+    @Override public void onDestroy() { running=false; hub.listeners.remove(this); if(wake!=null && wake.isHeld()) wake.release(); super.onDestroy(); }
     @Override public IBinder onBind(Intent intent) { return null; }
 }

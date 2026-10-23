@@ -22,6 +22,12 @@ public final class MonitorInstrumentation extends Instrumentation {
     }
 
     @Override public void onStart() {
+        if("true".equals(options.getString("guard"))) {
+            Bundle result=new Bundle();int code=Activity.RESULT_CANCELED;
+            try { result.putString("report_json",dev.pulse.thermal.GuardChecks.run(this,options.getString("action","inspect")).toString());code=Activity.RESULT_OK; }
+            catch(Throwable e) { result.putString("failure",e.toString());result.putString("stream","FAIL: "+e); }
+            finish(code,result);return;
+        }
         if("true".equals(options.getString("research"))) {
             Bundle result=new Bundle();int code=Activity.RESULT_CANCELED;
             try{result.putString("report_json",ResearchChecks.run(this,options).toString());code=Activity.RESULT_OK;}

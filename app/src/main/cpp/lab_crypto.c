@@ -65,7 +65,7 @@ int main(int argc,char **argv){
  for(unsigned i=0;i<8;i++){make_message(m,rnd,i,round);if(sign_full(scratch,&siglen,m,sizeof(m),NULL,0,rnd,lab_kats[0].sk))return 5;}
  int cap_result=lab_cap_begin(cpu,cap);
  if(cap_result>0){
-  printf("{\"event\":\"result\",\"kind\":\"mldsa87\",\"backend\":\"%s\",\"result\":\"unsupported\",\"valid\":false,\"cap_restored\":true,\"detail\":\"Requested cap is outside current system policy bounds; no cap applied\"",PULSE_BACKEND);
+  printf("{\"event\":\"result\",\"kind\":\"mldsa87\",\"backend\":\"%s\",\"result\":\"unsupported\",\"valid\":false,\"cap_restored\":true,\"detail\":\"%s; no cap applied\"",PULSE_BACKEND,cap_result==2?"Readable independent QoS vote unavailable":"Requested cap is outside current system policy bounds");
   lab_telemetry_json(0,0);puts("}");free(signatures);free(latencies);free(messages);free(randomness);return 0;
  }
  if(cap_result<0){perror("Frequency cap");free(signatures);free(latencies);free(messages);free(randomness);return 6;}
